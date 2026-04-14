@@ -4,241 +4,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin KAVVIAR</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard Admin — KAVVIAR</title>
+
+    <!-- ===== ICONS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tiny.cloud/1/34g20fzax8dqgasgocu73owvzx09n1udj1ig3iie8zx8g8gu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-    <link rel="stylesheet" href="krebet-tour/css/admin.css">
+
+    <!-- ===== TINYMCE (Rich Text Editor untuk Berita) ===== -->
+    <script src="https://cdn.tiny.cloud/1/34g20fzax8dqgasgocu73owvzx09n1udj1ig3iie8zx8g8gu/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+    <!-- ===== TAILWIND CSS ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saddlebrown: '#8B4513',
+                        darkbrown: '#6f370f',
+                        gold: '#FFD700',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Scrollbar tipis agar dashboard terasa bersih */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8B4513;
+            border-radius: 99px;
+        }
+
+        /* Pastikan tabel header tidak berebut gaya dengan Tailwind reset */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        /* Thumbnail gambar di tabel */
+        .img-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-    <nav class="navbar navbar-dark sticky-top p-3" style="background-color: #8B4513; color: white;">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">Admin Panel KAVVIAR</span>
-            <button id="btnLogout" class="btn btn-light btn-sm px-3 py-2">Keluar</button>
+    <!-- ============================================================ -->
+    <!-- NAVBAR / HEADER ADMIN                                        -->
+    <!-- ============================================================ -->
+    <header class="sticky top-0 z-50 bg-saddlebrown shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between" aria-label="Navigasi Admin">
+
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-400/20 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-mask text-amber-300 text-sm"></i>
+                </div>
+                <span class="text-white font-bold tracking-widest text-sm">KAVVIAR</span>
+                <span class="hidden sm:inline text-amber-300/60 text-xs font-medium">Admin Panel</span>
+            </div>
+
+            <!-- Logout -->
+            <button id="btnLogout"
+                class="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                <span class="hidden sm:inline">Keluar</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT                                                 -->
+    <!-- ============================================================ -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+        <!-- ===== TOAST NOTIFICATION (global feedback) ===== -->
+        <div id="toastNotif"
+            class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-sm font-medium text-white transition-all duration-300"
+            role="alert" aria-live="polite">
+            <i id="toastIcon" class="text-base"></i>
+            <span id="toastText"></span>
         </div>
-    </nav>
 
-    <div class="cont-header container mt-4 mb-5">
-        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active text-dark" data-bs-toggle="tab"
-                    data-bs-target="#tab-produk">Produk</button></li>
-            <li class="nav-item"><button class="nav-link text-dark" data-bs-toggle="tab"
-                    data-bs-target="#tab-berita">Berita</button></li>
-            <li class="nav-item"><button class="nav-link text-dark" data-bs-toggle="tab"
-                    data-bs-target="#tab-kesenian">Kesenian</button></li>
-            <li class="nav-item"><button class="nav-link text-dark" data-bs-toggle="tab"
-                    data-bs-target="#tab-kelompok">Kelompok</button></li>
-        </ul>
+        <!-- ===== TAB NAVIGATION ===== -->
+        <div class="mb-6 border-b border-slate-200">
+            <nav class="flex gap-1 -mb-px overflow-x-auto" id="adminTabs" role="tablist" aria-label="Manajemen konten">
+                <button role="tab" aria-selected="true" aria-controls="tab-produk" data-tab="produk"
+                    class="tab-btn tab-active flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
+                    <i class="fa-solid fa-store"></i> Produk
+                </button>
+                <button role="tab" aria-selected="false" aria-controls="tab-berita" data-tab="berita"
+                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
+                    <i class="fa-regular fa-newspaper"></i> Berita
+                </button>
+                <button role="tab" aria-selected="false" aria-controls="tab-kesenian" data-tab="kesenian"
+                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
+                    <i class="fa-solid fa-masks-theater"></i> Kesenian
+                </button>
+                <button role="tab" aria-selected="false" aria-controls="tab-kelompok" data-tab="kelompok"
+                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
+                    <i class="fa-solid fa-users"></i> Kelompok
+                </button>
+            </nav>
+        </div>
 
-        <div class="tab-content bg-white p-4 border border-top-0 rounded-bottom shadow-sm">
+        <style>
+            .tab-active {
+                color: #8B4513;
+                border-color: #8B4513;
+            }
 
-            <div class="tab-pane fade show active" id="tab-produk">
-                <h4 id="titleProduk">Tambah Produk Baru</h4>
-                <form id="formProduk" class="mb-4 border p-3 rounded bg-light">
+            .tab-inactive {
+                color: #64748b;
+                border-color: transparent;
+            }
+
+            .tab-inactive:hover {
+                color: #475569;
+                background: #f8fafc;
+                border-radius: 0.5rem 0.5rem 0 0;
+            }
+        </style>
+
+        <!-- ===== TAB PANELS ===== -->
+
+        <!-- ============================================================ -->
+        <!-- TAB: PRODUK                                                   -->
+        <!-- ============================================================ -->
+        <section id="tab-produk" role="tabpanel" aria-labelledby="tab-btn-produk">
+
+            <!-- Form Tambah / Edit Produk -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+                <h2 id="titleProduk" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Produk Baru
+                </h2>
+
+                <form id="formProduk" class="space-y-4">
                     <input type="hidden" id="idProduk">
-                    <div class="row">
-                        <div class="mb-2">
-                            <label>Nama Produk</label>
-                            <input type="text" id="prodNama" class="form-control mt-1" required placeholder="Contoh: Kerajinan Anyaman">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Nama -->
+                        <div>
+                            <label for="prodNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
+                                Produk</label>
+                            <input type="text" id="prodNama" required placeholder="Contoh: Kerajinan Anyaman"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
                         </div>
-                        <div class="mb-2">
-                            <label>Harga (Rp)</label>
-                            <input type="number" id="prodHarga" class="form-control mt-1" required placeholder="Contoh: 50000">
+                        <!-- Harga -->
+                        <div>
+                            <label for="prodHarga" class="block text-sm font-medium text-slate-700 mb-1">Harga
+                                (Rp)</label>
+                            <input type="number" id="prodHarga" required placeholder="Contoh: 50000"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
                         </div>
-                        <div class="mb-2">
-                            <label>WhatsApp</label>
-                            <input type="text" id="prodWA" class="form-control mt-1" placeholder="Contoh: 6281234567890"
-                                required>
+                        <!-- WhatsApp -->
+                        <div>
+                            <label for="prodWA" class="block text-sm font-medium text-slate-700 mb-1">Nomor
+                                WhatsApp</label>
+                            <input type="text" id="prodWA" required placeholder="Contoh: 6281234567890"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
                         </div>
-                        <div class="mb-2">
-                            <label>Foto</label>
-                            <input type="file" id="prodFoto" class="form-control mt-1" accept="image/*">
-                            <small class="text-danger d-none" id="infoFotoProd">*Kosongkan jika tidak ganti foto</small>
+                        <!-- Foto -->
+                        <div>
+                            <label for="prodFoto" class="block text-sm font-medium text-slate-700 mb-1">Foto
+                                Produk</label>
+                            <input type="file" id="prodFoto" accept="image/*"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 file:text-xs hover:file:bg-slate-200 focus:outline-none transition">
+                            <p class="text-xs text-slate-400 mt-1 hidden" id="infoFotoProd">*Kosongkan jika tidak ingin
+                                ganti foto</p>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-start gap-2">
-                        <button type="submit" class="btn mt-2 text-white" id="btnSaveProd"
-                            style="background-color:#8B4513;" onmouseover="this.style.backgroundColor='#6f370f'"
-                            onmouseout="this.style.backgroundColor='#8B4513'">
-                            <i class="fa-solid fa-save m-2"></i>
-                            Simpan Produk
-                        </button>
 
-                        <button type="button" class="btn btn-secondary d-none mt-2" id="btnCancelProd">Batal</button>
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" id="btnSaveProd"
+                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-save"></i> Simpan Produk
+                        </button>
+                        <button type="button" id="btnCancelProd"
+                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
                     </div>
                 </form>
-
-                <hr>
-                <h5>Daftar Produk</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th class="p-3">Foto</th>
-                                <th class="p-3">Nama Produk</th>
-                                <th class="p-3">Harga</th>
-                                <th class="p-3">WhatsApp</th>
-                                <th class="p-3">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelProdukBody">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-dark btn-page" id="prevProduk" disabled>Previous</button>
-                    <button class="btn btn-outline-dark btn-page" id="nextProduk" disabled>Next</button>
-                </div>
             </div>
 
-            <div class="tab-pane fade" id="tab-berita">
-                <h4 id="titleBerita">Tambah Berita Baru</h4>
-                <form id="formBerita" class="mb-4 border p-3 rounded bg-light">
+            <!-- Daftar Produk -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Produk
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Foto</th>
+                                <th class="px-4 py-3 text-left">Nama Produk</th>
+                                <th class="px-4 py-3 text-left">Harga</th>
+                                <th class="px-4 py-3 text-left">WhatsApp</th>
+                                <th class="px-4 py-3 text-left">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelProdukBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
+                    <button id="prevProduk" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                    </button>
+                    <button id="nextProduk" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB: BERITA                                                   -->
+        <!-- ============================================================ -->
+        <section id="tab-berita" role="tabpanel" aria-labelledby="tab-btn-berita" class="hidden">
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+                <h2 id="titleBerita" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Berita Baru
+                </h2>
+
+                <form id="formBerita" class="space-y-4">
                     <input type="hidden" id="idBerita">
-                    <div class="mb-2">
-                        <label>Judul Berita</label>
-                        <input type="text" id="newsJudul" class="form-control mt-1" required placeholder="Contoh: Berita Seni di Krebet">
+
+                    <!-- Judul -->
+                    <div>
+                        <label for="newsJudul" class="block text-sm font-medium text-slate-700 mb-1">Judul
+                            Berita</label>
+                        <input type="text" id="newsJudul" required placeholder="Contoh: Berita Seni di Krebet"
+                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
                     </div>
-                    <div class="mb-2">
-                        <label>Penulis</label>
-                        <input type="text" id="newsPenulis" class="form-control mt-1" placeholder="Contoh: Nama Penulis" required>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Penulis -->
+                        <div>
+                            <label for="newsPenulis"
+                                class="block text-sm font-medium text-slate-700 mb-1">Penulis</label>
+                            <input type="text" id="newsPenulis" required placeholder="Contoh: Nama Penulis"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
+                        </div>
+                        <!-- Foto -->
+                        <div>
+                            <label for="newsFoto" class="block text-sm font-medium text-slate-700 mb-1">Foto
+                                Utama</label>
+                            <input type="file" id="newsFoto" accept="image/*"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 file:text-xs hover:file:bg-slate-200 focus:outline-none transition">
+                            <p class="text-xs text-slate-400 mt-1 hidden" id="infoFotoNews">*Kosongkan jika tidak ingin
+                                ganti foto</p>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label>Foto Utama</label>
-                        <input type="file" id="newsFoto" class="form-control mt-1" accept="image/*">
-                        <small class="text-danger d-none" id="infoFotoNews">*Kosongkan jika tidak ganti foto</small>
+
+                    <!-- Isi Berita (TinyMCE) -->
+                    <div>
+                        <label for="newsIsi" class="block text-sm font-medium text-slate-700 mb-1">Isi Berita</label>
+                        <textarea id="newsIsi" rows="4"></textarea>
                     </div>
-                    <div class="mb-2">
-                        <label>Isi Berita</label>
-                        <textarea id="newsIsi" class="form-control mt-1" rows="3"></textarea>
-                    </div>
-                    <div class="d-flex justify-content-start gap-2">
-                        <button type="submit" class="btn mt-2 text-white" id="btnSaveNews"
-                            style="background-color:#8B4513;" onmouseover="this.style.backgroundColor='#6f370f'"
-                            onmouseout="this.style.backgroundColor='#8B4513'">
-                            <i class="fa-solid fa-save m-2"></i>
-                            Simpan Berita
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" id="btnSaveNews"
+                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-save"></i> Simpan Berita
                         </button>
-                        <button type="button" class="btn btn-secondary d-none mt-2" id="btnCancelNews">Batal</button>
+                        <button type="button" id="btnCancelNews"
+                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
                     </div>
                 </form>
-
-                <hr>
-                <h5>Arsip Berita</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th class="p-3">Foto</th>
-                                <th class="p-3">Judul & Penulis</th>
-                                <th class="p-3">Tanggal</th>
-                                <th class="p-3">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelBeritaBody"></tbody>
-                    </table>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-dark btn-page" id="prevBerita" disabled>Previous</button>
-                    <button class="btn btn-outline-dark btn-page" id="nextBerita" disabled>Next</button>
-                </div>
             </div>
 
-            <div class="tab-pane fade" id="tab-kesenian">
-                <h4 id="titleKesenian">Tambah Galeri Kesenian</h4>
-                <form id="formKesenian" class="mb-4 border p-3 rounded bg-light">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Arsip Berita
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Foto</th>
+                                <th class="px-4 py-3 text-left">Judul &amp; Penulis</th>
+                                <th class="px-4 py-3 text-left">Tanggal</th>
+                                <th class="px-4 py-3 text-left">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelBeritaBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
+                    <button id="prevBerita" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                    </button>
+                    <button id="nextBerita" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB: KESENIAN                                                 -->
+        <!-- ============================================================ -->
+        <section id="tab-kesenian" role="tabpanel" aria-labelledby="tab-btn-kesenian" class="hidden">
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+                <h2 id="titleKesenian" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Galeri Kesenian
+                </h2>
+
+                <form id="formKesenian" class="space-y-4">
                     <input type="hidden" id="idKesenian">
-                    <div class="mb-2">
-                        <label>Nama Kesenian</label>
-                        <input type="text" id="artsNama" class="form-control mt-1" required placeholder="Contoh: Tari Tradisional">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="artsNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
+                                Kesenian</label>
+                            <input type="text" id="artsNama" required placeholder="Contoh: Tari Tradisional"
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
+                        </div>
+                        <div>
+                            <label for="artsLink" class="block text-sm font-medium text-slate-700 mb-1">Link Embed
+                                YouTube</label>
+                            <input type="text" id="artsLink" required placeholder="https://www.youtube.com/embed/..."
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label>Link Embed Youtube</label>
-                        <input type="text" id="artsLink" class="form-control mt-1"
-                            placeholder="Contoh: https://www.youtube.com/embed/..." required>
-                    </div>
-                    <div class="d-flex justify-content-start gap-2 mt-2">
-                        <button type="submit" class="btn mt-2 text-white" id="btnSaveArts"
-                            style="background-color:#8B4513;" onmouseover="this.style.backgroundColor='#6f370f'"
-                            onmouseout="this.style.backgroundColor='#8B4513'">
-                            <i class="fa-solid fa-save m-2"></i>
-                            Simpan Kesenian
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" id="btnSaveArts"
+                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-save"></i> Simpan Kesenian
                         </button>
-                        <button type="button" class="btn btn-secondary d-none mt-2" id="btnCancelArts">Batal</button>
+                        <button type="button" id="btnCancelArts"
+                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
                     </div>
                 </form>
-
-                <hr>
-                <h5>Daftar Kesenian</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th class="p-3">Nama Kesenian</th>
-                                <th class="p-3">Link Youtube</th>
-                                <th class="p-3">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelKesenianBody"></tbody>
-                    </table>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-dark btn-page" id="prevKesenian" disabled>Previous</button>
-                    <button class="btn btn-outline-dark btn-page" id="nextKesenian" disabled>Next</button>
-                </div>
             </div>
 
-            <div class="tab-pane fade" id="tab-kelompok">
-                <h4 id="titleKelompok">Tambah Kelompok Seni</h4>
-                <form id="formKelompok" class="mb-4 border p-3 rounded bg-light">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Kesenian
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Nama Kesenian</th>
+                                <th class="px-4 py-3 text-left">Link YouTube</th>
+                                <th class="px-4 py-3 text-left">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelKesenianBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
+                    <button id="prevKesenian" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                    </button>
+                    <button id="nextKesenian" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB: KELOMPOK SENI                                            -->
+        <!-- ============================================================ -->
+        <section id="tab-kelompok" role="tabpanel" aria-labelledby="tab-btn-kelompok" class="hidden">
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+                <h2 id="titleKelompok" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Kelompok Seni
+                </h2>
+
+                <form id="formKelompok" class="space-y-4">
                     <input type="hidden" id="idKelompok">
-                    <div class="mb-2">
-                        <label>Nama Kelompok</label>
-                        <input type="text" id="groupNama" class="form-control mt-1" required placeholder="Contoh: Kelompok Seni ABC">
+
+                    <div>
+                        <label for="groupNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
+                            Kelompok</label>
+                        <input type="text" id="groupNama" required placeholder="Contoh: Kelompok Seni ABC"
+                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
                     </div>
-                    <div class="mb-2">
-                        <label>Deskripsi</label>
-                        <textarea id="groupDesc" class="form-control mt-1" rows="2" required placeholder="Contoh: Kelompok Seni yang didirikan oleh.."></textarea>
+                    <div>
+                        <label for="groupDesc" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi</label>
+                        <textarea id="groupDesc" rows="3" required
+                            placeholder="Contoh: Kelompok seni yang didirikan oleh..."
+                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition resize-none"></textarea>
                     </div>
-                    <div class="d-flex justify-content-start gap-2 mt-2">
-                        <button type="submit" class="btn mt-2 text-white" id="btnSaveGroup"
-                            style="background-color:#8B4513;" onmouseover="this.style.backgroundColor='#6f370f'"
-                            onmouseout="this.style.backgroundColor='#8B4513'">
-                            <i class="fa-solid fa-save m-2"></i>
-                            Simpan Kelompok
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" id="btnSaveGroup"
+                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-save"></i> Simpan Kelompok
                         </button>
-                        <button type="button" class="btn btn-secondary d-none mt-2" id="btnCancelGroup">Batal
-                            Edit</button>
+                        <button type="button" id="btnCancelGroup"
+                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                            <i class="fa-solid fa-xmark"></i> Batal Edit
+                        </button>
                     </div>
                 </form>
-
-                <hr>
-                <h5>Daftar Kelompok</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th class="p-3">Nama Kelompok</th>
-                                <th class="p-3">Deskripsi</th>
-                                <th class="p-3">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelKelompokBody"></tbody>
-                    </table>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-dark btn-page" id="prevKelompok" disabled>Previous</button>
-                    <button class="btn btn-outline-dark btn-page" id="nextKelompok" disabled>Next</button>
-                </div>
             </div>
 
-        </div>
-    </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Kelompok
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Nama Kelompok</th>
+                                <th class="px-4 py-3 text-left">Deskripsi</th>
+                                <th class="px-4 py-3 text-left">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelKelompokBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
+                    <button id="prevKelompok" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                    </button>
+                    <button id="nextKelompok" disabled
+                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPTS                                                      -->
+    <!-- ============================================================ -->
+
+    <!-- Tab switching logic (vanilla JS, tidak perlu Bootstrap) -->
+    <script>
+            /**
+             * Logika Tab switching untuk Admin Dashboard.
+             * Tidak memerlukan Bootstrap — menggunakan class Tailwind dan ARIA.
+             */
+            (function initAdminTabs() {
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const targetId = btn.dataset.tab;
+
+                        /* Update tab button states */
+                        tabBtns.forEach(b => {
+                            b.classList.replace('tab-active', 'tab-inactive');
+                            b.setAttribute('aria-selected', 'false');
+                        });
+                        btn.classList.replace('tab-inactive', 'tab-active');
+                        btn.setAttribute('aria-selected', 'true');
+
+                        /* Show/hide panels */
+                        tabPanels.forEach(panel => {
+                            panel.classList.toggle('hidden', panel.id !== `tab-${targetId}`);
+                        });
+                    });
+                });
+            })();
+
+        /**
+         * Tampilkan toast notification.
+         * @param {string} message - Pesan yang ditampilkan
+         * @param {'success'|'error'|'warning'} type - Jenis notifikasi
+         */
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotif');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastText = document.getElementById('toastText');
+
+            const config = {
+                success: { bg: 'bg-green-600', icon: 'fa-solid fa-circle-check' },
+                error: { bg: 'bg-red-600', icon: 'fa-solid fa-circle-xmark' },
+                warning: { bg: 'bg-amber-500', icon: 'fa-solid fa-triangle-exclamation' },
+            };
+
+            const { bg, icon } = config[type] || config.success;
+
+            toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-sm font-medium text-white transition-all duration-300 ${bg}`;
+            toastIcon.className = icon;
+            toastText.textContent = message;
+
+            /* Auto-hide setelah 3 detik */
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        /* Expose ke global scope agar admin.js bisa mengakses */
+        window.showToast = showToast;
+    </script>
+
+    <!-- Admin JS (Firebase CRUD logic — Module, tidak disentuh) -->
     <script type="module" src="admin.js"></script>
+
 </body>
 
 </html>

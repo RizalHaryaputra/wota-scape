@@ -1,445 +1,247 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
 	<title>KAVVIAR - Krebet Arts Village Virtual Reality</title>
-	<meta name="description" content="Virtual Tour Desa Wisata Krebet">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="description" content="Virtual Tour 360° Desa Wisata Krebet, Bantul, Yogyakarta.">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
 	<meta name="viewport"
 		content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, shrink-to-fit=no">
 
+	<!-- ===== BOOTSTRAP 5 — Dipertahankan untuk komponen Modal & Tab API ===== -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- ===== ICONS ===== -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<!-- ===== SWIPER ===== -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
 
-	<style>
-		/* --- PERBAIKAN UTAMA CSS --- */
-
-		/* Pastikan Modal & Backdrop Bootstrap SELALU di atas Canvas 3Sixty */
-		.modal {
-			z-index: 10055 !important;
-		}
-
-		.modal-backdrop {
-			z-index: 10050 !important;
-		}
-
-		/* Pastikan konten modal bisa menerima event klik (pointer) */
-		.modal-content {
-			pointer-events: auto !important;
-		}
-
-		/* --- END PERBAIKAN --- */
-
-		/* Scrollbar */
-		::-webkit-scrollbar {
-			width: 0.25em;
-			height: 0.25em;
-		}
-
-		::-webkit-scrollbar-track {
-			background: #2c3643;
-		}
-
-		::-webkit-scrollbar-thumb {
-			background: #8B4513;
-			transition: background .5s;
-		}
-
-		::-webkit-scrollbar-thumb:hover {
-			background: #A0522D;
-		}
-
-		body {
-			margin: 0;
-			overflow: hidden;
-			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		}
-
-		#container {
-			width: 100vw;
-			height: 100vh;
-			display: block;
-			position: absolute;
-			top: 0;
-			left: 0;
-			z-index: 0;
-			transition: opacity 0.5s ease-in-out;
-			/* Canvas paling bawah */
-		}
-
-		/* UI OVERLAY */
-		.overlay-ui {
-			position: absolute;
-			z-index: 999;
-			pointer-events: none;
-			/* Biarkan tembus pandang, tapi aktifkan pointer pada child element */
-		}
-
-		.overlay-ui * {
-			pointer-events: auto;
-			/* Child element (tombol/link) bisa diklik */
-		}
-
-		/* NAVBAR */
-		.navbar-glass {
-			background: rgba(139, 69, 19, 0.85);
-			backdrop-filter: blur(10px);
-			border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-			width: 100%;
-			top: 0;
-			padding-right: 1rem;
-			padding-left: 1rem;
-		}
-
-		.navbar-brand {
-			color: #FFD700 !important;
-			font-weight: bold;
-			letter-spacing: 1px;
-		}
-
-		.navbar-glass .nav-link {
-			color: white !important;
-			transition: 0.3s;
-			margin: 0 10px;
-		}
-
-		.navbar-glass .nav-link:hover {
-			color: #FFD700 !important;
-			/* Warna Emas saat hover */
-			transform: scale(1.05);
-		}
-
-		.modal-body,
-		.modal-body p,
-		.modal-body h1,
-		.modal-body h2,
-		.modal-body h3,
-		.modal-body h4,
-		.modal-body h5,
-		.modal-body h6,
-		.modal-body li,
-		.modal-body span {
-			color: #212529 !important;
-			text-align: left;
-		}
-
-		.modal .nav-tabs .nav-link {
-			color: #495057 !important;
-			font-weight: 600;
-		}
-
-		.modal .nav-tabs .nav-link.active {
-			color: #000000 !important;
-			border-color: #dee2e6 #dee2e6 #fff;
-			background-color: #fff;
-		}
-
-		/* FLOATING BUTTONS */
-		.floating-controls {
-			position: absolute;
-			right: 20px;
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
-			z-index: 999;
-		}
-
-		.controls-center {
-			top: 50%;
-			transform: translateY(-50%);
-		}
-
-		.controls-bottom {
-			bottom: 20px;
-		}
-
-		.btn-circle {
-			width: 45px;
-			height: 45px;
-			border-radius: 50%;
-			background-color: #8B4513;
-			color: white;
-			border: 2px solid rgba(255, 255, 255, 0.5);
-			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-			transition: all 0.3s;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-		}
-
-		.btn-circle:hover {
-			background-color: #FFD700;
-			color: #8B4513;
-			transform: scale(1.1);
-		}
-
-		/* MODAL STYLING */
-		.modal-content {
-			background-color: rgba(255, 255, 255, 0.95);
-			border-radius: 15px;
-			border: none;
-		}
-
-		.modal-header {
-			background-color: #8B4513;
-			color: white;
-			border-top-left-radius: 15px;
-			border-top-right-radius: 15px;
-		}
-
-		.btn-close {
-			filter: invert(1);
-			opacity: 1;
-		}
-
-		/* MAPS OVERLAY */
-		#mapOverlay {
-			position: absolute;
-			bottom: 80px;
-			right: 80px;
-			width: 300px;
-			height: 200px;
-			border: 4px solid white;
-			border-radius: 10px;
-			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-			z-index: 998;
-			display: none;
-			overflow: hidden;
-		}
-
-		/* SWIPER SLIDE */
-		.swiper {
-			width: 100%;
-			height: 100%;
-			min-height: 300px;
-			/* Beri tinggi minimum */
-		}
-
-		.swiper-slide {
-			text-align: center;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			background: #000;
-		}
-
-		.card-product {
-			border: 1px solid #ddd;
-			border-radius: 10px;
-			overflow: hidden;
-			transition: 0.3s;
-		}
-
-		.card-product:hover {
-			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-		}
-
-		/* LOADING SCREEN */
-		#overlay {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background-color: rgba(0, 0, 0, 0.8);
-			color: white;
-			font-size: 2rem;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			z-index: 9999;
-			opacity: 0;
-			pointer-events: none;
-			transition: opacity 0.5s ease;
-		}
-
-		/* Teks Desa Wisata Krebet di kiri bawah */
-		#bottomLeftText {
-			position: absolute;
-			bottom: 20px;
-			left: 20px;
-			color: white;
-			background: rgba(0, 0, 0, 0.6);
-			padding: 8px 15px;
-			border-radius: 50px;
-			font-size: 1rem;
-			font-weight: medium;
-			z-index: 999;
-			pointer-events: none;
-			/* Agar tidak menghalangi klik di bawahnya */
-		}
-
-		/* Keyframes untuk animasi bounce hotspot */
-		@keyframes hotspotBounce {
-
-			0%,
-			100% {
-				transform: translateY(0);
-			}
-
-			50% {
-				transform: translateY(-8px);
-			}
-
-			/* Bergerak 8px ke atas */
-		}
-
-		/* --- GLOBAL LOADING SCREEN --- */
-		#global-loader {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background-color: #1a1a1a;
-			/* Warna latar gelap */
-			z-index: 99999;
-			/* Pastikan paling atas menutupi Navbar */
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			color: #FFD700;
-			transition: opacity 0.5s ease-out;
-		}
-
-		.loader-spinner {
-			width: 50px;
-			height: 50px;
-			border: 5px solid rgba(255, 215, 0, 0.3);
-			border-top: 5px solid #FFD700;
-			border-radius: 50%;
-			animation: spin 1s linear infinite;
-			margin-bottom: 15px;
-		}
-
-		@keyframes spin {
-			0% {
-				transform: rotate(0deg);
-			}
-
-			100% {
-				transform: rotate(360deg);
+	<!-- ===== TAILWIND CSS ===== -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			corePlugins: { preflight: false }, /* Nonaktifkan reset Tailwind agar tidak konflik Bootstrap */
+			theme: {
+				extend: {
+					colors: {
+						gold: '#FFD700',
+						saddlebrown: '#8B4513',
+						darkbrown: '#6f370f',
+					},
+					zIndex: {
+						'canvas': '0',
+						'ui': '999',
+						'map': '998',
+						'loader': '99999',
+					}
+				}
 			}
 		}
+	</script>
 
-		/* Style untuk Konten Berita (HTML dari TinyMCE) */
-		.news-content-body img {
-			max-width: 100%;
-			height: auto;
-			border-radius: 5px;
-			margin: 10px 0;
-		}
+	<!-- ===== CUSTOM CSS (hanya untuk hal non-Tailwind) ===== -->
+	<link rel="stylesheet" type="text/css" href="css/custom.css">
 
-		.news-content-body p {
-			margin-bottom: 1rem;
-			line-height: 1.6;
-		}
-	</style>
-
+	<!-- imagedata.js harus dimuat sebelum Three.js script agar `hotspotIcons` tersedia -->
 	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
 	<script src="js/jquery.js"></script>
 	<script src="js/imagedata.js"></script>
 	<script>if (window.module) module = window.module;</script>
+
 </head>
 
-<body>
-	<div id="global-loader">
-		<div class="loader-spinner"></div>
-		<h4>Memuat Virtual Tour...</h4>
+<body class="m-0 overflow-hidden" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+	<!-- ============================================================ -->
+	<!-- LAYER 1: GLOBAL LOADING SCREEN                               -->
+	<!-- Menutupi seluruh halaman saat panorama pertama dimuat        -->
+	<!-- ============================================================ -->
+	<div id="global-loader"
+		class="fixed inset-0 z-[loader] bg-[#1a1a1a] flex flex-col justify-center items-center text-gold transition-opacity duration-500">
+		<div class="loader-spinner mb-4"></div>
+		<h4 class="text-gold text-base font-medium tracking-widest">Memuat Virtual Tour...</h4>
 	</div>
-	<nav class="navbar navbar-expand-lg navbar-glass overlay-ui">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="/"><i class="fa-solid fa-mask me-2"></i>KAVVIAR</a>
-			<button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-				<ul class="navbar-nav">
-					<li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal"
-							data-bs-target="#modalProfil">Profil & Seniman</a></li>
-					<li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal"
-							data-bs-target="#modalKesenian">Galeri Kesenian</a></li>
-					<li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal"
-							data-bs-target="#modalProduk">Katalog Produk</a></li>
-					<li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal"
-							data-bs-target="#modalBerita">Berita Desa</a></li>
-				</ul>
+
+	<!-- ============================================================ -->
+	<!-- LAYER 2: THREE.JS CANVAS CONTAINER                           -->
+	<!-- Diposisikan absolut paling bawah (z-index: 0 via custom.css) -->
+	<!-- ============================================================ -->
+	<div id="container"></div>
+
+	<!-- Overlay transisi antar-panorama -->
+	<div id="overlay"
+		class="absolute inset-0 w-screen h-screen bg-black/80 text-white text-3xl flex justify-center items-center z-[ui] opacity-0 pointer-events-none transition-opacity duration-500">
+		Loading...
+	</div>
+
+	<!-- ============================================================ -->
+	<!-- LAYER 3: UI OVERLAY                                          -->
+	<!-- Semua elemen antarmuka yang melayang di atas canvas          -->
+	<!-- ============================================================ -->
+
+	<!-- === NAVBAR === -->
+	<header class="absolute top-0 left-0 w-full z-[ui] pointer-events-none">
+		<nav class="navbar navbar-expand-lg w-full px-4 py-2 pointer-events-auto"
+			style="background: rgba(139,69,19,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.15);"
+			aria-label="Navigasi utama KAVVIAR">
+
+			<div class="container-fluid">
+				<!-- Brand -->
+				<a class="navbar-brand fw-bold tracking-widest" href="/"
+					style="color: #FFD700; letter-spacing: 0.08em;">
+					<i class="fa-solid fa-mask me-2"></i>KAVVIAR
+				</a>
+
+				<!-- Toggler (mobile) -->
+				<button class="navbar-toggler bg-white/20 border-0 p-2" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Buka menu">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<!-- Nav Links -->
+				<div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+					<ul class="navbar-nav gap-1">
+						<li class="nav-item">
+							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+								data-bs-toggle="modal" data-bs-target="#modalProfil">
+								Profil &amp; Seniman
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+								data-bs-toggle="modal" data-bs-target="#modalKesenian">
+								Galeri Kesenian
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+								data-bs-toggle="modal" data-bs-target="#modalProduk">
+								Katalog Produk
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+								data-bs-toggle="modal" data-bs-target="#modalBerita">
+								Berita Desa
+							</a>
+						</li>
+					</ul>
+				</div>
 			</div>
-		</div>
-	</nav>
+		</nav>
+	</header>
 
-	<div class="floating-controls controls-center">
-		<button class="btn btn-circle" onclick="customZoomIn()" title="Zoom In"><i
-				class="fa-solid fa-plus"></i></button>
-		<button class="btn btn-circle" onclick="customZoomOut()" title="Zoom Out"><i
-				class="fa-solid fa-minus"></i></button>
-		<button class="btn btn-circle" onclick="toggleAutoRotate()" title="Auto Rotate"><i
-				class="fa-solid fa-sync"></i></button>
-	</div>
+	<!-- === FLOATING CONTROLS — TENGAH KANAN (Zoom & Rotate) === -->
+	<aside class="absolute right-5 top-1/2 -translate-y-1/2 z-[ui] flex flex-col gap-2.5" aria-label="Kontrol kamera">
+		<button
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="customZoomIn()" title="Zoom In">
+			<i class="fa-solid fa-plus text-sm"></i>
+		</button>
+		<button
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="customZoomOut()" title="Zoom Out">
+			<i class="fa-solid fa-minus text-sm"></i>
+		</button>
+		<button
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="toggleAutoRotate()" title="Auto Rotate">
+			<i class="fa-solid fa-sync text-sm"></i>
+		</button>
+	</aside>
 
-	<div class="floating-controls controls-bottom">
-		<button class="btn btn-circle" id="btnSound" onclick="toggleSound()" title="Musik"><i
-				class="fa-solid fa-volume-xmark"></i></button>
-		<button class="btn btn-circle" onclick="toggleMap()" title="Peta Desa"><i
-				class="fa-solid fa-map-location-dot"></i></button>
-		<button class="btn btn-circle" onclick="toggleFullscreen()" title="Fullscreen"><i
-				class="fa-solid fa-expand"></i></button>
+	<!-- === FLOATING CONTROLS — BAWAH KANAN (Sound, Map, Fullscreen) === -->
+	<aside class="absolute right-5 bottom-5 z-[ui] flex flex-col gap-2.5" aria-label="Kontrol tambahan">
+		<button id="btnSound"
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="toggleSound()" title="Toggle Musik">
+			<i class="fa-solid fa-volume-xmark text-sm"></i>
+		</button>
+		<button
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="toggleMap()" title="Peta Desa">
+			<i class="fa-solid fa-map-location-dot text-sm"></i>
+		</button>
+		<button
+			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
+			onclick="toggleFullscreen()" title="Fullscreen">
+			<i class="fa-solid fa-expand text-sm"></i>
+		</button>
+	</aside>
 
-		<!-- <button class="btn btn-circle" onclick="togglePicker()" title="Position Picker">
-			<i class="fa-solid fa-crosshairs"></i>
-		</button> -->
+	<!-- === LABEL NAMA LOKASI — KIRI BAWAH === -->
+	<p id="bottomLeftText"
+		class="absolute bottom-5 left-5 z-[ui] text-white bg-black/60 px-4 py-2 rounded-full text-sm pointer-events-none">
+		Desa Wisata Krebet
+	</p>
 
-	</div>
-
-	<div id="mapOverlay">
+	<!-- === MAP OVERLAY === -->
+	<div id="mapOverlay"
+		class="absolute bottom-20 right-20 w-[300px] h-[200px] border-4 border-white rounded-xl shadow-2xl z-[map] hidden overflow-hidden">
 		<iframe
 			src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7904.707837966173!2d110.29424334740732!3d-7.857979489714501!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7af8ecffffffff%3A0xd0279595d07b3187!2sDesa%20Wisata%20Krebet%20Pajangan!5e0!3m2!1sid!2sid!4v1763599329532!5m2!1sid!2sid"
-			width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+			width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy" title="Peta Desa Wisata Krebet">
+		</iframe>
 	</div>
 
+	<!-- === BACKGROUND AUDIO === -->
 	<audio id="bgAudio" loop>
 		<source src="audio/gamelan.mp3" type="audio/mpeg">
 	</audio>
 
+
+	<!-- ============================================================ -->
+	<!-- BOOTSTRAP MODALS                                             -->
+	<!-- Ditempatkan di luar flow layout, sebelum </body>             -->
+	<!-- ============================================================ -->
+
+	<!-- === MODAL: PROFIL & SENIMAN === -->
 	<div class="modal fade" id="modalProfil" tabindex="-1" aria-labelledby="modalProfilLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="modalProfilLabel"><i class="fa-solid fa-users me-2"></i>Profil KAVVIAR
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold" id="modalProfilLabel">
+						<i class="fa-solid fa-users me-2"></i>Profil KAVVIAR
 					</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-					<ul class="nav nav-tabs" id="myTab" role="tablist">
+				<div class="modal-body text-dark" style="max-height: 70vh; overflow-y: auto;">
+					<!-- Tab Navigation -->
+					<ul class="nav nav-tabs" id="profilTab" role="tablist">
 						<li class="nav-item" role="presentation">
-							<button class="nav-link active text-dark" id="pengurus-tab" data-bs-toggle="tab"
+							<button class="nav-link active fw-semibold text-dark" id="pengurus-tab" data-bs-toggle="tab"
 								data-bs-target="#tab-pengurus" type="button" role="tab" aria-controls="tab-pengurus"
-								aria-selected="true">Pengurus Seni</button>
+								aria-selected="true">
+								Pengurus Seni
+							</button>
 						</li>
 						<li class="nav-item" role="presentation">
-							<button class="nav-link text-dark" id="kelompok-tab" data-bs-toggle="tab"
+							<button class="nav-link fw-semibold text-dark" id="kelompok-tab" data-bs-toggle="tab"
 								data-bs-target="#tab-kelompok" type="button" role="tab" aria-controls="tab-kelompok"
-								aria-selected="false">Kelompok Seni</button>
+								aria-selected="false">
+								Kelompok Seni
+							</button>
 						</li>
 					</ul>
-					<div class="tab-content p-3" id="myTabContent">
+
+					<!-- Tab Content -->
+					<div class="tab-content p-3" id="profilTabContent">
+						<!-- Tab: Pengurus -->
 						<div class="tab-pane fade show active" id="tab-pengurus" role="tabpanel"
 							aria-labelledby="pengurus-tab">
-							<h6>Struktur Pengurus Desa Wisata Krebet</h6>
-							<img src="images/struktur-pengurus.png" alt="Pengurus Desa Wisata Krebet"
-								class="img-fluid rounded mb-3">
+							<h6 class="fw-semibold mb-3 text-dark">Struktur Pengurus Desa Wisata Krebet</h6>
+							<img src="images/struktur-pengurus.png" alt="Struktur Pengurus Desa Wisata Krebet"
+								class="img-fluid rounded-lg">
 						</div>
+						<!-- Tab: Kelompok Seni (diisi Firebase) -->
 						<div class="tab-pane fade" id="tab-kelompok" role="tabpanel" aria-labelledby="kelompok-tab">
 							<ul class="list-group" id="listKelompok">
 								<li class="list-group-item text-center py-4">
-									<div class="spinner-border text-primary spinner-border-sm" role="status"></div>
-									<span class="ms-2">Memuat data kelompok...</span>
+									<div class="spinner-border text-warning spinner-border-sm" role="status"></div>
+									<span class="ms-2 text-muted">Memuat data kelompok...</span>
 								</li>
 							</ul>
 						</div>
@@ -449,18 +251,20 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalKesenian" tabindex="-1" aria-hidden="true">
+	<!-- === MODAL: GALERI KESENIAN === -->
+	<div class="modal fade" id="modalKesenian" tabindex="-1" aria-label="Galeri Kesenian" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Galeri Kesenian</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold">
+						<i class="fa-solid fa-masks-theater me-2"></i>Galeri Kesenian
+					</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body">
-					<div class="swiper mySwiper">
-						<div class="swiper-wrapper" id="kesenianContainer">
-						</div>
-
+				<div class="modal-body p-0">
+					<div class="swiper mySwiper" style="min-height: 350px;">
+						<div class="swiper-wrapper" id="kesenianContainer"></div>
 						<div class="swiper-button-next"></div>
 						<div class="swiper-button-prev"></div>
 						<div class="swiper-pagination"></div>
@@ -470,18 +274,20 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalProduk" tabindex="-1" aria-hidden="true">
+	<!-- === MODAL: KATALOG PRODUK === -->
+	<div class="modal fade" id="modalProduk" tabindex="-1" aria-label="Katalog Produk" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Katalog Produk</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold">
+						<i class="fa-solid fa-store me-2"></i>Katalog Produk
+					</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body">
-					<div class="swiper mySwiperProduk">
-						<div class="swiper-wrapper" id="produkContainer">
-						</div>
-
+				<div class="modal-body p-0">
+					<div class="swiper mySwiperProduk" style="min-height: 350px;">
+						<div class="swiper-wrapper" id="produkContainer"></div>
 						<div class="swiper-button-next"></div>
 						<div class="swiper-button-prev"></div>
 						<div class="swiper-pagination"></div>
@@ -491,32 +297,40 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalMedia" tabindex="-1" aria-hidden="true">
+	<!-- === MODAL: INFO MEDIA (Gambar / Video / Audio dari Hotspot) === -->
+	<div class="modal fade" id="modalMedia" tabindex="-1" aria-label="Info Media" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Info Detail</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold">
+						<i class="fa-solid fa-circle-info me-2"></i>Info Detail
+					</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body text-center" id="modalMediaContent"
-					style="background: #000; min-height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 0 0 15px 15px;">
+				<div class="modal-body text-center d-flex align-items-center justify-content-center p-0"
+					id="modalMediaContent" style="background: #000; min-height: 200px; border-radius: 0 0 1rem 1rem;">
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalBerita" tabindex="-1" aria-hidden="true">
+	<!-- === MODAL: DAFTAR BERITA === -->
+	<div class="modal fade" id="modalBerita" tabindex="-1" aria-label="Berita Desa" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title"><i class="fa-regular fa-newspaper me-2"></i>Kabar Krebet</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold">
+						<i class="fa-regular fa-newspaper me-2"></i>Kabar Krebet
+					</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body bg-light">
 					<div id="newsListContainer" class="row g-3">
 						<div class="col-12 text-center py-5">
-							<div class="spinner-border text-primary" role="status"></div>
-							<p class="mt-2">Memuat berita...</p>
+							<div class="spinner-border text-warning" role="status"></div>
+							<p class="mt-2 text-muted">Memuat berita...</p>
 						</div>
 					</div>
 				</div>
@@ -524,768 +338,66 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="modalDetailBerita" tabindex="-1" aria-hidden="true">
+	<!-- === MODAL: DETAIL BERITA === -->
+	<div class="modal fade" id="modalDetailBerita" tabindex="-1" aria-label="Detail Berita" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="detailNewsTitle">Judul Berita</h5>
-
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-content rounded-2xl border-0 overflow-hidden">
+				<div class="modal-header text-white" style="background-color: #8B4513;">
+					<h5 class="modal-title fw-bold" id="detailNewsTitle">Judul Berita</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body">
 					<img id="detailNewsImg" src="" class="img-fluid rounded w-100 mb-3"
-						style="max-height: 400px; object-fit: cover; display: none;">
+						style="max-height: 400px; object-fit: cover; display: none;" alt="Foto berita">
 
 					<div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
 						<div class="text-muted small">
-							<i class="fa-regular fa-calendar me-1"></i> <span id="detailNewsDate">-</span> &nbsp;|&nbsp;
-							<i class="fa-regular fa-user me-1"></i> <span id="detailNewsAuthor">-</span>
+							<i class="fa-regular fa-calendar me-1"></i>
+							<span id="detailNewsDate">-</span>
+							&nbsp;|&nbsp;
+							<i class="fa-regular fa-user me-1"></i>
+							<span id="detailNewsAuthor">-</span>
 						</div>
-						<button type="button" class="btn btn-primary btn-sm ms-auto" data-bs-toggle="modal"
-							data-bs-target="#modalBerita">
-
-							<i class="fa-solid fa-arrow-left"></i> Kembali
+						<button type="button" class="btn btn-sm ms-auto" style="background-color:#8B4513; color:white;"
+							data-bs-toggle="modal" data-bs-target="#modalBerita">
+							<i class="fa-solid fa-arrow-left me-1"></i>Kembali
 						</button>
 					</div>
 
-					<div id="detailNewsContent" class="news-content-body"></div>
+					<div id="detailNewsContent" class="news-content-body text-dark"></div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div id="bottomLeftText" class="overlay-ui"> Desa Wisata Krebet </div>
+	<!-- ============================================================ -->
+	<!-- SCRIPTS                                                      -->
+	<!-- Urutan pemuatan penting: Three.js → OrbitControls →          -->
+	<!-- inline Three.js logic → Bootstrap → Swiper →                 -->
+	<!-- main-dynamic.js (Firebase) → ui-controller.js               -->
+	<!-- ============================================================ -->
 
-	<div id="container"></div>
-	<div id="overlay">Loading...</div>
-
+	<!-- Three.js Libraries -->
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
 
-	<script>
-		let scene, camera, renderer, controls;
-		let spriteHotspots = [];
-		let panoramaMesh;
-		let targetFov = 70;
-		let initialFov = 70;
-		let initialPinchDistance = null;
-		const overlay = document.getElementById('overlay');
-		const raycaster = new THREE.Raycaster();
-		const mouse = new THREE.Vector2();
-
-
-		init();
-		animate();
-
-		/*initfunction*/
-		let currentPanorama = '1.jpg';
-		let previousPanorama = null;
-		function init() {
-			const container = document.getElementById('container');
-			scene = new THREE.Scene();
-			camera = new THREE.PerspectiveCamera(20, container.clientWidth / container.clientHeight, 0.1, 1000);
-			camera.position.set(0.1, -0.035, 0);
-
-			renderer = new THREE.WebGLRenderer({ antialias: true });
-			renderer.setSize(container.clientWidth, container.clientHeight);
-			container.appendChild(renderer.domElement);
-
-			controls = new THREE.OrbitControls(camera, renderer.domElement);
-			controls.enableZoom = true;
-			controls.minDistance = 0.1;
-			controls.maxDistance = 5;
-			controls.enablePan = false;
-			controls.rotateSpeed = -0.3;
-			controls.enableDamping = true;
-			controls.dampingFactor = 0.1;
-			controls.autoRotate = false;
-
-			const geometry = new THREE.SphereGeometry(500, 60, 40);
-			geometry.scale(-1, 1, 1);
-			const textureLoader = new THREE.TextureLoader();
-
-			// Load panorama pertama
-			textureLoader.load('panoramas/1.jpg', function (texture) {
-				// 1. Pasang tekstur & hotspot (Proses ini tetap jalan di background)
-				const material = new THREE.MeshBasicMaterial({ map: texture });
-				panoramaMesh = new THREE.Mesh(geometry, material);
-				scene.add(panoramaMesh);
-				loadHotspotsFor('1.jpg');
-
-				// 2. UPDATE: Tahan Loading Screen selama 2 Detik (2000ms)
-				setTimeout(() => {
-					const loaderScreen = document.getElementById('global-loader');
-					if (loaderScreen) {
-						// Mulai animasi fade-out
-						loaderScreen.style.opacity = '0';
-
-						// Hapus elemen setelah animasi fade-out selesai (0.5 detik kemudian)
-						setTimeout(() => {
-							loaderScreen.style.display = 'none';
-						}, 500);
-					}
-				}, 2000); // <-- Angka 2000 ini adalah 2 detik
-
-			},
-				// onProgress
-				function (xhr) {
-					console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-				},
-				// onError
-				function (error) {
-					console.error('Error loading panorama:', error);
-				});
-
-			window.addEventListener('resize', onWindowResize);
-			renderer.domElement.addEventListener('wheel', onMouseWheel, { passive: false });
-			renderer.domElement.addEventListener('pointermove', onPointerMove, false);
-
-			// Event listener click pada Hotspot
-			// --- LOGIKA INTERAKSI (MOUSE & TOUCH) YANG AMAN ---
-
-			let isDragging = false;
-			let startX = 0;
-			let startY = 0;
-
-			// 1. Deteksi awal sentuhan/klik
-			document.addEventListener('pointerdown', function (event) {
-				isDragging = false;
-				startX = event.clientX;
-				startY = event.clientY;
-			});
-
-			// 2. Deteksi gerakan (Apakah user sedang menggeser layar?)
-			document.addEventListener('pointermove', function (event) {
-				// Jika jari/mouse bergerak lebih dari 5 pixel, anggap itu DRAG (bukan klik)
-				if (Math.abs(event.clientX - startX) > 5 || Math.abs(event.clientY - startY) > 5) {
-					isDragging = true;
-				}
-			});
-
-			// 3. Eksekusi saat jari/mouse diangkat (Hanya jika TIDAK drag)
-			document.addEventListener('pointerup', function (event) {
-
-				// A. Filter: Jangan jalan kalau klik di atas UI (Navbar/Modal/Tombol)
-				if (event.target.closest('.navbar') ||
-					event.target.closest('.floating-controls') ||
-					event.target.closest('.modal') ||
-					event.target.closest('.modal-backdrop')) {
-					return;
-				}
-
-				// B. Filter: Jangan jalan kalau user habis menggeser layar (Drag)
-				if (isDragging) return;
-
-				// --- C. LOGIKA PICKER MODE (DEV TOOL) ---
-				if (pickerMode) {
-					const mousePos = new THREE.Vector2(
-						(event.clientX / window.innerWidth) * 2 - 1,
-						-(event.clientY / window.innerHeight) * 2 + 1
-					);
-					const pickerRay = new THREE.Raycaster();
-					pickerRay.setFromCamera(mousePos, camera);
-					const intersects = pickerRay.intersectObject(panoramaMesh);
-
-					if (intersects.length > 0) {
-						const point = intersects[0].point;
-						placePickerMarker(point);
-						const coords = `new THREE.Vector3(${point.x.toFixed(2)}, ${point.y.toFixed(2)}, ${point.z.toFixed(2)})`;
-						console.log("%c📍 KOORDINAT:", "color: #00ff00;", coords);
-					}
-					return;
-				}
-
-				// --- D. LOGIKA HOTSPOT CLICK ---
-				const mouseClick = new THREE.Vector2(
-					(event.clientX / window.innerWidth) * 2 - 1,
-					-(event.clientY / window.innerHeight) * 2 + 1
-				);
-
-				const clickRaycaster = new THREE.Raycaster();
-				clickRaycaster.setFromCamera(mouseClick, camera);
-				const intersects = clickRaycaster.intersectObjects(spriteHotspots);
-
-				if (intersects.length > 0) {
-					const clicked = intersects[0].object;
-					if (clicked.userData.onClick) {
-						clicked.userData.onClick();
-					}
-				}
-			});
-		}
-
-		function onMouseWheel(e) {
-			e.preventDefault();
-			targetFov += e.deltaY * 0.05;
-			targetFov = THREE.MathUtils.clamp(targetFov, 30, 100);
-		}
-
-
-		function loadHotspotsFor(panorama) {
-
-			clearHotspots();
-
-			/*panoramas*/
-
-			if (panorama === '1.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-395.1211475957762, -58.30213318829353, -6.678901876416617), () => {
-					switchPanorama('2.jpg');
-				});
-
-				// 1. Tentukan posisi koordinatnya dalam variabel
-				let posMedia = new THREE.Vector3(-460.08, -72.49, -179.48);
-
-				// 2. Tambahkan Icon Hotspot (Info/Gambar)
-				addHotspot('images/image.png', posMedia, () => {
-					showMedia(6, {
-						image: 'images/selamat-datang.png',
-						audio: 'audio/selamat-datang.wav'
-					});
-
-				});
-
-				// 3. Tambahkan Label Teks di posisi yang sama (Fungsi akan otomatis menaikkan posisinya sedikit)
-				addTextLabel("Selamat Datang", posMedia);
-			}
-
-			if (panorama === '2.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(394.5380744600368, -62.277819101636496, -9.101288274622458), () => {
-					switchPanorama('1.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-397.5892730140249, -33.489342909172414, -14.93381336018405), () => {
-					switchPanorama('4.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(-463.95, -43.89, 178.85);
-
-				addHotspot('images/image.png', posMedia, () => {
-					showMedia(6, {
-						image: 'images/tentang-krebet.png',
-						audio: 'audio/tentang-krebet.wav'
-					});
-
-				});
-
-				addTextLabel("Tentang Krebet", posMedia);
-			}
-
-			if (panorama === '3.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(395.8346232878345, -53.4697473632319, -3.95549334440982), () => {
-					switchPanorama('4.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-392.6863823097462, -51.77601937286917, -49.85805093466901), () => {
-					switchPanorama('5.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(-484.55, -67.73, 101.14);
-
-				addHotspot('images/image.png', posMedia, () => {
-					showMedia(6, {
-						image: 'images/lokasi-krebet.png',
-						audio: 'audio/lokasi-krebet.wav'
-					});
-
-				});
-
-				addTextLabel("Lokasi Krebet", posMedia);
-
-			}
-
-			if (panorama === '4.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(396.5404938553538, -47.441896669903784, -3.8605045767290793), () => {
-					switchPanorama('2.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-395.79459154752885, -49.895887862517846, -11.40842825630297), () => {
-					switchPanorama('3.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(-469.31, -57.45, -160.39);
-
-				addHotspot('images/image.png', posMedia, () => {
-					showMedia(6, {
-						image: 'images/sejarah-krebet.png',
-						audio: 'audio/sejarah-krebet.wav'
-					});
-
-				});
-
-				addTextLabel("Sejarah Krebet", posMedia);
-			}
-
-			if (panorama === '5.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(61.66867499833077, -61.80551619818436, 389.6327924916461), () => {
-					switchPanorama('3.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-482.94, -33.24, -121.80), () => {
-					switchPanorama('6.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-117.98691115406146, -45.230478016162486, -378.82184027339326), () => {
-					switchPanorama('36.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(-425.43, -57.54, -254.88);
-
-				addHotspot('images/video.png', posMedia, () => {
-					showMedia(5, 'https://www.youtube.com/embed/mKU3PBr2ARE?si=mv-XKY0gWJtFW6xL');
-				});
-
-				addTextLabel("Video Profil", posMedia);
-			}
-
-			if (panorama === '6.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(497.82, -22.76, -24.60), () => {
-					switchPanorama('5.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-497.01, -42.90, -19.33), () => {
-					switchPanorama('33.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(-476.38, -64.36, 133.92);
-
-				addHotspot('images/video.png', posMedia, () => {
-					showMedia(2, 'videos/mars.mp4');
-				});
-
-				addTextLabel("Mars Krebet", posMedia);
-			}
-
-
-			if (panorama === '33.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-398.65305232127207, -25.871103854557305, -4.4590244374591546), () => {
-					switchPanorama('6.jpg');
-				});
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(398.77267040194437, -18.132482280878172, -6.939524042517586), () => {
-					switchPanorama('34.jpg');
-				});
-
-				let posMedia = new THREE.Vector3(481.85, -70.59, -110.63);
-
-				addHotspot('images/video.png', posMedia, () => {
-					showMedia(5, 'https://www.youtube.com/embed/Z8nDD9Lg5ug?si=p0G2hSgKVKdCEszq');
-				});
-
-				addTextLabel("Kesenian (1)", posMedia);
-
-				// Cek apakah pengunjung datang dari '6.jpg'?
-				if (previousPanorama === '6.jpg') {
-					// Jika YA, paksa kamera menghadap ke Hotspot 34
-					// Koordinat diambil dari Vector3 hotspot ke 34 di atas
-					camera.lookAt(398.77267040194437, -18.132482280878172, -6.939524042517586);
-
-					// (Opsional) Update controls target agar rotasi orbit berpusat benar
-					controls.target.set(398.77267040194437, -18.132482280878172, -6.939524042517586).normalize();
-					controls.update();
-				}
-			}
-
-			if (panorama === '34.jpg') {
-				addHotspot('images/chevrontilted.png', new THREE.Vector3(-398.3457598626258, -29.817333000518882, -7.411376568996783), () => {
-					switchPanorama('33.jpg');
-				});
-				let posMedia = new THREE.Vector3(460.54, -56.71, -183.50);
-
-				addHotspot('images/video.png', posMedia, () => {
-					showMedia(5, 'https://www.youtube.com/embed/ULH1EmgYwUU?si=a8FNDl5u3V9YhiFT');
-				});
-
-				addTextLabel("Kesenian (2)", posMedia);
-			}
-			/*panoramas-end*/
-		}
-
-		function switchPanorama(panoramaName) {
-			if (currentPanorama === panoramaName) return;
-
-			previousPanorama = currentPanorama;
-
-			// Tampilkan loading
-			overlay.style.pointerEvents = 'auto';
-			overlay.style.opacity = '1';
-			overlay.textContent = 'Loading...';
-
-			// Fade out container
-			container.style.opacity = '0';
-
-			setTimeout(() => {
-				// --- MEMORY CLEANUP (PENTING UNTUK IOS) ---
-				// Sebelum load baru, hapus texture lama dari memori GPU
-				if (panoramaMesh.material.map) {
-					panoramaMesh.material.map.dispose();
-				}
-				// ------------------------------------------
-
-				new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
-					// Pasang texture baru
-					panoramaMesh.material.map = tex;
-					panoramaMesh.material.needsUpdate = true;
-
-					currentPanorama = panoramaName;
-					loadHotspotsFor(currentPanorama);
-
-					// Fade in kembali
-					container.style.opacity = '1';
-					overlay.style.opacity = '0';
-					overlay.style.pointerEvents = 'none';
-				});
-			}, 500);
-		}
-
-		function addHotspot(imageUrl, position, onClickCallback) {
-			new THREE.TextureLoader().load(imageUrl, (texture) => {
-				const material = new THREE.SpriteMaterial({
-					map: texture,
-					// FIX UTAMA: Matikan depth checking agar tidak terpotong dinding
-					depthTest: false,
-					depthWrite: false
-				});
-
-				const sprite = new THREE.Sprite(material);
-				sprite.position.copy(position);
-				sprite.scale.set(40, 40, 1);
-
-				// FIX TAMBAHAN: Pastikan dirender paling akhir (di atas segalanya)
-				sprite.renderOrder = 1000;
-
-				sprite.userData = {
-					onClick: onClickCallback,
-					targetScale: 40,
-					initialY: position.y
-				};
-
-				spriteHotspots.push(sprite);
-				scene.add(sprite);
-			});
-		}
-
-		function addTextLabel(text, position) {
-			const canvas = document.createElement('canvas');
-			const context = canvas.getContext('2d');
-			canvas.width = 1024;
-			canvas.height = 256;
-
-			// Gambar Background
-			context.fillStyle = "rgba(0, 0, 0, 0.6)";
-			const x = 100, y = 20, w = 824, h = 216, r = 50;
-			context.beginPath();
-			context.moveTo(x + r, y);
-			context.lineTo(x + w - r, y);
-			context.quadraticCurveTo(x + w, y, x + w, y + r);
-			context.lineTo(x + w, y + h - r);
-			context.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-			context.lineTo(x + r, y + h);
-			context.quadraticCurveTo(x, y + h, x, y + h - r);
-			context.lineTo(x, y + r);
-			context.quadraticCurveTo(x, y, x + r, y);
-			context.closePath();
-			context.fill();
-
-			// Gambar Teks
-			context.font = "bold 80px Arial";
-			context.fillStyle = "#FFFF";
-			context.textAlign = "center";
-			context.textBaseline = "middle";
-			context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-			const texture = new THREE.CanvasTexture(canvas);
-			const material = new THREE.SpriteMaterial({
-				map: texture,
-				transparent: true,
-				depthTest: false,
-				depthWrite: false
-			});
-
-			const sprite = new THREE.Sprite(material);
-
-			// Atur Posisi & Skala Awal
-			sprite.position.copy(position);
-			sprite.position.y += 30;
-			sprite.scale.set(80, 20, 1);
-			sprite.renderOrder = 9999;
-
-			// --- PENTING: DATA KHUSUS UNTUK ANIMASI ---
-			sprite.userData = {
-				isText: true,               // Penanda bahwa ini adalah Teks
-				initialY: sprite.position.y // Simpan posisi awal untuk bounce
-			};
-
-			scene.add(sprite);
-			spriteHotspots.push(sprite); // Sekarang aman untuk dimasukkan
-		}
-
-
-		function clearHotspots() {
-			spriteHotspots.forEach(sprite => scene.remove(sprite));
-			spriteHotspots = [];
-		}
-
-		function onPointerMove(event) {
-			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-			raycaster.setFromCamera(mouse, camera);
-			const intersects = raycaster.intersectObjects(spriteHotspots);
-			spriteHotspots.forEach(sprite => { sprite.userData.targetScale = 40; });
-			if (intersects.length > 0) { intersects[0].object.userData.targetScale = 50; }
-		}
-
-		function onWindowResize() {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-			renderer.setSize(window.innerWidth, window.innerHeight);
-		}
-
-		let pickerMode = false;
-		let pickerSprite = null;
-
-		function togglePicker() {
-			pickerMode = !pickerMode;
-
-			if (pickerMode) {
-				console.log("%cPosition Picker ENABLED", "color: #00ff00; font-size: 16px;");
-			} else {
-				console.log("%cPosition Picker DISABLED", "color: red; font-size: 16px;");
-
-				if (pickerSprite) {
-					scene.remove(pickerSprite);
-					pickerSprite = null;
-				}
-			}
-		}
-
-		function placePickerMarker(position) {
-			// Gunakan gambar default atau icon khusus picker
-			const texture = new THREE.TextureLoader().load("images/default.png");
-
-			const material = new THREE.SpriteMaterial({
-				map: texture,
-				// FIX: Matikan depthTest agar marker tidak 'tenggelam' ke dalam dinding
-				depthTest: false,
-				depthWrite: false
-			});
-
-			const sprite = new THREE.Sprite(material);
-
-			sprite.position.copy(position);
-			sprite.scale.set(40, 40, 1); // Ukuran diperbesar sedikit agar jelas
-
-			// FIX: Pastikan dirender paling terakhir (paling depan)
-			sprite.renderOrder = 10000;
-
-			if (pickerSprite) scene.remove(pickerSprite);
-
-			pickerSprite = sprite;
-			scene.add(sprite);
-		}
-
-
-		function animate() {
-			requestAnimationFrame(animate);
-
-			// Animasi FOV (Zoom)
-			camera.fov += (targetFov - camera.fov) * 0.1;
-			camera.updateProjectionMatrix();
-
-			const time = performance.now() * 0.005;
-
-			spriteHotspots.forEach(sprite => {
-				// CEK: Apakah ini Label Teks atau Icon Biasa?
-				if (sprite.userData.isText) {
-					// --- JIKA LABEL TEKS ---
-					// Hanya lakukan animasi bounce (jangan ubah scale/ukuran)
-					if (sprite.userData.initialY) {
-						sprite.position.y = sprite.userData.initialY + Math.sin(time) * 2;
-					}
-				} else {
-					// --- JIKA ICON HOTSPOT BIASA ---
-					// Animasi Scale (Membesar saat di-hover)
-					const currentScale = sprite.scale.x;
-					const target = sprite.userData.targetScale || 40;
-					const newScale = THREE.MathUtils.lerp(currentScale, target, 0.1);
-					sprite.scale.set(newScale, newScale, 1); // Scale X dan Y sama (kotak)
-
-					// Animasi Bounce
-					if (sprite.userData.initialY) {
-						sprite.position.y = sprite.userData.initialY + Math.sin(time + sprite.id) * 2;
-					}
-				}
-			});
-
-			controls.update();
-			renderer.render(scene, camera);
-		}
-
-		function showMedia(type, content) {
-			const modalContent = document.getElementById('modalMediaContent');
-			const myModalElement = document.getElementById('modalMedia');
-			const myModal = new bootstrap.Modal(myModalElement);
-
-			// Akses elemen Audio Backsound
-			const bgAudio = document.getElementById("bgAudio");
-
-			// --- LOGIKA 1: PAUSE BACKSOUND SEMENTARA ---
-			// Cek apakah backsound sedang 'ON' (isPlaying true) 
-			// DAN tipe konten adalah multimedia bersuara (2=Video, 3=Audio, 5=Youtube, 6=Img+Audio)
-			let needToResume = false;
-
-			if (isPlaying && (type === 2 || type === 3 || type === 5 || type === 6)) {
-				bgAudio.pause();
-				needToResume = true; // Tandai bahwa nanti harus dinyalakan lagi
-			}
-
-			let html = '';
-
-			switch (type) {
-				case 1: // Image Only
-					html = `<img src="${content}" class="img-fluid rounded" style="max-height: 70vh;" alt="Detail Info">`;
-					break;
-				case 2: // Video File
-					html = `<div class="ratio ratio-16x9"><video controls autoplay style="width: 100%; height: 100%;"><source src="${content}" type="video/mp4">Browser anda tidak mendukung video.</video></div>`;
-					break;
-				case 3: // Audio Only
-					html = `<div class="p-5 text-white"><i class="fa-solid fa-music fa-3x mb-3 text-warning"></i><br><audio controls autoplay style="width: 100%;"><source src="${content}" type="audio/mpeg"></audio></div>`;
-					break;
-				case 4: // PDF/Iframe
-					html = `<iframe src="${content}" style="width: 100%; height: 500px; border: none;"></iframe>`;
-					break;
-				case 5: // Youtube
-					html = `<div class="ratio ratio-16x9"><iframe src="${content}" title="YouTube video player" allowfullscreen></iframe></div>`;
-					break;
-				case 6: // Image + Audio
-					html = `
-                <div class="d-flex flex-column align-items-center w-100">
-                    <img src="${content.image}" class="img-fluid rounded mb-3" style="max-height: 55vh; width: auto;" alt="Detail Image">
-                    <div class="w-100 p-3 rounded" style="background: rgba(255,255,255,0.1);">
-                        <!-- <p class="text-white mb-2"><i class="fa-solid fa-circle-play me-2 text-warning"></i>Putar Penjelasan:</p> -->
-                        <audio controls autoplay style="width: 100%;">
-                            <source src="${content.audio}" type="audio/mpeg">
-                            <source src="${content.audio}" type="audio/ogg">
-                        </audio>
-                    </div>
-                </div>`;
-					break;
-			}
-
-			modalContent.innerHTML = html;
-			myModal.show();
-
-			// --- LOGIKA 2: RESUME BACKSOUND SAAT TUTUP ---
-			myModalElement.addEventListener('hidden.bs.modal', function () {
-				modalContent.innerHTML = ''; // Hapus konten agar video/audio modal mati total
-
-				// Jika tadi dimatikan paksa, dan status musik global masih ON, nyalakan lagi
-				if (needToResume && isPlaying) {
-					bgAudio.play().catch(e => console.log("Resume audio blocked:", e));
-				}
-			}, { once: true });
-		}
-
-		/*customjs*/
-
-		/*customjs-end*/
-
-	</script>
-
+	<!-- ===== THREE.JS & UI LOGIC (MODULES) ===== -->
+	<script type="module" src="js/ui/ui-controller.js"></script>
+	<script type="module" src="js/core/tour-3d.js"></script>
+
+	<!-- Bootstrap Bundle (termasuk Popper) -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Swiper -->
 	<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+	<!-- Firebase — Data Fetching (ES Module) -->
 	<script type="module" src="js/main-dynamic.js"></script>
 
-	<script>
-		// --- LOGIC KUSTOM KAVVIAR ---
-
-		// 1. AUDIO LOGIC
-		var audio = document.getElementById("bgAudio");
-		var soundBtn = document.getElementById("btnSound");
-		var isPlaying = false;
-
-		function toggleSound() {
-			if (isPlaying) {
-				audio.pause();
-				soundBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-			} else {
-				audio.play().catch(error => console.log("Browser block autoplay, user clicked first"));
-				soundBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-			}
-			isPlaying = !isPlaying;
-		}
-
-		// 2. ZOOM LOGIC (Manipulasi variable targetFov di script utama)
-		function customZoomIn() {
-			targetFov -= 10; // Zoom in = FOV makin kecil
-			if (targetFov < 30) targetFov = 30;
-		}
-
-		function customZoomOut() {
-			targetFov += 10; // Zoom out = FOV makin besar
-			if (targetFov > 100) targetFov = 100;
-		}
-
-		// 3. AUTO ROTATE LOGIC
-		function toggleAutoRotate() {
-			controls.autoRotate = !controls.autoRotate;
-		}
-
-		// 4. MAP TOGGLE
-		function toggleMap() {
-			var map = document.getElementById('mapOverlay');
-			if (map.style.display === 'none' || map.style.display === '') {
-				map.style.display = 'block';
-			} else {
-				map.style.display = 'none';
-			}
-		}
-
-		// 5. FULLSCREEN
-		function toggleFullscreen() {
-			const doc = window.document;
-			const docEl = doc.documentElement;
-
-			const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-			const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-			if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-				// Masuk Fullscreen
-				if (requestFullScreen) {
-					requestFullScreen.call(docEl);
-				} else {
-					alert("Maaf, browser HP Anda tidak mendukung fitur Fullscreen otomatis.");
-				}
-			} else {
-				// Keluar Fullscreen
-				if (cancelFullScreen) {
-					cancelFullScreen.call(doc);
-				}
-			}
-		}
-
-
-		// --- LOGIKA KHUSUS MODAL KESENIAN (NAVBAR) ---
-		const modalKesenianEl = document.getElementById('modalKesenian');
-		let resumeAudioAfterKesenian = false;
-
-		// 1. Saat Modal Kesenian DIBUKA -> Matikan Backsound
-		modalKesenianEl.addEventListener('show.bs.modal', () => {
-			if (isPlaying) {
-				audio.pause();
-				resumeAudioAfterKesenian = true; // Tandai biar nanti nyala lagi
-			}
-		});
-
-		// 2. Saat Modal Kesenian DITUTUP -> Matikan Video Youtube & Nyalakan Backsound
-		modalKesenianEl.addEventListener('hidden.bs.modal', () => {
-			// A. Hentikan suara Video Youtube (dengan cara reload iframe)
-			const iframes = modalKesenianEl.querySelectorAll('iframe');
-			iframes.forEach(iframe => {
-				const currentSrc = iframe.src;
-				iframe.src = currentSrc;
-			});
-
-			// B. Nyalakan kembali backsound (jika tadi memang nyala)
-			if (resumeAudioAfterKesenian && isPlaying) {
-				audio.play().catch(e => console.log("Resume audio blocked:", e));
-			}
-			resumeAudioAfterKesenian = false;
-		});
-	</script>
+	
 
 </body>
 
 </html>
+

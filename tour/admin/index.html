@@ -4,60 +4,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin KAVVIAR</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login Admin — KAVVIAR</title>
+
+    <!-- ===== ICONS ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ===== TAILWIND CSS ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saddlebrown: '#8B4513',
+                        darkbrown: '#6f370f',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+<body
+    class="min-h-screen bg-gradient-to-br from-stone-900 via-amber-950 to-stone-900 flex items-center justify-center px-4">
 
-    <div class="card shadow p-4 mx-4" style="width: 100%; max-width: 400px;">
-        <h3 class="text-center mb-4">Admin KAVVIAR</h3>
+    <!-- ===== LOGIN CARD ===== -->
+    <main class="w-full max-w-sm">
 
-        <div id="alertMessage" class="alert alert-danger d-none"></div>
-
-        <form id="loginForm">
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" id="email" class="form-control" required>
+        <!-- Logo & Title -->
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-700/30 border border-amber-600/40 mb-4">
+                <i class="fa-solid fa-mask text-2xl text-amber-400"></i>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" id="password" class="form-control" required>
-            </div>
-            <button type="submit" class="btn mt-2 text-white w-100 py-2 px-3" style="background-color:#8B4513;"
-                onmouseover="this.style.backgroundColor='#6f370f'" onmouseout="this.style.backgroundColor='#8B4513'">Masuk</button>
-        </form>
-    </div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">KAVVIAR</h1>
+            <p class="text-amber-200/60 text-sm mt-1">Admin Panel</p>
+        </div>
 
+        <!-- Card -->
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-2xl">
+
+            <!-- Alert Error -->
+            <div id="alertMessage"
+                class="hidden mb-5 px-4 py-3 rounded-lg bg-red-500/20 border border-red-400/40 text-red-300 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+                <span id="alertText"></span>
+            </div>
+
+            <!-- Form Login -->
+            <form id="loginForm" class="space-y-5" novalidate>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-white/80 mb-1.5">Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-white/40">
+                            <i class="fa-regular fa-envelope text-sm"></i>
+                        </span>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                            placeholder="admin@kavviar.com"
+                            class="w-full bg-white/10 border border-white/20 text-white placeholder-white/30 rounded-lg pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/60 focus:border-amber-500/60 transition">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-white/80 mb-1.5">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-white/40">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </span>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                            placeholder="••••••••"
+                            class="w-full bg-white/10 border border-white/20 text-white placeholder-white/30 rounded-lg pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/60 focus:border-amber-500/60 transition">
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="btnSubmit"
+                    class="w-full flex items-center justify-center gap-2 bg-amber-700 hover:bg-amber-800 active:bg-amber-900 text-white font-semibold rounded-lg py-2.5 text-sm transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Masuk
+                </button>
+
+            </form>
+        </div>
+
+        <!-- Footer note -->
+        <p class="text-center text-white/30 text-xs mt-6">
+            &copy; 2026 KAVVIAR. Hanya untuk admin.
+        </p>
+    </main>
+
+    <!-- ===== FIREBASE AUTH SCRIPT ===== -->
     <script type="module">
-        import { auth, signInWithEmailAndPassword, onAuthStateChanged } from '../js/firebase-config.js';
+        import { auth, signInWithEmailAndPassword, onAuthStateChanged }
+            from '../js/firebase-config.js';
 
+        const loginForm = document.getElementById('loginForm');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const alertBox = document.getElementById('alertMessage');
+        const alertText = document.getElementById('alertText');
+
+        /** Tampilkan pesan error di alert box */
+        function showError(message) {
+            alertText.textContent = message;
+            alertBox.classList.remove('hidden');
+        }
+
+        /** Sembunyikan alert box */
+        function hideError() {
+            alertBox.classList.add('hidden');
+        }
+
+        /* Redirect otomatis jika sudah login */
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("User sudah login, redirecting...");
-                window.location.href = "dashboard.html";
+                window.location.href = 'dashboard.html';
             }
         });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        /* Submit login form */
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            hideError();
+
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const alertMsg = document.getElementById('alertMessage');
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Memproses...';
 
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log("Login sukses:", userCredential.user);
-
+                await signInWithEmailAndPassword(auth, email, password);
                 window.location.href = 'dashboard.html';
-
             } catch (error) {
-                console.error(error);
-                alertMsg.textContent = "Login Gagal: " + error.message;
-                alertMsg.classList.remove('d-none');
+                console.error('Login error:', error);
+
+                const errorMessages = {
+                    'auth/invalid-credential': 'Email atau password salah.',
+                    'auth/user-not-found': 'Akun tidak ditemukan.',
+                    'auth/wrong-password': 'Password salah.',
+                    'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
+                };
+                showError(errorMessages[error.code] || 'Login gagal: ' + error.message);
+
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk';
             }
         });
     </script>
+
 </body>
 
 </html>

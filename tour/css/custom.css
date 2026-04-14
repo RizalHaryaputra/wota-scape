@@ -1,0 +1,95 @@
+/*
+ * custom.css — WotaScape Virtual Tour
+ * =====================================================
+ * File ini HANYA berisi style yang tidak bisa/terlalu
+ * rumit untuk di-handle dengan Tailwind CSS utility classes.
+ *
+ * Kategori yang ada di sini:
+ *   1. Three.js Canvas Layer (z-index & positioning absolut)
+ *   2. Z-index override untuk Bootstrap Modal di atas canvas
+ *   3. Custom keyframe animations
+ *   4. Webkit scrollbar styling
+ *   5. Rendered HTML content (TinyMCE output) styling
+ * =====================================================
+ */
+
+/* ===== 1. THREE.JS CANVAS CONTAINER ===== */
+/* Canvas harus full-screen dan paling bawah dari semua UI */
+#container {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* ===== 2. BOOTSTRAP MODAL Z-INDEX OVERRIDE ===== */
+/* Pastikan modal Bootstrap SELALU tampil di atas canvas Three.js */
+.modal {
+    z-index: 10055 !important;
+}
+
+.modal-backdrop {
+    z-index: 10050 !important;
+}
+
+.modal-content {
+    pointer-events: auto !important;
+}
+
+/* ===== 3. KEYFRAME ANIMATIONS ===== */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes hotspotBounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* Loading spinner — digunakan oleh #global-loader */
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 215, 0, 0.25);
+    border-top-color: #FFD700;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ===== 4. CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 0.25em;
+    height: 0.25em;
+}
+
+::-webkit-scrollbar-track {
+    background: #2c3643;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8B4513;
+    transition: background 0.5s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #A0522D;
+}
+
+/* ===== 5. TINYMCE RENDERED HTML CONTENT ===== */
+/* Style untuk konten berita yang di-render dari TinyMCE */
+.news-content-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.news-content-body p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}

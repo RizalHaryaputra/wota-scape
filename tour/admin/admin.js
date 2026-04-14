@@ -1,9 +1,23 @@
-import { auth, db, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, limit, startAfter, endBefore, limitToLast, signOut, onAuthStateChanged }
-    from '../js/firebase-config.js';
+import { auth, signOut, onAuthStateChanged } from '../js/firebase-config.js';
+import { getPaginatedData, createItem, updateItem, removeItem } from '../js/services/firebase-service.js';
 
-// --- INISIALISASI TINYMCE ---
+// ==========================================
+// KONFIGURASI
+// ==========================================
+const CLOUD_NAME = 'dothvi6d9';
+const UPLOAD_PRESET = 'kavviar-preset';
+const ITEMS_PER_PAGE = 5;
+
+// State pagination untuk setiap koleksi
+let lastDocs = { products: null, news: null, galleries: null, groups: null };
+let firstDocs = { products: null, news: null, galleries: null, groups: null };
+
+// ==========================================
+// INISIALISASI TINYMCE
+// ==========================================
+// eslint-disable-next-line no-undef
 tinymce.init({
-    selector: '#newsIsi', // Target ke ID textarea
+    selector: '#newsIsi',
     height: 300,
     menubar: false,
     plugins: [
@@ -11,29 +25,19 @@ tinymce.init({
         'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
         'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
     ],
-    toolbar: 'undo redo | blocks | ' +
-        'bold italic backcolor | alignleft aligncenter ' +
-        'alignright alignjustify | bullist numlist outdent indent | ' +
-        'removeformat | help',
-    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter ' +
+        'alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+    content_style: 'body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; }'
 });
 
-// --- KONFIGURASI ---
-const CLOUD_NAME = "dothvi6d9"; // Ganti jika berbeda
-const UPLOAD_PRESET = "kavviar-preset"; // Ganti jika berbeda
-const ITEMS_PER_PAGE = 5; // Jumlah data per halaman
-
-// Variabel untuk Pagination
-let lastDocs = { products: null, news: null, galleries: null, groups: null };
-let firstDocs = { products: null, news: null, galleries: null, groups: null };
-
-// --- 1. CEK LOGIN & LOAD DATA AWAL ---
+// ==========================================
+// 1. CEK AUTH & LOAD DATA AWAL
+// ==========================================
 onAuthStateChanged(auth, (user) => {
     if (!user) {
-        window.location.href = "index.html";
+        window.location.href = 'index.html';
     } else {
-        console.log("Login sebagai:", user.email);
-        // Load data halaman pertama untuk semua tab
+        console.log('Login sebagai:', user.email);
         loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk');
         loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita');
         loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian');
@@ -42,94 +46,99 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.getElementById('btnLogout').addEventListener('click', () => {
-    signOut(auth).then(() => window.location.href = "index.html");
+    signOut(auth).then(() => window.location.href = 'index.html');
 });
 
-// --- 2. FUNGSI UPLOAD GAMBAR (CLOUDINARY) ---
+// ==========================================
+// 2. UPLOAD GAMBAR KE CLOUDINARY
+// ==========================================
 async function uploadToCloudinary(file) {
     if (!file) return null;
+
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", UPLOAD_PRESET);
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
     try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData
+        });
         const data = await response.json();
         return data.secure_url;
     } catch (error) {
-        console.error("Upload Error:", error);
-        throw new Error("Gagal upload gambar");
+        console.error('Cloudinary upload error:', error);
+        throw new Error('Gagal mengupload gambar ke server.');
     }
 }
 
 // ==========================================
-// 3. FUNGSI READ DATA (PAGINATION)
+// 3. LOAD DATA DENGAN PAGINATION
 // ==========================================
 async function loadData(colName, tableId, renderFunc, nextBtnId, prevBtnId, direction = 'first') {
     const tableBody = document.getElementById(tableId);
     const nextBtn = document.getElementById(nextBtnId);
     const prevBtn = document.getElementById(prevBtnId);
 
-    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Sedang memuat data...</td></tr>';
+    tableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-400 text-sm">
+        <i class="fa-solid fa-spinner animate-spin mr-2"></i>Memuat data...
+    </td></tr>`;
 
     try {
-        const colRef = collection(db, colName);
-        let q;
+        const result = await getPaginatedData(colName, ITEMS_PER_PAGE, direction, lastDocs[colName], firstDocs[colName]);
+        tableBody.innerHTML = '';
 
-        // Logika Query Firebase untuk Pagination
-        if (direction === 'next' && lastDocs[colName]) {
-            q = query(colRef, orderBy('createdAt', 'desc'), startAfter(lastDocs[colName]), limit(ITEMS_PER_PAGE));
-        } else if (direction === 'prev' && firstDocs[colName]) {
-            q = query(colRef, orderBy('createdAt', 'desc'), endBefore(firstDocs[colName]), limitToLast(ITEMS_PER_PAGE));
-        } else {
-            // Halaman Pertama
-            q = query(colRef, orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
-        }
-
-        const snapshot = await getDocs(q);
-        tableBody.innerHTML = ''; // Bersihkan loading
-
-        if (snapshot.empty) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada data.</td></tr>';
+        if (result.empty) {
+            tableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-400 text-sm">
+                <i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>Belum ada data.
+            </td></tr>`;
             nextBtn.disabled = true;
             if (direction === 'first') prevBtn.disabled = true;
             return;
         }
 
-        // Simpan dokumen pertama & terakhir untuk navigasi selanjutnya
-        firstDocs[colName] = snapshot.docs[0];
-        lastDocs[colName] = snapshot.docs[snapshot.docs.length - 1];
+        firstDocs[colName] = result.firstDoc;
+        lastDocs[colName] = result.lastDoc;
 
-        // Render Data ke Tabel
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            data.id = doc.id; // Sertakan ID dokumen agar bisa diedit/hapus
+        result.data.forEach(data => {
             tableBody.innerHTML += renderFunc(data);
         });
 
-        // Atur status tombol Next/Prev
-        prevBtn.disabled = (direction === 'first' || !firstDocs[colName]);
-        nextBtn.disabled = (snapshot.docs.length < ITEMS_PER_PAGE);
+        prevBtn.disabled = (direction === 'first');
+        nextBtn.disabled = (result.itemsCount < ITEMS_PER_PAGE);
 
     } catch (error) {
-        console.error("Load Error:", error);
-        tableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Error: ${error.message}</td></tr>`;
+        console.error('Load data error:', error);
+        tableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-red-500 text-sm">
+            <i class="fa-solid fa-circle-xmark mr-1"></i>Error: ${error.message}
+        </td></tr>`;
     }
 }
 
-// --- FUNGSI RENDER BARIS TABEL (HTML) ---
+// ==========================================
+// 4. FUNGSI RENDER BARIS TABEL
+// ==========================================
 function renderProduk(data) {
-    // Stringify data agar bisa dikirim ke fungsi edit
     const dataStr = encodeURIComponent(JSON.stringify(data));
     return `
-    <tr>
-        <td><img src="${data.foto || 'https://via.placeholder.com/50'}" class="img-thumb" style="width:50px; height:50px; object-fit:cover;"></td>
-        <td>${data.nama}</td>
-        <td>Rp ${parseInt(data.harga).toLocaleString()}</td>
-        <td>${data.wa}</td>
-        <td>
-            <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-warning btn-sm" onclick="prepareEdit('${data.id}', '${dataStr}', 'produk')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteItem('products', '${data.id}')"><i class="fa-solid fa-trash"></i></button>
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3">
+            <img src="${data.foto || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'}"
+                class="img-thumb" alt="${data.nama}">
+        </td>
+        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
+        <td class="px-4 py-3 text-slate-600">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-slate-600 text-xs">${data.wa}</td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'produk')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('products', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
             </div>
         </td>
     </tr>`;
@@ -138,16 +147,27 @@ function renderProduk(data) {
 function renderBerita(data) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
     return `
-    <tr>
-        <td><img src="${data.foto || 'https://via.placeholder.com/50'}" class="img-thumb" style="width:50px; height:50px; object-fit:cover;"></td>
-        <td>
-            <strong>${data.judul}</strong><br>
-            <small class="text-muted"><i class="fa-solid fa-user"></i> ${data.penulis || 'Admin'}</small>
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3">
+            <img src="${data.foto || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'}"
+                class="img-thumb" alt="${data.judul}">
         </td>
-        <td>${data.tanggal}</td>
-        <td>
-            <button class="btn btn-warning btn-sm" onclick="prepareEdit('${data.id}', '${dataStr}', 'berita')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteItem('news', '${data.id}')"><i class="fa-solid fa-trash"></i></button>
+        <td class="px-4 py-3">
+            <p class="font-medium text-slate-700">${data.judul}</p>
+            <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-user mr-1"></i>${data.penulis || 'Admin'}</p>
+        </td>
+        <td class="px-4 py-3 text-slate-500 text-xs">${data.tanggal}</td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'berita')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('news', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
+            </div>
         </td>
     </tr>`;
 }
@@ -155,13 +175,24 @@ function renderBerita(data) {
 function renderKesenian(data) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
     return `
-    <tr>
-        <td>${data.nama}</td>
-        <td><a href="${data.link}" target="_blank">Tonton</a></td>
-        <td>
-            <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-warning btn-sm" onclick="prepareEdit('${data.id}', '${dataStr}', 'kesenian')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteItem('galleries', '${data.id}')"><i class="fa-solid fa-trash"></i></button>
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
+        <td class="px-4 py-3">
+            <a href="${data.link}" target="_blank" rel="noopener"
+                class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline">
+                <i class="fa-brands fa-youtube text-red-500"></i> Tonton
+            </a>
+        </td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'kesenian')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('galleries', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
             </div>
         </td>
     </tr>`;
@@ -169,33 +200,42 @@ function renderKesenian(data) {
 
 function renderKelompok(data) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
+    const preview = data.deskripsi.length > 60 ? data.deskripsi.substring(0, 60) + '...' : data.deskripsi;
     return `
-    <tr>
-        <td>${data.nama}</td>
-        <td>${data.deskripsi.substring(0, 50)}...</td>
-        <td>
-            <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-warning btn-sm" onclick="prepareEdit('${data.id}', '${dataStr}', 'kelompok')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteItem('groups', '${data.id}')"><i class="fa-solid fa-trash"></i></button>
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
+        <td class="px-4 py-3 text-slate-500 text-sm">${preview}</td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'kelompok')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('groups', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
             </div>
         </td>
     </tr>`;
 }
 
 // ==========================================
-// 4. FUNGSI EDIT & DELETE (GLOBAL WINDOW)
+// 5. DELETE & EDIT (EXPOSED KE WINDOW)
 // ==========================================
 
-// Agar fungsi bisa dipanggil dari onclick HTML, kita tempel ke object window
-window.deleteItem = async (colName, id) => {
-    if (confirm("Yakin ingin menghapus data ini?")) {
-        try {
-            await deleteDoc(doc(db, colName, id));
-            alert("Data berhasil dihapus!");
-            location.reload();
-        } catch (error) {
-            alert("Gagal hapus: " + error.message);
-        }
+window.deleteRowItem = async (colName, id) => {
+    if (!confirm('Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.')) return;
+
+    try {
+        await removeItem(colName, id);
+        // eslint-disable-next-line no-undef
+        showToast('Data berhasil dihapus.', 'success');
+        setTimeout(() => location.reload(), 1500);
+    } catch (error) {
+        console.error('Delete error:', error);
+        // eslint-disable-next-line no-undef
+        showToast('Gagal menghapus: ' + error.message, 'error');
     }
 };
 
@@ -207,102 +247,95 @@ window.prepareEdit = (id, dataStr, type) => {
         document.getElementById('prodNama').value = data.nama;
         document.getElementById('prodHarga').value = data.harga;
         document.getElementById('prodWA').value = data.wa;
-
-        document.getElementById('btnSaveProd').innerHTML = '<i class="fa-solid fa-pen m-2"></i> Update Produk';
-        document.getElementById('btnCancelProd').classList.remove('d-none');
+        document.getElementById('infoFotoProd').classList.remove('hidden');
+        document.getElementById('titleProduk').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Produk';
+        document.getElementById('btnSaveProd').innerHTML = '<i class="fa-solid fa-pen"></i> Update Produk';
+        document.getElementById('btnCancelProd').classList.remove('hidden');
         document.getElementById('formProduk').scrollIntoView({ behavior: 'smooth' });
 
     } else if (type === 'berita') {
         document.getElementById('idBerita').value = id;
         document.getElementById('newsJudul').value = data.judul;
         document.getElementById('newsPenulis').value = data.penulis || '';
-
-        // ISI KONTEN KE TINYMCE
+        document.getElementById('infoFotoNews').classList.remove('hidden');
+        // eslint-disable-next-line no-undef
         tinymce.get('newsIsi').setContent(data.isi);
-
+        document.getElementById('titleBerita').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Berita';
         document.getElementById('btnSaveNews').innerHTML = '<i class="fa-solid fa-pen"></i> Update Berita';
-        document.getElementById('btnCancelNews').classList.remove('d-none');
+        document.getElementById('btnCancelNews').classList.remove('hidden');
         document.getElementById('formBerita').scrollIntoView({ behavior: 'smooth' });
 
     } else if (type === 'kesenian') {
         document.getElementById('idKesenian').value = id;
         document.getElementById('artsNama').value = data.nama;
         document.getElementById('artsLink').value = data.link;
-
-        document.getElementById('btnSaveArts').innerHTML = '<i class="fa-solid fa-pen m-2"></i> Update Kesenian';
-        const btnCancel = document.getElementById('btnCancelArts');
-        if (btnCancel) btnCancel.classList.remove('d-none');
-
+        document.getElementById('titleKesenian').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Kesenian';
+        document.getElementById('btnSaveArts').innerHTML = '<i class="fa-solid fa-pen"></i> Update Kesenian';
+        document.getElementById('btnCancelArts')?.classList.remove('hidden');
         document.getElementById('formKesenian').scrollIntoView({ behavior: 'smooth' });
 
     } else if (type === 'kelompok') {
-        // --- LOGIKA BARU UNTUK KELOMPOK SENI ---
         document.getElementById('idKelompok').value = id;
         document.getElementById('groupNama').value = data.nama;
         document.getElementById('groupDesc').value = data.deskripsi;
-
-        document.getElementById('btnSaveGroup').innerHTML = '<i class="fa-solid fa-pen m-2"></i> Update Kelompok';
-        const btnCancel = document.getElementById('btnCancelGroup');
-        if (btnCancel) btnCancel.classList.remove('d-none');
-
+        document.getElementById('titleKelompok').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Kelompok';
+        document.getElementById('btnSaveGroup').innerHTML = '<i class="fa-solid fa-pen"></i> Update Kelompok';
+        document.getElementById('btnCancelGroup')?.classList.remove('hidden');
         document.getElementById('formKelompok').scrollIntoView({ behavior: 'smooth' });
     }
 };
 
-// --- EVENT LISTENER TOMBOL BATAL (RESET FORM) ---
-function resetForm() {
-    location.reload();
-}
+function resetForm() { location.reload(); }
 
-const cancelBtns = ['btnCancelProd', 'btnCancelNews', 'btnCancelArts', 'btnCancelGroup'];
-cancelBtns.forEach(btnId => {
-    const btn = document.getElementById(btnId);
-    if (btn) {
-        btn.addEventListener('click', resetForm);
-    }
+['btnCancelProd', 'btnCancelNews', 'btnCancelArts', 'btnCancelGroup'].forEach(btnId => {
+    document.getElementById(btnId)?.addEventListener('click', resetForm);
 });
 
 // ==========================================
-// 5. FUNGSI SUBMIT FORM (CREATE & UPDATE)
+// 6. FORM SUBMIT (CREATE & UPDATE)
 // ==========================================
+
+function setButtonLoading(btn, isLoading, defaultHTML) {
+    btn.disabled = isLoading;
+    btn.innerHTML = isLoading
+        ? '<i class="fa-solid fa-spinner animate-spin"></i> Memproses...'
+        : defaultHTML;
+}
 
 // --- PRODUK ---
 document.getElementById('formProduk').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('idProduk').value; // Cek apakah ini mode Edit?
+    const id = document.getElementById('idProduk').value;
     const btn = document.getElementById('btnSaveProd');
-    btn.disabled = true; btn.innerText = "Memproses...";
+    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Produk');
 
     try {
         const fileInput = document.getElementById('prodFoto').files[0];
-        let fotoUrl = null;
-        if (fileInput) fotoUrl = await uploadToCloudinary(fileInput);
+        const fotoUrl = fileInput ? await uploadToCloudinary(fileInput) : null;
 
         const payload = {
             nama: document.getElementById('prodNama').value,
             harga: document.getElementById('prodHarga').value,
             wa: document.getElementById('prodWA').value,
-            updatedAt: new Date()
         };
-        if (fotoUrl) payload.foto = fotoUrl; // Hanya update foto jika ada upload baru
+        if (fotoUrl) payload.foto = fotoUrl;
 
         if (id) {
-            // MODE UPDATE
-            await updateDoc(doc(db, "products", id), payload);
-            alert("Produk Diupdate!");
+            await updateItem('products', id, payload);
+            // eslint-disable-next-line no-undef
+            showToast('Produk berhasil diupdate!', 'success');
         } else {
-            // MODE CREATE
-            if (!fileInput) throw new Error("Foto wajib diupload untuk produk baru!");
-            payload.createdAt = new Date();
-            if (fotoUrl) payload.foto = fotoUrl; // Pastikan foto masuk
-            await addDoc(collection(db, "products"), payload);
-            alert("Produk Disimpan!");
+            if (!fileInput) throw new Error('Foto wajib diupload untuk produk baru!');
+            await createItem('products', payload);
+            // eslint-disable-next-line no-undef
+            showToast('Produk baru berhasil disimpan!', 'success');
         }
-        location.reload();
+        setTimeout(() => location.reload(), 1500);
     } catch (err) {
-        alert(err.message);
-        btn.disabled = false;
-        btn.innerHTML = 'Simpan Produk';
+        console.error(err);
+        // eslint-disable-next-line no-undef
+        showToast(err.message, 'error');
+        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Produk');
     }
 });
 
@@ -311,64 +344,66 @@ document.getElementById('formBerita').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('idBerita').value;
     const btn = document.getElementById('btnSaveNews');
-
-    // AMBIL DATA DARI TINYMCE
+    // eslint-disable-next-line no-undef
     const content = tinymce.get('newsIsi').getContent();
 
-    // Validasi (Cek versi teks polosnya kosong atau tidak)
+    // eslint-disable-next-line no-undef
     if (tinymce.get('newsIsi').getContent({ format: 'text' }).trim().length === 0) {
-        alert("Isi berita tidak boleh kosong!");
+        // eslint-disable-next-line no-undef
+        showToast('Isi berita tidak boleh kosong!', 'warning');
         return;
     }
 
-    btn.disabled = true; btn.innerText = "Memproses...";
+    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Berita');
 
     try {
         const fileInput = document.getElementById('newsFoto').files[0];
-        let fotoUrl = null;
-        if (fileInput) fotoUrl = await uploadToCloudinary(fileInput);
+        const fotoUrl = fileInput ? await uploadToCloudinary(fileInput) : null;
 
         const payload = {
             judul: document.getElementById('newsJudul').value,
             penulis: document.getElementById('newsPenulis').value,
-            isi: content, // Gunakan konten dari TinyMCE
-            updatedAt: new Date()
+            isi: content,
         };
         if (fotoUrl) payload.foto = fotoUrl;
 
         if (id) {
-            await updateDoc(doc(db, "news", id), payload);
-            alert("Berita Diupdate!");
+            await updateItem('news', id, payload);
+            // eslint-disable-next-line no-undef
+            showToast('Berita berhasil diupdate!', 'success');
         } else {
-            if (!fileInput) throw new Error("Foto wajib!");
+            if (!fileInput) throw new Error('Foto utama wajib diupload!');
             payload.tanggal = new Date().toLocaleDateString('id-ID');
-            payload.createdAt = new Date();
-            await addDoc(collection(db, "news"), payload);
-            alert("Berita Terbit!");
+            await createItem('news', payload);
+            // eslint-disable-next-line no-undef
+            showToast('Berita berhasil diterbitkan!', 'success');
         }
-        location.reload();
+        setTimeout(() => location.reload(), 1500);
     } catch (err) {
-        alert(err.message);
-        btn.disabled = false;
-        btn.innerHTML = 'Terbitkan';
+        console.error(err);
+        // eslint-disable-next-line no-undef
+        showToast(err.message, 'error');
+        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Berita');
     }
 });
 
-// --- KESENIAN (Simpel tanpa foto) ---
+// --- KESENIAN ---
 document.getElementById('formKesenian').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('idKesenian').value;
     const payload = {
         nama: document.getElementById('artsNama').value,
         link: document.getElementById('artsLink').value,
-        updatedAt: new Date()
     };
 
-    if (id) await updateDoc(doc(db, "galleries", id), payload);
-    else { payload.createdAt = new Date(); await addDoc(collection(db, "galleries"), payload); }
-
-    alert("Data Tersimpan!");
-    location.reload();
+    if (id) {
+        await updateItem('galleries', id, payload);
+    } else {
+        await createItem('galleries', payload);
+    }
+    // eslint-disable-next-line no-undef
+    showToast('Data kesenian berhasil disimpan!', 'success');
+    setTimeout(() => location.reload(), 1500);
 });
 
 // --- KELOMPOK ---
@@ -378,25 +413,26 @@ document.getElementById('formKelompok').addEventListener('submit', async (e) => 
     const payload = {
         nama: document.getElementById('groupNama').value,
         deskripsi: document.getElementById('groupDesc').value,
-        updatedAt: new Date()
     };
 
-    if (id) await updateDoc(doc(db, "groups", id), payload);
-    else { payload.createdAt = new Date(); await addDoc(collection(db, "groups"), payload); }
-
-    alert("Data Tersimpan!");
-    location.reload();
+    if (id) {
+        await updateItem('groups', id, payload);
+    } else {
+        await createItem('groups', payload);
+    }
+    // eslint-disable-next-line no-undef
+    showToast('Data kelompok berhasil disimpan!', 'success');
+    setTimeout(() => location.reload(), 1500);
 });
 
-// --- BUTTONS PAGINATION ---
+// ==========================================
+// 7. PAGINATION BUTTONS
+// ==========================================
 document.getElementById('nextProduk').onclick = () => loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk', 'next');
 document.getElementById('prevProduk').onclick = () => loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk', 'prev');
-
 document.getElementById('nextBerita').onclick = () => loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'next');
 document.getElementById('prevBerita').onclick = () => loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'prev');
-
 document.getElementById('nextKesenian').onclick = () => loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian', 'next');
 document.getElementById('prevKesenian').onclick = () => loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian', 'prev');
-
 document.getElementById('nextKelompok').onclick = () => loadData('groups', 'tabelKelompokBody', renderKelompok, 'nextKelompok', 'prevKelompok', 'next');
 document.getElementById('prevKelompok').onclick = () => loadData('groups', 'tabelKelompokBody', renderKelompok, 'nextKelompok', 'prevKelompok', 'prev');

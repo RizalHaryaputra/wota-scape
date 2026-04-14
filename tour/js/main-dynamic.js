@@ -1,38 +1,28 @@
-import { db, collection, getDocs, orderBy, query } from './firebase-config.js';
+import { fetchAllByDateDesc } from './services/firebase-service.js';
 
 // --- FUNGSI LOAD PRODUK DARI FIREBASE ---
 async function loadDynamicProducts() {
     const container = document.getElementById('produkContainer');
+    if (!container) return;
 
-    // Tampilkan loading sementara
     container.innerHTML = '<div class="swiper-slide d-flex justify-content-center"><div class="spinner-border text-primary" role="status"></div></div>';
 
     try {
-        // Ambil data produk, urutkan dari yang terbaru
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
+        const products = await fetchAllByDateDesc("products");
 
-        // Jika kosong
-        if (querySnapshot.empty) {
+        if (products.length === 0) {
             container.innerHTML = '<div class="swiper-slide text-center"><p>Belum ada produk.</p></div>';
             return;
         }
 
         let slidesHTML = '';
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-
-            // Format Harga (Opsional, jika nanti mau ditampilkan)
+        products.forEach((data) => {
             const hargaIndo = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(data.harga);
-
-            // Siapkan Link WA
-            // Jika admin lupa isi WA, gunakan nomor default
             const nomorWA = data.wa || "62818270657";
             const pesanWA = `Halo, saya tertarik dengan produk *${data.nama}* seharga ${hargaIndo}. Apakah masih tersedia?`;
             const linkWA = `https://wa.me/${nomorWA}?text=${encodeURIComponent(pesanWA)}`;
 
-            // Generate HTML Slide (Sesuai Desain "Foto + Tombol" Anda)
             slidesHTML += `
             <div class="swiper-slide">
                 <div class="card border-0 align-items-center" style="width: 100%; max-width: 400px;">
@@ -44,7 +34,6 @@ async function loadDynamicProducts() {
                             <h5 class="mb-0 fw-bold">${data.nama}</h5>
                             <small class="text-muted">${hargaIndo}</small>
                         </div>
-
                         <a href="${linkWA}" target="_blank" class="btn btn-success w-100 rounded-pill py-3 fw-bold">
                             <i class="fa-brands fa-whatsapp me-2"></i> Pesan Sekarang
                         </a>
@@ -54,66 +43,46 @@ async function loadDynamicProducts() {
             `;
         });
 
-        // Masukkan ke HTML
         container.innerHTML = slidesHTML;
 
-        // --- INISIALISASI SWIPER (PENTING!) ---
-        // Kita harus init swiper SETELAH datanya masuk agar slider berfungsi
+        // eslint-disable-next-line no-undef
         new Swiper(".mySwiperProduk", {
-            observer: true,
-            observeParents: true,
-            slidesPerView: 1,
-            spaceBetween: 30,
-            loop: true, // Bisa di-loop jika data > 1
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
+            observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 30, loop: true,
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+            pagination: { el: ".swiper-pagination", clickable: true },
         });
 
     } catch (error) {
         console.error("Gagal memuat produk:", error);
-        container.innerHTML = `<div class="swiper-slide text-center text-danger"><p>Gagal memuat data: ${error.message}</p></div>`;
+        container.innerHTML = `<div class="swiper-slide text-center text-danger"><p>Gagal memuat data.</p></div>`;
     }
 }
-
-// Jalankan fungsi saat file ini dimuat
-loadDynamicProducts();
 
 // --- FUNGSI LOAD KESENIAN (YOUTUBE) ---
 async function loadDynamicArts() {
     const container = document.getElementById('kesenianContainer');
-    if (!container) return; // Jaga-jaga jika elemen tidak ditemukan
+    if (!container) return;
 
     container.innerHTML = '<div class="swiper-slide d-flex justify-content-center"><div class="spinner-border text-warning" role="status"></div></div>';
 
     try {
-        // Ambil data kesenian, urutkan dari yang terbaru
-        const q = query(collection(db, "galleries"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
+        const galleries = await fetchAllByDateDesc("galleries");
 
-        if (querySnapshot.empty) {
+        if (galleries.length === 0) {
             container.innerHTML = '<div class="swiper-slide text-center"><p>Belum ada video kesenian.</p></div>';
             return;
         }
 
         let slidesHTML = '';
         
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            
-            // Generate Slide Video
+        galleries.forEach((data) => {
             slidesHTML += `
             <div class="swiper-slide">
                 <div class="d-flex flex-column w-100 h-100">
                     <div class="ratio ratio-16x9">
                         <iframe src="${data.link}" title="${data.nama}" allowfullscreen></iframe>
                     </div>
-                    <div class="bg-light text-white p-3 text-center" style="color: white;">
+                    <div class="bg-light p-3 text-center" style="color: black;">
                         <h5 class="mb-0">${data.nama}</h5>
                     </div>
                 </div>
@@ -123,20 +92,11 @@ async function loadDynamicArts() {
 
         container.innerHTML = slidesHTML;
 
-        // --- INIT SWIPER KESENIAN ---
+        // eslint-disable-next-line no-undef
         new Swiper(".mySwiper", {
-            observer: true,
-            observeParents: true,
-            slidesPerView: 1,
-            spaceBetween: 30,
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
+            observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 30,
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+            pagination: { el: ".swiper-pagination", clickable: true },
         });
 
     } catch (error) {
@@ -145,32 +105,22 @@ async function loadDynamicArts() {
     }
 }
 
-// Panggil fungsi
-loadDynamicArts();
-
-
 // --- FUNGSI LOAD KELOMPOK SENI ---
 async function loadDynamicGroups() {
     const container = document.getElementById('listKelompok');
     if (!container) return;
 
     try {
-        // Ambil data kelompok, urutkan dari yang terbaru
-        const q = query(collection(db, "groups"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
+        const groups = await fetchAllByDateDesc("groups");
 
-        if (querySnapshot.empty) {
+        if (groups.length === 0) {
             container.innerHTML = '<li class="list-group-item text-center">Belum ada data kelompok seni.</li>';
             return;
         }
 
         let listHTML = '';
         
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            
-            // Generate List Item
-            // Kita gunakan format Nama tebal, deskripsi kecil di bawahnya
+        groups.forEach((data) => {
             listHTML += `
                 <li class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between align-items-center">
@@ -187,12 +137,9 @@ async function loadDynamicGroups() {
 
     } catch (error) {
         console.error("Gagal memuat kelompok:", error);
-        container.innerHTML = `<li class="list-group-item text-danger text-center">Gagal memuat data: ${error.message}</li>`;
+        container.innerHTML = `<li class="list-group-item text-danger text-center">Gagal memuat data.</li>`;
     }
 }
-
-// Panggil fungsi
-loadDynamicGroups();
 
 // --- FUNGSI LOAD BERITA ---
 async function loadDynamicNews() {
@@ -200,23 +147,16 @@ async function loadDynamicNews() {
     if (!container) return;
 
     try {
-        const q = query(collection(db, "news"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
+        const newsList = await fetchAllByDateDesc("news");
 
-        if (querySnapshot.empty) {
+        if (newsList.length === 0) {
             container.innerHTML = '<div class="col-12 text-center"><p class="text-muted">Belum ada berita terbaru.</p></div>';
             return;
         }
 
         let html = '';
-        let newsData = []; // Simpan data di array lokal agar mudah diambil detailnya
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            data.id = doc.id; // Simpan ID
-            newsData.push(data);
-
-            // Potong isi berita untuk preview (hapus tag HTML dulu biar rapi)
+        
+        newsList.forEach((data) => {
             const plainText = data.isi.replace(/<[^>]+>/g, '');
             const excerpt = plainText.substring(0, 100) + '...';
 
@@ -230,7 +170,7 @@ async function loadDynamicNews() {
                         </small>
                         <h5 class="card-title fw-bold">${data.judul}</h5>
                         <p class="card-text text-secondary small flex-grow-1">${excerpt}</p>
-                        <button class="btn btn-outline-primary w-100 mt-2 btn-read-news" data-id="${data.id}">
+                        <button class="btn w-100 mt-2 btn-read-news text-white" style="background-color: #8B4513;" data-id="${data.id}">
                             Baca Selengkapnya
                         </button>
                     </div>
@@ -241,32 +181,29 @@ async function loadDynamicNews() {
 
         container.innerHTML = html;
 
-        // --- TAMBAHKAN EVENT LISTENER KE TOMBOL "BACA" ---
         document.querySelectorAll('.btn-read-news').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const id = e.target.getAttribute('data-id');
-                const selectedNews = newsData.find(n => n.id === id);
+                const selectedNews = newsList.find(n => n.id === id);
                 openNewsDetail(selectedNews);
             });
         });
 
     } catch (error) {
         console.error("Gagal memuat berita:", error);
-        container.innerHTML = `<div class="col-12 text-danger text-center">Gagal memuat berita: ${error.message}</div>`;
+        container.innerHTML = `<div class="col-12 text-danger text-center">Gagal memuat berita.</div>`;
     }
 }
 
-// Fungsi Buka Modal Detail
+// Fungsi Buka Modal Detail Berita
 function openNewsDetail(data) {
     if (!data) return;
 
-    // Isi Konten Modal Detail
     document.getElementById('detailNewsTitle').innerText = data.judul;
     document.getElementById('detailNewsDate').innerText = data.tanggal;
     document.getElementById('detailNewsAuthor').innerText = data.penulis || 'Admin';
-    document.getElementById('detailNewsContent').innerHTML = data.isi; // Render HTML dari TinyMCE
+    document.getElementById('detailNewsContent').innerHTML = data.isi; 
 
-    // Handle Gambar Utama
     const imgEl = document.getElementById('detailNewsImg');
     if (data.foto) {
         imgEl.src = data.foto;
@@ -275,15 +212,21 @@ function openNewsDetail(data) {
         imgEl.style.display = 'none';
     }
 
-    // Buka Modal Detail (Tutup Modal List dulu otomatis oleh Bootstrap toggle)
+    // eslint-disable-next-line no-undef
     const detailModal = new bootstrap.Modal(document.getElementById('modalDetailBerita'));
-    // Tutup modal list manual agar tidak tumpang tindih backdrop
-    const listModalEl = document.getElementById('modalBerita');
-    const listModal = bootstrap.Modal.getInstance(listModalEl);
+    // eslint-disable-next-line no-undef
+    const listModal = bootstrap.Modal.getInstance(document.getElementById('modalBerita'));
     if(listModal) listModal.hide();
 
     detailModal.show();
 }
 
-// Panggil fungsi
-loadDynamicNews();
+// Inisialisasi awal
+function initAllDynamics() {
+    loadDynamicProducts();
+    loadDynamicArts();
+    loadDynamicGroups();
+    loadDynamicNews();
+}
+
+initAllDynamics();
