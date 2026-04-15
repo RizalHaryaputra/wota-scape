@@ -1,20 +1,20 @@
 /*
- * custom.css — WotaScape Virtual Tour
+ * custom.css — WotaSpace Virtual Tour
  * =====================================================
- * File ini HANYA berisi style yang tidak bisa/terlalu
- * rumit untuk di-handle dengan Tailwind CSS utility classes.
+ * Design system untuk Virtual Tour Desa Wota Wati,
+ * Gunung Kidul, Yogyakarta.
  *
- * Kategori yang ada di sini:
- *   1. Three.js Canvas Layer (z-index & positioning absolut)
- *   2. Z-index override untuk Bootstrap Modal di atas canvas
- *   3. Custom keyframe animations
- *   4. Webkit scrollbar styling
- *   5. Rendered HTML content (TinyMCE output) styling
+ * Palette:
+ *   Forest  : #2d5a27  (hijau tua)
+ *   Leaf    : #4a8c3f  (hijau daun)
+ *   Jade    : #3d7a5e  (hijau jade)
+ *   Stone   : #8b7355  (coklat batu)
+ *   Amber   : #d4a843  (kuning keemasan)
+ *   Cream   : #f5f0e8  (putih alami)
  * =====================================================
  */
 
 /* ===== 1. THREE.JS CANVAS CONTAINER ===== */
-/* Canvas harus full-screen dan paling bawah dari semua UI */
 #container {
     width: 100vw;
     height: 100vh;
@@ -27,18 +27,9 @@
 }
 
 /* ===== 2. BOOTSTRAP MODAL Z-INDEX OVERRIDE ===== */
-/* Pastikan modal Bootstrap SELALU tampil di atas canvas Three.js */
-.modal {
-    z-index: 10055 !important;
-}
-
-.modal-backdrop {
-    z-index: 10050 !important;
-}
-
-.modal-content {
-    pointer-events: auto !important;
-}
+.modal               { z-index: 10055 !important; }
+.modal-backdrop      { z-index: 10050 !important; }
+.modal-content       { pointer-events: auto !important; }
 
 /* ===== 3. KEYFRAME ANIMATIONS ===== */
 @keyframes spin {
@@ -46,50 +37,451 @@
     to   { transform: rotate(360deg); }
 }
 
+@keyframes spinReverse {
+    from { transform: rotate(360deg); }
+    to   { transform: rotate(0deg); }
+}
+
 @keyframes hotspotBounce {
-    0%, 100% { transform: translateY(0); }
+    0%, 100% { transform: translateY(0);    }
     50%       { transform: translateY(-8px); }
 }
 
-/* Loading spinner — digunakan oleh #global-loader */
-.loader-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(255, 215, 0, 0.25);
-    border-top-color: #FFD700;
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dot-pulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40%           { transform: scale(1.0); opacity: 1;   }
+}
+
+@keyframes ringPulse {
+    0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+    100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+/* ===== 4. GLOBAL LOADER ===== */
+#global-loader {
+    transition: opacity 0.6s ease;
+}
+
+/* Outer pulsing ring */
+.loader-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px;
+    height: 180px;
+    border: 2px solid rgba(74, 140, 63, 0.25);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: ringPulse 2.5s ease-out infinite;
+}
+.loader-ring-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 130px;
+    height: 130px;
+    border: 2px solid rgba(212, 168, 67, 0.2);
+    border-radius: 50%;
+    animation: ringPulse 2.5s ease-out infinite 0.8s;
 }
 
-/* ===== 4. CUSTOM SCROLLBAR ===== */
-::-webkit-scrollbar {
-    width: 0.25em;
-    height: 0.25em;
+/* Centered content */
+.loader-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeInUp 0.8s ease both;
 }
 
-::-webkit-scrollbar-track {
-    background: #2c3643;
+.loader-logo-icon {
+    font-size: 2.5rem;
+    color: #4a8c3f;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 0 12px rgba(74, 140, 63, 0.5));
 }
 
-::-webkit-scrollbar-thumb {
-    background: #8B4513;
-    transition: background 0.5s;
+.loader-spinner-wrap {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    margin: 4px 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #A0522D;
+.loader-spinner {
+    width: 52px;
+    height: 52px;
+    border: 3px solid rgba(74, 140, 63, 0.15);
+    border-top-color: #4a8c3f;
+    border-right-color: #d4a843;
+    border-radius: 50%;
+    animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
 }
 
-/* ===== 5. TINYMCE RENDERED HTML CONTENT ===== */
-/* Style untuk konten berita yang di-render dari TinyMCE */
+.loader-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f5f0e8;
+    letter-spacing: 0.05em;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(74, 140, 63, 0.4);
+}
+
+.loader-subtitle {
+    font-size: 0.75rem;
+    color: rgba(245, 240, 232, 0.55);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.loader-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+.loader-dots span {
+    width: 6px;
+    height: 6px;
+    background: #4a8c3f;
+    border-radius: 50%;
+    animation: dot-pulse 1.4s ease-in-out infinite;
+}
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; background: #d4a843; }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Transition overlay spinner */
+.transition-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: #4a8c3f;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ===== 5. NAVBAR ===== */
+.wota-navbar {
+    background: linear-gradient(
+        180deg,
+        rgba(10, 20, 10, 0.90) 0%,
+        rgba(10, 20, 10, 0.60) 100%
+    );
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(74, 140, 63, 0.25);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Brand */
+.navbar-brand-wota {
+    text-decoration: none;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #2d5a27, #4a8c3f);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f5f0e8;
+    font-size: 1rem;
+    box-shadow: 0 2px 10px rgba(74, 140, 63, 0.4);
+    flex-shrink: 0;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f5f0e8;
+    letter-spacing: 0.03em;
+}
+
+.brand-tagline {
+    font-size: 0.62rem;
+    color: #d4a843;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Nav Links */
+.nav-link-wota {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: rgba(245, 240, 232, 0.85);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.nav-link-wota:hover {
+    color: #d4a843;
+    background: rgba(74, 140, 63, 0.15);
+    border-color: rgba(74, 140, 63, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Mobile toggler */
+.navbar-toggler-wota {
+    background: rgba(74, 140, 63, 0.2);
+    border: 1px solid rgba(74, 140, 63, 0.4);
+    border-radius: 8px;
+    color: #f5f0e8;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.navbar-toggler-wota:hover {
+    background: rgba(74, 140, 63, 0.4);
+}
+
+/* ===== 6. CONTROL BUTTONS ===== */
+.ctrl-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(13, 31, 13, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: rgba(245, 240, 232, 0.9);
+    border: 1px solid rgba(74, 140, 63, 0.35);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ctrl-btn:hover {
+    background: rgba(74, 140, 63, 0.85);
+    border-color: rgba(74, 140, 63, 0.8);
+    color: #f5f0e8;
+    transform: scale(1.12) translateY(-1px);
+    box-shadow: 0 6px 20px rgba(74, 140, 63, 0.4);
+}
+
+.ctrl-btn:active {
+    transform: scale(0.96);
+}
+
+.ctrl-divider {
+    height: 1px;
+    background: rgba(74, 140, 63, 0.3);
+    width: 28px;
+    margin: 2px auto;
+}
+
+/* ===== 7. LOCATION BADGE ===== */
+.location-badge-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(13, 31, 13, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(74, 140, 63, 0.35);
+    border-radius: 14px;
+    padding: 8px 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.location-pin {
+    color: #d4a843;
+    font-size: 1.1rem;
+    animation: hotspotBounce 2s ease-in-out infinite;
+}
+
+.location-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #f5f0e8;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.location-sub {
+    font-size: 0.68rem;
+    color: rgba(245, 240, 232, 0.55);
+    margin: 0;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+}
+
+/* ===== 8. NAVIGATION TIPS ===== */
+.nav-tips {
+    background: rgba(13, 31, 13, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(74, 140, 63, 0.25);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 0.72rem;
+    color: rgba(245, 240, 232, 0.7);
+    white-space: nowrap;
+    animation: fadeInUp 1s ease 2s both;
+}
+
+/* ===== 9. MAP OVERLAY ===== */
+.map-overlay-wrap {
+    width: 320px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    border: 1px solid rgba(74, 140, 63, 0.4);
+    animation: fadeInUp 0.3s ease;
+}
+
+.map-overlay-header {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #2d5a27, #3d7a5e);
+    color: #f5f0e8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    gap: 4px;
+}
+
+.map-close-btn {
+    background: none;
+    border: none;
+    color: rgba(245,240,232,0.7);
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    margin-left: auto;
+}
+.map-close-btn:hover { color: #f5f0e8; }
+
+/* ===== 10. MODALS ===== */
+.wota-modal {
+    border: 1px solid rgba(74, 140, 63, 0.2);
+    border-radius: 18px !important;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.wota-modal-header {
+    background: linear-gradient(135deg, #1a3320 0%, #2d5a27 50%, #3d7a5e 100%);
+    color: #f5f0e8;
+    border-bottom: 1px solid rgba(74, 140, 63, 0.3);
+    padding: 14px 20px;
+}
+
+.modal-icon {
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+/* Wota Tabs */
+.wota-tabs {
+    border-bottom: 2px solid #e8f0e6;
+    gap: 4px;
+}
+
+.wota-tab {
+    background: none;
+    border: none;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    border-radius: 6px 6px 0 0;
+}
+
+.wota-tab.active,
+.wota-tab:focus {
+    color: #2d5a27;
+    border-bottom-color: #4a8c3f;
+    background: rgba(74, 140, 63, 0.06);
+    outline: none;
+}
+
+.wota-tab:hover:not(.active) {
+    color: #4a8c3f;
+    background: rgba(74, 140, 63, 0.04);
+}
+
+/* Back button in news detail */
+.wota-btn-back {
+    background: linear-gradient(135deg, #2d5a27, #4a8c3f);
+    color: #f5f0e8;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.wota-btn-back:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+/* ===== 11. SCROLLBAR ===== */
+::-webkit-scrollbar       { width: 0.25em; height: 0.25em; }
+::-webkit-scrollbar-track { background: #1a3320; }
+::-webkit-scrollbar-thumb { background: #4a8c3f; transition: background 0.3s; }
+::-webkit-scrollbar-thumb:hover { background: #d4a843; }
+
+/* ===== 12. TINYMCE RENDERED HTML CONTENT ===== */
 .news-content-body img {
     max-width: 100%;
     height: auto;
-    border-radius: 5px;
+    border-radius: 8px;
     margin: 10px 0;
 }
 
 .news-content-body p {
     margin-bottom: 1rem;
-    line-height: 1.7;
+    line-height: 1.75;
+}
+
+/* ===== 13. SWIPER THEME OVERRIDE ===== */
+.swiper-button-next,
+.swiper-button-prev {
+    color: #4a8c3f !important;
+}
+
+.swiper-pagination-bullet-active {
+    background: #4a8c3f !important;
 }

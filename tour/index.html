@@ -2,14 +2,19 @@
 <html lang="id">
 
 <head>
-	<title>KAVVIAR - Krebet Arts Village Virtual Reality</title>
-	<meta name="description" content="Virtual Tour 360° Desa Wisata Krebet, Bantul, Yogyakarta.">
+	<title>WotaSpace — Virtual Tour 360° Desa Wota Wati, Gunung Kidul</title>
+	<meta name="description" content="Jelajahi keindahan Desa Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif. Temukan keunikan budaya, alam, dan kehidupan desa yang autentik.">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
-	<meta name="viewport"
-		content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, shrink-to-fit=no">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, shrink-to-fit=no">
+	<meta name="theme-color" content="#1a2e1a">
 
-	<!-- ===== BOOTSTRAP 5 — Dipertahankan untuk komponen Modal & Tab API ===== -->
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+	<!-- ===== BOOTSTRAP 5 ===== -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 	<!-- ===== ICONS ===== -->
@@ -22,29 +27,36 @@
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script>
 		tailwind.config = {
-			corePlugins: { preflight: false }, /* Nonaktifkan reset Tailwind agar tidak konflik Bootstrap */
+			corePlugins: { preflight: false },
 			theme: {
 				extend: {
 					colors: {
-						gold: '#FFD700',
-						saddlebrown: '#8B4513',
-						darkbrown: '#6f370f',
+						forest:  '#2d5a27',
+						leaf:    '#4a8c3f',
+						stone:   '#8b7355',
+						cream:   '#f5f0e8',
+						jade:    '#3d7a5e',
+						amber:   '#d4a843',
 					},
 					zIndex: {
 						'canvas': '0',
-						'ui': '999',
-						'map': '998',
+						'ui':     '999',
+						'map':    '998',
 						'loader': '99999',
+					},
+					fontFamily: {
+						sans:    ['Inter', 'sans-serif'],
+						display: ['Playfair Display', 'serif'],
 					}
 				}
 			}
 		}
 	</script>
 
-	<!-- ===== CUSTOM CSS (hanya untuk hal non-Tailwind) ===== -->
+	<!-- ===== CUSTOM CSS ===== -->
 	<link rel="stylesheet" type="text/css" href="css/custom.css">
 
-	<!-- imagedata.js harus dimuat sebelum Three.js script agar `hotspotIcons` tersedia -->
+	<!-- imagedata.js harus dimuat sebelum Three.js script -->
 	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
 	<script src="js/jquery.js"></script>
 	<script src="js/imagedata.js"></script>
@@ -52,78 +64,104 @@
 
 </head>
 
-<body class="m-0 overflow-hidden" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<body class="m-0 overflow-hidden" style="font-family: 'Inter', sans-serif;">
 
 	<!-- ============================================================ -->
 	<!-- LAYER 1: GLOBAL LOADING SCREEN                               -->
-	<!-- Menutupi seluruh halaman saat panorama pertama dimuat        -->
 	<!-- ============================================================ -->
 	<div id="global-loader"
-		class="fixed inset-0 z-[loader] bg-[#1a1a1a] flex flex-col justify-center items-center text-gold transition-opacity duration-500">
-		<div class="loader-spinner mb-4"></div>
-		<h4 class="text-gold text-base font-medium tracking-widest">Memuat Virtual Tour...</h4>
+		class="fixed inset-0 z-[loader] flex flex-col justify-center items-center"
+		style="background: linear-gradient(135deg, #0d1f0d 0%, #1a3320 50%, #0d1f0d 100%);">
+
+		<!-- Decorative rings -->
+		<div class="loader-ring"></div>
+		<div class="loader-ring-inner"></div>
+
+		<!-- Logo & Spinner -->
+		<div class="loader-content">
+			<div class="loader-logo-icon">
+				<i class="fa-solid fa-earth-asia"></i>
+			</div>
+			<div class="loader-spinner-wrap">
+				<div class="loader-spinner"></div>
+			</div>
+			<h1 class="loader-brand">WotaSpace</h1>
+			<p class="loader-subtitle">Memuat Virtual Tour...</p>
+			<div class="loader-dots">
+				<span></span><span></span><span></span>
+			</div>
+		</div>
 	</div>
 
 	<!-- ============================================================ -->
 	<!-- LAYER 2: THREE.JS CANVAS CONTAINER                           -->
-	<!-- Diposisikan absolut paling bawah (z-index: 0 via custom.css) -->
 	<!-- ============================================================ -->
 	<div id="container"></div>
 
 	<!-- Overlay transisi antar-panorama -->
 	<div id="overlay"
 		class="absolute inset-0 w-screen h-screen bg-black/80 text-white text-3xl flex justify-center items-center z-[ui] opacity-0 pointer-events-none transition-opacity duration-500">
-		Loading...
+		<div class="flex flex-col items-center gap-3">
+			<div class="transition-spinner"></div>
+			<span class="text-sm tracking-widest text-white/70 uppercase">Berpindah Lokasi</span>
+		</div>
 	</div>
 
 	<!-- ============================================================ -->
 	<!-- LAYER 3: UI OVERLAY                                          -->
-	<!-- Semua elemen antarmuka yang melayang di atas canvas          -->
 	<!-- ============================================================ -->
 
-	<!-- === NAVBAR === -->
+	<!-- ===== NAVBAR ===== -->
 	<header class="absolute top-0 left-0 w-full z-[ui] pointer-events-none">
-		<nav class="navbar navbar-expand-lg w-full px-4 py-2 pointer-events-auto"
-			style="background: rgba(139,69,19,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.15);"
-			aria-label="Navigasi utama KAVVIAR">
+		<nav class="w-full pointer-events-auto wota-navbar" aria-label="Navigasi utama WotaSpace">
 
-			<div class="container-fluid">
+			<div class="navbar-inner d-flex align-items-center justify-content-between px-4 py-0" style="min-height: 60px;">
+
 				<!-- Brand -->
-				<a class="navbar-brand fw-bold tracking-widest" href="/"
-					style="color: #FFD700; letter-spacing: 0.08em;">
-					<i class="fa-solid fa-mask me-2"></i>KAVVIAR
+				<a class="navbar-brand-wota d-flex align-items-center gap-2 text-decoration-none" href="/">
+					<div class="brand-icon">
+						<i class="fa-solid fa-earth-asia"></i>
+					</div>
+					<div class="brand-text">
+						<span class="brand-name">WotaSpace</span>
+						<span class="brand-tagline">Virtual Tour 360°</span>
+					</div>
 				</a>
 
 				<!-- Toggler (mobile) -->
-				<button class="navbar-toggler bg-white/20 border-0 p-2" type="button" data-bs-toggle="collapse"
+				<button class="navbar-toggler-wota d-lg-none" type="button" data-bs-toggle="collapse"
 					data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Buka menu">
-					<span class="navbar-toggler-icon"></span>
+					<i class="fa-solid fa-bars"></i>
 				</button>
 
 				<!-- Nav Links -->
-				<div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-					<ul class="navbar-nav gap-1">
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav d-flex align-items-center gap-1 ms-auto">
 						<li class="nav-item">
-							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+							<a class="nav-link-wota" href="#"
 								data-bs-toggle="modal" data-bs-target="#modalProfil">
-								Profil &amp; Seniman
+								<i class="fa-solid fa-users-viewfinder me-1"></i>
+								Profil Desa
 							</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+							<a class="nav-link-wota" href="#"
 								data-bs-toggle="modal" data-bs-target="#modalKesenian">
-								Galeri Kesenian
+								<i class="fa-solid fa-palette me-1"></i>
+								Galeri Budaya
 							</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+							<a class="nav-link-wota" href="#"
 								data-bs-toggle="modal" data-bs-target="#modalProduk">
-								Katalog Produk
+								<i class="fa-solid fa-basket-shopping me-1"></i>
+								Produk Lokal
 							</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link text-white/90 hover:text-[#FFD700] transition-colors px-3" href="#"
+							<a class="nav-link-wota" href="#"
 								data-bs-toggle="modal" data-bs-target="#modalBerita">
+								<i class="fa-regular fa-newspaper me-1"></i>
 								Berita Desa
 							</a>
 						</li>
@@ -133,60 +171,68 @@
 		</nav>
 	</header>
 
-	<!-- === FLOATING CONTROLS — TENGAH KANAN (Zoom & Rotate) === -->
-	<aside class="absolute right-5 top-1/2 -translate-y-1/2 z-[ui] flex flex-col gap-2.5" aria-label="Kontrol kamera">
-		<button
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="customZoomIn()" title="Zoom In">
+	<!-- ===== FLOATING CONTROLS — TENGAH KANAN (Zoom & Rotate) ===== -->
+	<aside class="absolute right-4 top-1/2 -translate-y-1/2 z-[ui] flex flex-col gap-2" aria-label="Kontrol kamera">
+		<button class="ctrl-btn" onclick="customZoomIn()" title="Zoom In" id="btn-zoom-in">
 			<i class="fa-solid fa-plus text-sm"></i>
 		</button>
-		<button
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="customZoomOut()" title="Zoom Out">
+		<button class="ctrl-btn" onclick="customZoomOut()" title="Zoom Out" id="btn-zoom-out">
 			<i class="fa-solid fa-minus text-sm"></i>
 		</button>
-		<button
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="toggleAutoRotate()" title="Auto Rotate">
-			<i class="fa-solid fa-sync text-sm"></i>
+		<div class="ctrl-divider"></div>
+		<button class="ctrl-btn" onclick="toggleAutoRotate()" title="Auto Rotate" id="btn-rotate">
+			<i class="fa-solid fa-arrow-rotate-right text-sm"></i>
 		</button>
 	</aside>
 
-	<!-- === FLOATING CONTROLS — BAWAH KANAN (Sound, Map, Fullscreen) === -->
-	<aside class="absolute right-5 bottom-5 z-[ui] flex flex-col gap-2.5" aria-label="Kontrol tambahan">
-		<button id="btnSound"
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="toggleSound()" title="Toggle Musik">
+	<!-- ===== FLOATING CONTROLS — BAWAH KANAN (Sound, Map, Fullscreen) ===== -->
+	<aside class="absolute right-4 bottom-6 z-[ui] flex flex-col gap-2" aria-label="Kontrol tambahan">
+		<button id="btnSound" class="ctrl-btn" onclick="toggleSound()" title="Toggle Musik">
 			<i class="fa-solid fa-volume-xmark text-sm"></i>
 		</button>
-		<button
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="toggleMap()" title="Peta Desa">
+		<button class="ctrl-btn" onclick="toggleMap()" title="Peta Desa" id="btn-map">
 			<i class="fa-solid fa-map-location-dot text-sm"></i>
 		</button>
-		<button
-			class="w-11 h-11 rounded-full bg-saddlebrown text-white border-2 border-white/40 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-gold hover:text-saddlebrown hover:scale-110 cursor-pointer"
-			onclick="toggleFullscreen()" title="Fullscreen">
+		<button class="ctrl-btn" onclick="toggleFullscreen()" title="Fullscreen" id="btn-fullscreen">
 			<i class="fa-solid fa-expand text-sm"></i>
 		</button>
 	</aside>
 
-	<!-- === LABEL NAMA LOKASI — KIRI BAWAH === -->
-	<p id="bottomLeftText"
-		class="absolute bottom-5 left-5 z-[ui] text-white bg-black/60 px-4 py-2 rounded-full text-sm pointer-events-none">
-		Desa Wisata Krebet
-	</p>
-
-	<!-- === MAP OVERLAY === -->
-	<div id="mapOverlay"
-		class="absolute bottom-20 right-20 w-[300px] h-[200px] border-4 border-white rounded-xl shadow-2xl z-[map] hidden overflow-hidden">
-		<iframe
-			src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7904.707837966173!2d110.29424334740732!3d-7.857979489714501!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7af8ecffffffff%3A0xd0279595d07b3187!2sDesa%20Wisata%20Krebet%20Pajangan!5e0!3m2!1sid!2sid!4v1763599329532!5m2!1sid!2sid"
-			width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy" title="Peta Desa Wisata Krebet">
-		</iframe>
+	<!-- ===== LABEL NAMA LOKASI — KIRI BAWAH ===== -->
+	<div class="absolute bottom-6 left-4 z-[ui] pointer-events-none location-badge">
+		<div class="location-badge-inner">
+			<i class="fa-solid fa-location-dot location-pin"></i>
+			<div>
+				<p id="bottomLeftText" class="location-name">Desa Wota Wati</p>
+				<p class="location-sub">Gunung Kidul, Yogyakarta</p>
+			</div>
+		</div>
 	</div>
 
-	<!-- === BACKGROUND AUDIO === -->
+	<!-- ===== TIPS NAVIGASI — TENGAH BAWAH ===== -->
+	<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-[ui] pointer-events-none nav-tips" id="navTips">
+		<span><i class="fa-solid fa-hand-pointer me-1"></i>Seret untuk menjelajahi</span>
+		<span class="mx-2 opacity-40">|</span>
+		<span><i class="fa-solid fa-scroll me-1"></i>Scroll untuk zoom</span>
+	</div>
+
+	<!-- ===== MAP OVERLAY ===== -->
+	<div id="mapOverlay"
+		class="absolute bottom-20 right-20 z-[map] hidden overflow-hidden map-overlay-wrap">
+		<div class="map-overlay-header">
+			<i class="fa-solid fa-map-location-dot me-2"></i>
+			<span>Peta Desa Wota Wati</span>
+			<button class="map-close-btn ms-auto" onclick="toggleMap()" title="Tutup peta">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		</div>
+		<iframe
+			src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.5!2d110.5!3d-8.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sWota+Wati%2C+Gunung+Kidul!5e0!3m2!1sid!2sid!4v1"
+			width="100%" height="220" style="border:0; display:block;" allowfullscreen loading="lazy"
+			title="Peta Desa Wota Wati, Gunung Kidul"></iframe>
+	</div>
+
+	<!-- ===== BACKGROUND AUDIO ===== -->
 	<audio id="bgAudio" loop>
 		<source src="audio/gamelan.mp3" type="audio/mpeg">
 	</audio>
@@ -194,54 +240,53 @@
 
 	<!-- ============================================================ -->
 	<!-- BOOTSTRAP MODALS                                             -->
-	<!-- Ditempatkan di luar flow layout, sebelum </body>             -->
 	<!-- ============================================================ -->
 
-	<!-- === MODAL: PROFIL & SENIMAN === -->
+	<!-- === MODAL: PROFIL DESA === -->
 	<div class="modal fade" id="modalProfil" tabindex="-1" aria-labelledby="modalProfilLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold" id="modalProfilLabel">
-						<i class="fa-solid fa-users me-2"></i>Profil KAVVIAR
-					</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+						<h5 class="modal-title fw-bold mb-0" id="modalProfilLabel">Profil Desa Wota Wati</h5>
+					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body text-dark" style="max-height: 70vh; overflow-y: auto;">
+				<div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
 					<!-- Tab Navigation -->
-					<ul class="nav nav-tabs" id="profilTab" role="tablist">
+					<ul class="nav wota-tabs mb-3" id="profilTab" role="tablist">
 						<li class="nav-item" role="presentation">
-							<button class="nav-link active fw-semibold text-dark" id="pengurus-tab" data-bs-toggle="tab"
-								data-bs-target="#tab-pengurus" type="button" role="tab" aria-controls="tab-pengurus"
-								aria-selected="true">
-								Pengurus Seni
+							<button class="wota-tab active" id="pengurus-tab" data-bs-toggle="tab"
+								data-bs-target="#tab-pengurus" type="button" role="tab" aria-selected="true">
+								<i class="fa-solid fa-sitemap me-1"></i>Struktur Pengurus
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
-							<button class="nav-link fw-semibold text-dark" id="kelompok-tab" data-bs-toggle="tab"
-								data-bs-target="#tab-kelompok" type="button" role="tab" aria-controls="tab-kelompok"
-								aria-selected="false">
-								Kelompok Seni
+							<button class="wota-tab" id="kelompok-tab" data-bs-toggle="tab"
+								data-bs-target="#tab-kelompok" type="button" role="tab" aria-selected="false">
+								<i class="fa-solid fa-people-group me-1"></i>Kelompok Seni
 							</button>
 						</li>
 					</ul>
 
 					<!-- Tab Content -->
-					<div class="tab-content p-3" id="profilTabContent">
+					<div class="tab-content" id="profilTabContent">
 						<!-- Tab: Pengurus -->
 						<div class="tab-pane fade show active" id="tab-pengurus" role="tabpanel"
 							aria-labelledby="pengurus-tab">
-							<h6 class="fw-semibold mb-3 text-dark">Struktur Pengurus Desa Wisata Krebet</h6>
-							<img src="images/struktur-pengurus.png" alt="Struktur Pengurus Desa Wisata Krebet"
-								class="img-fluid rounded-lg">
+							<h6 class="fw-semibold mb-3 text-dark">Struktur Pengurus Desa Wota Wati</h6>
+							<img src="images/struktur-pengurus.png" alt="Struktur Pengurus Desa Wota Wati"
+								class="img-fluid rounded-3 w-100">
 						</div>
 						<!-- Tab: Kelompok Seni (diisi Firebase) -->
 						<div class="tab-pane fade" id="tab-kelompok" role="tabpanel" aria-labelledby="kelompok-tab">
-							<ul class="list-group" id="listKelompok">
+							<ul class="list-group list-group-flush" id="listKelompok">
 								<li class="list-group-item text-center py-4">
-									<div class="spinner-border text-warning spinner-border-sm" role="status"></div>
-									<span class="ms-2 text-muted">Memuat data kelompok...</span>
+									<div class="spinner-border spinner-border-sm" role="status"
+										style="color: #4a8c3f;"></div>
+									<span class="ms-2 text-muted small">Memuat data kelompok...</span>
 								</li>
 							</ul>
 						</div>
@@ -251,19 +296,20 @@
 		</div>
 	</div>
 
-	<!-- === MODAL: GALERI KESENIAN === -->
-	<div class="modal fade" id="modalKesenian" tabindex="-1" aria-label="Galeri Kesenian" aria-hidden="true">
+	<!-- === MODAL: GALERI BUDAYA === -->
+	<div class="modal fade" id="modalKesenian" tabindex="-1" aria-label="Galeri Budaya" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold">
-						<i class="fa-solid fa-masks-theater me-2"></i>Galeri Kesenian
-					</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-solid fa-palette"></i></div>
+						<h5 class="modal-title fw-bold mb-0">Galeri Budaya & Kesenian</h5>
+					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body p-0">
-					<div class="swiper mySwiper" style="min-height: 350px;">
+					<div class="swiper mySwiper" style="min-height: 380px;">
 						<div class="swiper-wrapper" id="kesenianContainer"></div>
 						<div class="swiper-button-next"></div>
 						<div class="swiper-button-prev"></div>
@@ -274,19 +320,20 @@
 		</div>
 	</div>
 
-	<!-- === MODAL: KATALOG PRODUK === -->
-	<div class="modal fade" id="modalProduk" tabindex="-1" aria-label="Katalog Produk" aria-hidden="true">
+	<!-- === MODAL: PRODUK LOKAL === -->
+	<div class="modal fade" id="modalProduk" tabindex="-1" aria-label="Produk Lokal" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold">
-						<i class="fa-solid fa-store me-2"></i>Katalog Produk
-					</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-solid fa-basket-shopping"></i></div>
+						<h5 class="modal-title fw-bold mb-0">Produk Lokal Unggulan</h5>
+					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body p-0">
-					<div class="swiper mySwiperProduk" style="min-height: 350px;">
+					<div class="swiper mySwiperProduk" style="min-height: 380px;">
 						<div class="swiper-wrapper" id="produkContainer"></div>
 						<div class="swiper-button-next"></div>
 						<div class="swiper-button-prev"></div>
@@ -300,16 +347,17 @@
 	<!-- === MODAL: INFO MEDIA (Gambar / Video / Audio dari Hotspot) === -->
 	<div class="modal fade" id="modalMedia" tabindex="-1" aria-label="Info Media" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold">
-						<i class="fa-solid fa-circle-info me-2"></i>Info Detail
-					</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-solid fa-circle-info"></i></div>
+						<h5 class="modal-title fw-bold mb-0">Info Detail Lokasi</h5>
+					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body text-center d-flex align-items-center justify-content-center p-0"
-					id="modalMediaContent" style="background: #000; min-height: 200px; border-radius: 0 0 1rem 1rem;">
+					id="modalMediaContent" style="background: #0d0d0d; min-height: 200px; border-radius: 0 0 1rem 1rem;">
 				</div>
 			</div>
 		</div>
@@ -318,19 +366,20 @@
 	<!-- === MODAL: DAFTAR BERITA === -->
 	<div class="modal fade" id="modalBerita" tabindex="-1" aria-label="Berita Desa" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold">
-						<i class="fa-regular fa-newspaper me-2"></i>Kabar Krebet
-					</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-regular fa-newspaper"></i></div>
+						<h5 class="modal-title fw-bold mb-0">Kabar Desa Wota Wati</h5>
+					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
-				<div class="modal-body bg-light">
+				<div class="modal-body" style="background: #f8f9f7;">
 					<div id="newsListContainer" class="row g-3">
 						<div class="col-12 text-center py-5">
-							<div class="spinner-border text-warning" role="status"></div>
-							<p class="mt-2 text-muted">Memuat berita...</p>
+							<div class="spinner-border" role="status" style="color: #4a8c3f;"></div>
+							<p class="mt-2 text-muted small">Memuat berita...</p>
 						</div>
 					</div>
 				</div>
@@ -341,14 +390,14 @@
 	<!-- === MODAL: DETAIL BERITA === -->
 	<div class="modal fade" id="modalDetailBerita" tabindex="-1" aria-label="Detail Berita" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-			<div class="modal-content rounded-2xl border-0 overflow-hidden">
-				<div class="modal-header text-white" style="background-color: #8B4513;">
-					<h5 class="modal-title fw-bold" id="detailNewsTitle">Judul Berita</h5>
+			<div class="modal-content wota-modal">
+				<div class="modal-header wota-modal-header">
+					<h5 class="modal-title fw-bold mb-0" id="detailNewsTitle">Judul Berita</h5>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
 				</div>
 				<div class="modal-body">
-					<img id="detailNewsImg" src="" class="img-fluid rounded w-100 mb-3"
+					<img id="detailNewsImg" src="" class="img-fluid rounded-3 w-100 mb-3"
 						style="max-height: 400px; object-fit: cover; display: none;" alt="Foto berita">
 
 					<div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
@@ -359,7 +408,7 @@
 							<i class="fa-regular fa-user me-1"></i>
 							<span id="detailNewsAuthor">-</span>
 						</div>
-						<button type="button" class="btn btn-sm ms-auto" style="background-color:#8B4513; color:white;"
+						<button type="button" class="wota-btn-back"
 							data-bs-toggle="modal" data-bs-target="#modalBerita">
 							<i class="fa-solid fa-arrow-left me-1"></i>Kembali
 						</button>
@@ -373,20 +422,17 @@
 
 	<!-- ============================================================ -->
 	<!-- SCRIPTS                                                      -->
-	<!-- Urutan pemuatan penting: Three.js → OrbitControls →          -->
-	<!-- inline Three.js logic → Bootstrap → Swiper →                 -->
-	<!-- main-dynamic.js (Firebase) → ui-controller.js               -->
 	<!-- ============================================================ -->
 
 	<!-- Three.js Libraries -->
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
 
-	<!-- ===== THREE.JS & UI LOGIC (MODULES) ===== -->
+	<!-- THREE.JS & UI LOGIC (MODULES) -->
 	<script type="module" src="js/ui/ui-controller.js"></script>
 	<script type="module" src="js/core/tour-3d.js"></script>
 
-	<!-- Bootstrap Bundle (termasuk Popper) -->
+	<!-- Bootstrap Bundle -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 	<!-- Swiper -->
@@ -395,9 +441,18 @@
 	<!-- Firebase — Data Fetching (ES Module) -->
 	<script type="module" src="js/main-dynamic.js"></script>
 
-	
+	<!-- Auto-hide nav tips after 5s -->
+	<script>
+		setTimeout(() => {
+			const tips = document.getElementById('navTips');
+			if (tips) {
+				tips.style.opacity = '0';
+				tips.style.transition = 'opacity 1s ease';
+				setTimeout(() => tips.style.display = 'none', 1000);
+			}
+		}, 5000);
+	</script>
 
 </body>
 
 </html>
-
