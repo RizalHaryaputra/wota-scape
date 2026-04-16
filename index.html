@@ -4,21 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jelajahi Sentra Kerajinan Batik Kayu Krebet secara virtual dari mana saja.">
-    <title>KAVVIAR — Virtual Tour Desa Wisata Krebet</title>
+    <meta name="description" content="Jelajahi keindahan Desa Wota Wati, Gunung Kidul, Yogyakarta secara virtual 360° dari mana saja. Temukan pesona alam, budaya, dan kehidupan desa yang autentik.">
+    <title>WotaSpace — Virtual Tour 360° Desa Wota Wati, Gunung Kidul</title>
 
     <!-- ===== FONTS ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
     <!-- ===== ICONS ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- ===== ANIMATE.CSS ===== -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
     <!-- ===== TAILWIND CSS CDN ===== -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,69 +24,383 @@
                 extend: {
                     fontFamily: {
                         playfair: ['"Playfair Display"', 'serif'],
-                        poppins: ['Poppins', 'sans-serif'],
+                        inter:    ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        gold: '#FFD700',
-                        saddlebrown: '#8B4513',
+                        forest: '#2d5a27',
+                        leaf:   '#4a8c3f',
+                        jade:   '#3d7a5e',
+                        amber:  '#d4a843',
+                        cream:  '#f5f0e8',
                     },
-                    dropShadow: {
-                        'title': '2px 2px 10px rgba(0,0,0,0.8)',
+                    animation: {
+                        'fade-down':  'fadeDown 0.9s ease both',
+                        'fade-up':    'fadeUp 0.9s ease 0.5s both',
+                        'fade-up-2':  'fadeUp 0.9s ease 0.9s both',
+                        'fade-up-3':  'fadeUp 0.9s ease 1.2s both',
+                        'scan':       'scan 6s linear infinite',
+                        'float':      'float 4s ease-in-out infinite',
+                        'pulse-ring': 'pulseRing 2.5s ease-out infinite',
+                    },
+                    keyframes: {
+                        fadeDown: {
+                            '0%':   { opacity: '0', transform: 'translateY(-24px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeUp: {
+                            '0%':   { opacity: '0', transform: 'translateY(24px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scan: {
+                            '0%':   { top: '-2px' },
+                            '50%':  { top: 'calc(100% - 2px)' },
+                            '100%': { top: '-2px' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%':      { transform: 'translateY(-10px)' },
+                        },
+                        pulseRing: {
+                            '0%':   { transform: 'scale(0.8)', opacity: '0.8' },
+                            '100%': { transform: 'scale(1.8)', opacity: '0' },
+                        }
                     }
                 }
             }
         }
     </script>
+
+    <style>
+        /* ── Global ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #060e06;
+            overflow: hidden;
+            height: 100svh;
+            position: relative;
+        }
+
+        /* ── Scan line effect on video ── */
+        .scan-line {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 2;
+        }
+        .scan-line::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent, rgba(74,140,63,0.3), rgba(74,140,63,0.6),
+                rgba(74,140,63,0.3), transparent);
+            animation: scan 8s linear infinite;
+            filter: blur(1px);
+        }
+
+        /* ── Video grain overlay ── */
+        .grain {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* ── Vignette ── */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center,
+                transparent 40%,
+                rgba(0,0,0,0.55) 80%,
+                rgba(0,0,0,0.85) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ── Brand logo badge ── */
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(74,140,63,0.4);
+            border-radius: 50px;
+            padding: 7px 18px 7px 7px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 28px;
+        }
+        .brand-badge-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #2d5a27, #4a8c3f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f5f0e8;
+            font-size: 0.8rem;
+            box-shadow: 0 0 12px rgba(74,140,63,0.5);
+        }
+        .brand-badge-text {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(245,240,232,0.75);
+        }
+
+        /* ── Divider ── */
+        .divider-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0 24px;
+        }
+        .divider-line::before,
+        .divider-line::after {
+            content: '';
+            flex: 1;
+            max-width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212,168,67,0.6));
+        }
+        .divider-line::after {
+            background: linear-gradient(270deg, transparent, rgba(212,168,67,0.6));
+        }
+        .divider-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #d4a843;
+            box-shadow: 0 0 8px rgba(212,168,67,0.6);
+        }
+
+        /* ── CTA Button ── */
+        .cta-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 40px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #f5f0e8;
+            text-decoration: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #2d5a27 0%, #4a8c3f 50%, #3d7a5e 100%);
+            border: 1px solid rgba(74,140,63,0.6);
+            box-shadow:
+                0 4px 20px rgba(45,90,39,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg,
+                rgba(255,255,255,0.1) 0%,
+                transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow:
+                0 10px 35px rgba(45,90,39,0.6),
+                0 0 0 1px rgba(74,140,63,0.8),
+                inset 0 1px 0 rgba(255,255,255,0.15);
+            color: #fff;
+        }
+        .cta-btn:hover::before { opacity: 1; }
+        .cta-btn:active { transform: translateY(0) scale(0.98); }
+
+        .cta-btn .arrow-icon {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .cta-btn:hover .arrow-icon { transform: translateX(5px); }
+
+        /* ── Feature pills ── */
+        .feature-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: rgba(245,240,232,0.65);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 5px 12px;
+            letter-spacing: 0.04em;
+            transition: all 0.2s;
+        }
+        .feature-pill:hover {
+            background: rgba(74,140,63,0.15);
+            border-color: rgba(74,140,63,0.4);
+            color: rgba(245,240,232,0.9);
+        }
+        .feature-pill i { color: #4a8c3f; font-size: 0.65rem; }
+
+        /* ── Scroll indicator ── */
+        .scroll-cue {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: rgba(245,240,232,0.35);
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+        .scroll-mouse {
+            width: 20px;
+            height: 30px;
+            border: 1px solid rgba(245,240,232,0.2);
+            border-radius: 10px;
+            position: relative;
+        }
+        .scroll-mouse::after {
+            content: '';
+            width: 2px;
+            height: 6px;
+            background: rgba(74,140,63,0.7);
+            border-radius: 2px;
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float 1.5s ease-in-out infinite;
+        }
+
+        /* ── Corner watermarks ── */
+        .corner-mark {
+            position: absolute;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(245,240,232,0.2);
+            pointer-events: none;
+        }
+
+        /* ── Pulse ring behind CTA ── */
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50px;
+            border: 1px solid rgba(74,140,63,0.5);
+            animation: pulseRing 2s ease-out infinite;
+        }
+    </style>
 </head>
 
-<!-- Overflow hidden agar video background tidak scroll -->
-
-<body class="font-poppins h-screen w-screen overflow-hidden bg-black">
+<body>
 
     <!-- ===== BACKGROUND VIDEO ===== -->
-    <video autoplay muted loop playsinline class="fixed inset-0 w-full h-full object-cover -z-10 opacity-90"
+    <video autoplay muted loop playsinline
+        style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.85;"
         aria-hidden="true">
         <source src="videos/bgvideo.mp4" type="video/mp4">
     </video>
 
-    <!-- ===== DARK OVERLAY ===== -->
-    <div class="fixed inset-0 bg-black/55 -z-[5]" aria-hidden="true"></div>
+    <!-- Layered overlays -->
+    <div style="position:fixed;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,14,6,0.65) 0%,rgba(6,14,6,0.3) 40%,rgba(6,14,6,0.7) 100%);" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="scan-line" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ===== CORNER DECORATIONS ===== -->
+    <span class="corner-mark" style="top:18px;left:20px;font-size:0.55rem;">WotaSpace © 2026</span>
+    <span class="corner-mark" style="top:18px;right:20px;text-align:right;">Virtual Tour 360°</span>
 
     <!-- ===== HERO CONTENT ===== -->
-    <main class="relative z-10 h-full flex flex-col justify-center items-center text-center text-white px-5">
+    <main style="position:relative;z-index:10;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px 20px;">
 
-        <!-- Title -->
-        <div class="animate__animated animate__fadeInDown">
-            <p class="font-poppins text-xs md:text-sm font-light tracking-[0.4em] uppercase text-white/70 mb-3">
-                Desa Wisata Krebet — Bantul, Yogyakarta
-            </p>
-            <h1 class="font-playfair text-5xl md:text-7xl font-bold text-gold drop-shadow-title leading-tight">
-                Virtual Tour
-            </h1>
-            <div class="w-24 h-px bg-gold/60 mx-auto my-5"></div>
+        <!-- Brand Badge (animated in) -->
+        <div class="brand-badge animate-fade-down" style="animation-delay:0s;">
+            <div class="brand-badge-icon">
+                <i class="fa-solid fa-earth-asia"></i>
+            </div>
+            <span class="brand-badge-text">Desa Wota Wati · Gunung Kidul</span>
         </div>
 
-        <!-- Subtitle & CTA -->
-        <div class="animate__animated animate__fadeInUp animate__delay-1s flex flex-col items-center gap-6">
-            <p class="hidden md:block text-base leading-relaxed max-w-lg text-white/80">
-                Jelajahi Keindahan Sentra Kerajinan Batik Kayu <br>
-                secara Virtual dari Mana Saja
-            </p>
+        <!-- Headline -->
+        <div class="animate-fade-down" style="animation-fill-mode:both;">
+            <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,8vw,5.5rem);font-weight:700;color:#f5f0e8;line-height:1.1;letter-spacing:-0.01em;text-shadow:0 4px 30px rgba(0,0,0,0.6);">
+                Virtual Tour
+                <span style="display:block;font-style:italic;color:#d4a843;text-shadow:0 0 40px rgba(212,168,67,0.4);">
+                    WotaSpace
+                </span>
+            </h1>
+        </div>
 
-            <a href="tour"
-                class="group inline-flex items-center gap-3 px-10 py-4 text-sm font-medium tracking-widest uppercase text-white bg-transparent border border-gold/80 rounded-full transition-all duration-300 hover:bg-gold hover:border-gold hover:text-saddlebrown hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(255,215,0,0.25)]">
+        <!-- Divider -->
+        <div class="divider-line animate-fade-up" style="width:220px;animation-delay:0.4s;animation-fill-mode:both;">
+            <div class="divider-dot"></div>
+        </div>
+
+        <!-- Subtitle -->
+        <p class="animate-fade-up"
+            style="font-size:clamp(0.8rem,2vw,1rem);font-weight:300;color:rgba(245,240,232,0.7);max-width:420px;line-height:1.75;letter-spacing:0.02em;animation-delay:0.55s;animation-fill-mode:both;">
+            Jelajahi keindahan alam, budaya, dan kehidupan<br class="hidden md:block">
+            Desa Wota Wati secara imersif 360°
+        </p>
+
+        <!-- CTA Button -->
+        <div class="animate-fade-up" style="margin-top:32px;position:relative;animation-delay:0.75s;animation-fill-mode:both;">
+            <div class="pulse-ring" style="animation-delay:1s;"></div>
+            <a href="tour" class="cta-btn" id="btn-mulai-jelajah" aria-label="Mulai Virtual Tour Desa Wota Wati">
+                <i class="fa-solid fa-vr-cardboard" style="font-size:0.95rem;"></i>
                 Mulai Jelajah
-                <i
-                    class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1.5"></i>
+                <i class="fa-solid fa-arrow-right arrow-icon" style="font-size:0.75rem;"></i>
             </a>
+        </div>
+
+        <!-- Feature Pills -->
+        <div class="animate-fade-up" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:28px;animation-delay:1s;animation-fill-mode:both;">
+            <span class="feature-pill">
+                <i class="fa-solid fa-panorama"></i>Panorama 360°
+            </span>
+            <span class="feature-pill">
+                <i class="fa-solid fa-map-pin"></i>Hotspot Interaktif
+            </span>
+            <span class="feature-pill">
+                <i class="fa-solid fa-volume-high"></i>Audio Lokal
+            </span>
+            <span class="feature-pill">
+                <i class="fa-solid fa-map-location-dot"></i>Peta Desa
+            </span>
         </div>
 
     </main>
 
+    <!-- ===== SCROLL CUE ===== -->
+    <div class="scroll-cue animate-fade-up" style="animation-delay:1.4s;animation-fill-mode:both;"
+        aria-hidden="true">
+        <div class="scroll-mouse"></div>
+        <span>Jelajahi</span>
+    </div>
+
     <!-- ===== FOOTER ===== -->
-    <footer
-        class="absolute bottom-4 w-full text-center text-white/40 text-xs z-20 pointer-events-none tracking-widest uppercase">
-        &copy; 2026 KAVVIAR — All rights reserved.
+    <footer style="position:absolute;bottom:14px;width:100%;text-align:center;color:rgba(245,240,232,0.28);font-size:0.62rem;z-index:20;pointer-events:none;letter-spacing:0.15em;text-transform:uppercase;">
+        &copy; 2026 WotaSpace &mdash; Desa Wota Wati, Gunung Kidul, Yogyakarta
     </footer>
 
 </body>
