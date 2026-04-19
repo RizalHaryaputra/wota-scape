@@ -348,29 +348,40 @@ function switchPanorama(panoramaName) {
 
     previousPanorama = currentPanorama;
 
+    // Tampilkan overlay dengan tampilan menarik
     overlayEl.style.pointerEvents = 'auto';
     overlayEl.style.opacity = '1';
-    overlayEl.textContent = 'Loading...';
-    containerEl.style.opacity = '0';
+    
+    // Animasi zoom out sebelum transisi
+    targetFov = 90;
 
-    setTimeout(() => {
-        if (panoramaMesh.material.map) {
-            panoramaMesh.material.map.dispose();
-        }
+    const startTime = Date.now();
 
-        // eslint-disable-next-line no-undef
-        new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
+    // Mulai load texture baru SEMBARI tetap menampilkan texture lama di bawah overlay
+    // eslint-disable-next-line no-undef
+    new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
+        const elapsed = Date.now() - startTime;
+        const remainingDelay = Math.max(0, 800 - elapsed); // pastikan minimal overlay tampil 800ms untuk efek yang mulus
+
+        setTimeout(() => {
+            // Setelah texture baru siap & timeout tercapai, ganti texture
+            if (panoramaMesh.material.map) {
+                panoramaMesh.material.map.dispose();
+            }
             panoramaMesh.material.map = tex;
             panoramaMesh.material.needsUpdate = true;
 
             currentPanorama = panoramaName;
             loadHotspotsFor(currentPanorama);
 
-            containerEl.style.opacity = '1';
+            // Kembalikan FOV ke normal
+            targetFov = 70;
+
+            // Sembunyikan overlay
             overlayEl.style.opacity = '0';
             overlayEl.style.pointerEvents = 'none';
-        });
-    }, 500);
+        }, remainingDelay);
+    });
 }
 
 /* ========================================
