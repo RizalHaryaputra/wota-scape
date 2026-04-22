@@ -76,7 +76,7 @@
 	<!-- ============================================================ -->
 	<!-- LAYER 1: GLOBAL LOADING SCREEN                               -->
 	<!-- ============================================================ -->
-	<div id="global-loader" class="fixed inset-0 z-[loader] flex flex-col justify-center items-center"
+	<div id="global-loader" class="fixed inset-0 z-loader flex flex-col justify-center items-center"
 		style="background-color: #060e06; transition: opacity 0.8s ease;">
 
 		<!-- Modern Spinner Loader -->
@@ -102,7 +102,7 @@
 
 	<!-- Overlay transisi antar-panorama -->
 	<div id="overlay"
-		class="absolute inset-0 w-screen h-screen z-[ui] opacity-0 pointer-events-none transition-opacity duration-700"
+		class="absolute inset-0 w-screen h-screen z-ui opacity-0 pointer-events-none transition-opacity duration-700"
 		style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: radial-gradient(circle at center, rgba(13,31,13,0.85) 0%, rgba(6,14,6,0.98) 100%); display: flex; justify-content: center; align-items: center;">
 		<div class="flex flex-col items-center gap-4 text-white">
 			<div class="pano-loader-ring">
@@ -123,7 +123,7 @@
 	<!-- ============================================================ -->
 
 	<!-- ===== NAVBAR ===== -->
-	<header class="absolute top-0 left-0 w-full z-[ui] pointer-events-none">
+	<header class="absolute top-0 left-0 w-full z-ui pointer-events-none">
 		<nav class="w-full pointer-events-auto wota-navbar" aria-label="Navigasi utama WotaScape">
 
 			<div class="navbar-inner d-flex align-items-center justify-content-between px-4 py-0"
@@ -178,7 +178,7 @@
 	</header>
 
 	<!-- ===== FLOATING CONTROLS — TENGAH KANAN (Zoom & Rotate) ===== -->
-	<aside class="absolute right-4 top-1/2 -translate-y-1/2 z-[ui] flex flex-col gap-2" aria-label="Kontrol kamera">
+	<aside class="absolute right-4 top-1/2 -translate-y-1/2 z-ui flex flex-col gap-2" aria-label="Kontrol kamera">
 		<button class="ctrl-btn" onclick="customZoomIn()" title="Zoom In" id="btn-zoom-in">
 			<i class="fa-solid fa-plus text-sm"></i>
 		</button>
@@ -192,7 +192,7 @@
 	</aside>
 
 	<!-- ===== FLOATING CONTROLS — BAWAH KANAN (Sound, Map, Fullscreen) ===== -->
-	<aside class="absolute right-4 bottom-6 z-[ui] flex flex-col gap-2" aria-label="Kontrol tambahan">
+	<aside class="absolute right-4 bottom-6 z-ui flex flex-col gap-2" aria-label="Kontrol tambahan">
 		<button id="btnSound" class="ctrl-btn" onclick="toggleSound()" title="Toggle Musik">
 			<i class="fa-solid fa-volume-xmark text-sm"></i>
 		</button>
@@ -205,7 +205,7 @@
 	</aside>
 
 	<!-- ===== LABEL NAMA LOKASI — KIRI BAWAH ===== -->
-	<div class="absolute bottom-6 left-4 z-[ui] pointer-events-none location-badge">
+	<div class="absolute bottom-6 left-4 z-ui pointer-events-none location-badge">
 		<div class="location-badge-inner">
 			<i class="fa-solid fa-location-dot location-pin"></i>
 			<div>
@@ -216,14 +216,14 @@
 	</div>
 
 	<!-- ===== TIPS NAVIGASI — TENGAH BAWAH ===== -->
-	<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-[ui] pointer-events-none nav-tips" id="navTips">
+	<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-ui pointer-events-none nav-tips" id="navTips">
 		<span><i class="fa-solid fa-hand-pointer me-1"></i>Seret untuk menjelajahi</span>
 		<span class="mx-2 opacity-40">|</span>
 		<span><i class="fa-solid fa-scroll me-1"></i>Scroll untuk zoom</span>
 	</div>
 
 	<!-- ===== MAP OVERLAY ===== -->
-	<div id="mapOverlay" class="absolute bottom-20 right-20 z-[map] hidden overflow-hidden map-overlay-wrap">
+	<div id="mapOverlay" class="absolute bottom-20 right-20 z-map hidden overflow-hidden map-overlay-wrap">
 		<div class="map-overlay-header">
 			<i class="fa-solid fa-map-location-dot me-2"></i>
 			<span>Peta Desa Wota Wati</span>
