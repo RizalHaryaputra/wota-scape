@@ -348,40 +348,44 @@ function switchPanorama(panoramaName) {
 
     previousPanorama = currentPanorama;
 
-    // Tampilkan overlay dengan tampilan menarik
-    overlayEl.style.pointerEvents = 'auto';
-    overlayEl.style.opacity = '1';
+    // Tampilkan overlay menggunakan jQuery untuk menjamin animasi berjalan
+    // eslint-disable-next-line no-undef
+    $('#overlay').css('display', 'flex').hide().fadeIn(300);
     
     // Animasi zoom out sebelum transisi
     targetFov = 90;
 
-    const startTime = Date.now();
+    // Tunggu sedikit agar animasi zoom out dan overlay terlihat
+    // sebelum thread diblokir oleh TextureLoader (jika gambar besar)
+    setTimeout(() => {
+        const startTime = Date.now();
 
-    // Mulai load texture baru SEMBARI tetap menampilkan texture lama di bawah overlay
-    // eslint-disable-next-line no-undef
-    new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
-        const elapsed = Date.now() - startTime;
-        const remainingDelay = Math.max(0, 800 - elapsed); // pastikan minimal overlay tampil 800ms untuk efek yang mulus
+        // Mulai load texture baru SEMBARI tetap menampilkan texture lama di bawah overlay
+        // eslint-disable-next-line no-undef
+        new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
+            const elapsed = Date.now() - startTime;
+            const remainingDelay = Math.max(0, 500 - elapsed); // pastikan minimal overlay tampil 500ms
 
-        setTimeout(() => {
-            // Setelah texture baru siap & timeout tercapai, ganti texture
-            if (panoramaMesh.material.map) {
-                panoramaMesh.material.map.dispose();
-            }
-            panoramaMesh.material.map = tex;
-            panoramaMesh.material.needsUpdate = true;
+            setTimeout(() => {
+                // Setelah texture baru siap & timeout tercapai, ganti texture
+                if (panoramaMesh.material.map) {
+                    panoramaMesh.material.map.dispose();
+                }
+                panoramaMesh.material.map = tex;
+                panoramaMesh.material.needsUpdate = true;
 
-            currentPanorama = panoramaName;
-            loadHotspotsFor(currentPanorama);
+                currentPanorama = panoramaName;
+                loadHotspotsFor(currentPanorama);
 
-            // Kembalikan FOV ke normal
-            targetFov = 70;
+                // Kembalikan FOV ke normal
+                targetFov = 70;
 
-            // Sembunyikan overlay
-            overlayEl.style.opacity = '0';
-            overlayEl.style.pointerEvents = 'none';
-        }, remainingDelay);
-    });
+                // Sembunyikan overlay
+                // eslint-disable-next-line no-undef
+                $('#overlay').fadeOut(400);
+            }, remainingDelay);
+        });
+    }, 350); // Jeda awal 350ms agar jQuery fadeIn sempat terlihat
 }
 
 /* ========================================
