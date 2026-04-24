@@ -137,31 +137,29 @@
 
 	<!-- ===== TOP RIGHT: EXPLORE MENU ===== -->
 	<div class="absolute top-4 right-4 z-ui pointer-events-auto flex flex-col items-end gap-2">
-		<!-- Mobile Menu Toggle -->
-		<button class="md:hidden w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-cream shadow-lg hover:bg-forest/50 transition-colors" data-bs-toggle="collapse" data-bs-target="#menuCollapse">
+		<!-- Mobile Menu Toggle (only visible on mobile) -->
+		<button class="d-md-none w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-cream shadow-lg" onclick="toggleExploreMenu()" title="Menu">
 			<i class="fa-solid fa-bars"></i>
 		</button>
 
-		<!-- Menu Items -->
-		<div class="collapse md:block" id="menuCollapse">
-			<div class="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 bg-black/40 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-2 md:p-0 rounded-2xl border border-white/10 md:border-none">
-				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProfil">
-					<span class="icon-wrap"><i class="fa-solid fa-users-viewfinder"></i></span>
-					<span class="label">Profil Desa</span>
-				</button>
-				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalKesenian">
-					<span class="icon-wrap"><i class="fa-solid fa-palette"></i></span>
-					<span class="label">Galeri Budaya</span>
-				</button>
-				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProduk">
-					<span class="icon-wrap"><i class="fa-solid fa-basket-shopping"></i></span>
-					<span class="label">Produk Lokal</span>
-				</button>
-				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalBerita">
-					<span class="icon-wrap"><i class="fa-regular fa-newspaper"></i></span>
-					<span class="label">Berita Desa</span>
-				</button>
-			</div>
+		<!-- Menu Items — always visible on desktop, toggled on mobile -->
+		<div id="exploreMenu" class="explore-menu-wrapper flex flex-col md:flex-row gap-2">
+			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProfil">
+				<span class="icon-wrap"><i class="fa-solid fa-users-viewfinder"></i></span>
+				<span class="label">Profil Desa</span>
+			</button>
+			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalKesenian">
+				<span class="icon-wrap"><i class="fa-solid fa-palette"></i></span>
+				<span class="label">Galeri Budaya</span>
+			</button>
+			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProduk">
+				<span class="icon-wrap"><i class="fa-solid fa-basket-shopping"></i></span>
+				<span class="label">Produk Lokal</span>
+			</button>
+			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalBerita">
+				<span class="icon-wrap"><i class="fa-regular fa-newspaper"></i></span>
+				<span class="label">Berita Desa</span>
+			</button>
 		</div>
 	</div>
 
@@ -482,6 +480,38 @@
 				setTimeout(() => tips.style.display = 'none', 1000);
 			}
 		}, 5000);
+	</script>
+	<!-- Explore menu: always visible on desktop, toggled on mobile -->
+	<style>
+		/* Always show on desktop */
+		@media (min-width: 768px) {
+			#exploreMenu {
+				display: flex !important;
+				flex-direction: row;
+			}
+		}
+		/* Hidden by default on mobile, shown when .open class is added */
+		@media (max-width: 767px) {
+			#exploreMenu {
+				display: none;
+				flex-direction: column;
+				margin-top: 8px;
+				background: rgba(0,0,0,0.5);
+				backdrop-filter: blur(12px);
+				border: 1px solid rgba(255,255,255,0.1);
+				border-radius: 16px;
+				padding: 8px;
+			}
+			#exploreMenu.open {
+				display: flex !important;
+			}
+		}
+	</style>
+	<script>
+		function toggleExploreMenu() {
+			const menu = document.getElementById('exploreMenu');
+			menu.classList.toggle('open');
+		}
 	</script>
 
 </body>
