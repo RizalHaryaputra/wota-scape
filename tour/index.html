@@ -122,108 +122,115 @@
 	<!-- LAYER 3: UI OVERLAY                                          -->
 	<!-- ============================================================ -->
 
-	<!-- ===== NAVBAR ===== -->
-	<header class="absolute top-0 left-0 w-full z-ui pointer-events-none">
-		<nav class="w-full pointer-events-auto wota-navbar" aria-label="Navigasi utama WotaScape">
-
-			<div class="navbar-inner d-flex align-items-center justify-content-between px-4 py-0"
-				style="min-height: 60px;">
-
-				<!-- Brand -->
-				<a class="navbar-brand-wota d-flex align-items-center gap-2 text-decoration-none" href="/">
-					<img class="h-8 w-8" src="/public/images/wota-scape-logo.png" alt="WotaScape Logo" class="brand-badge-icon">
-					<div class="brand-text">
-						<span class="brand-name">WotaScape</span>
-						<span class="brand-tagline">Virtual Tour 360°</span>
-					</div>
-				</a>
-
-				<!-- Toggler (mobile) -->
-				<button class="navbar-toggler-wota d-lg-none" type="button" data-bs-toggle="collapse"
-					data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Buka menu">
-					<i class="fa-solid fa-bars"></i>
-				</button>
-
-				<!-- Nav Links -->
-				<div class="collapse navbar-collapse" id="navbarNav">
-					<ul class="navbar-nav d-flex align-items-center gap-1 ms-auto">
-						<li class="nav-item">
-							<a class="nav-link-wota" href="#" data-bs-toggle="modal" data-bs-target="#modalProfil">
-								<i class="fa-solid fa-users-viewfinder me-1"></i>
-								Profil Desa
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link-wota" href="#" data-bs-toggle="modal" data-bs-target="#modalKesenian">
-								<i class="fa-solid fa-palette me-1"></i>
-								Galeri Budaya
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link-wota" href="#" data-bs-toggle="modal" data-bs-target="#modalProduk">
-								<i class="fa-solid fa-basket-shopping me-1"></i>
-								Produk Lokal
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link-wota" href="#" data-bs-toggle="modal" data-bs-target="#modalBerita">
-								<i class="fa-regular fa-newspaper me-1"></i>
-								Berita Desa
-							</a>
-						</li>
-					</ul>
-				</div>
+	<!-- ===== TOP LEFT: BRAND ===== -->
+	<div class="absolute top-4 left-4 z-ui flex flex-col gap-2 pointer-events-none">
+		<a href="/" class="pointer-events-auto flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-2 pr-4 shadow-lg hover:bg-black/60 transition-all text-decoration-none group">
+			<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-forest to-leaf flex items-center justify-center shadow-inner">
+				<img src="/public/images/wota-scape-logo.png" alt="Logo" class="w-7 h-7 object-contain">
 			</div>
-		</nav>
-	</header>
+			<div class="flex flex-col">
+				<span class="font-display font-bold text-cream text-sm tracking-wide group-hover:text-amber transition-colors">WotaScape</span>
+				<span class="text-amber/80 text-[0.6rem] tracking-widest uppercase">Virtual Tour 360°</span>
+			</div>
+		</a>
+	</div>
 
-	<!-- ===== FLOATING CONTROLS — TENGAH KANAN (Zoom & Rotate) ===== -->
-	<aside class="absolute right-4 top-1/2 -translate-y-1/2 z-ui flex flex-col gap-2" aria-label="Kontrol kamera">
-		<button class="ctrl-btn" onclick="customZoomIn()" title="Zoom In" id="btn-zoom-in">
-			<i class="fa-solid fa-plus text-sm"></i>
+	<!-- ===== TOP RIGHT: EXPLORE MENU ===== -->
+	<div class="absolute top-4 right-4 z-ui pointer-events-auto flex flex-col items-end gap-2">
+		<!-- Mobile Menu Toggle -->
+		<button class="md:hidden w-12 h-12 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-cream shadow-lg hover:bg-forest/50 transition-colors" data-bs-toggle="collapse" data-bs-target="#menuCollapse">
+			<i class="fa-solid fa-bars"></i>
 		</button>
-		<button class="ctrl-btn" onclick="customZoomOut()" title="Zoom Out" id="btn-zoom-out">
-			<i class="fa-solid fa-minus text-sm"></i>
-		</button>
-		<div class="ctrl-divider"></div>
-		<button class="ctrl-btn" onclick="toggleAutoRotate()" title="Auto Rotate" id="btn-rotate">
-			<i class="fa-solid fa-arrow-rotate-right text-sm"></i>
-		</button>
-	</aside>
 
-	<!-- ===== FLOATING CONTROLS — BAWAH KANAN (Sound, Map, Fullscreen) ===== -->
-	<aside class="absolute right-4 bottom-6 z-ui flex flex-col gap-2" aria-label="Kontrol tambahan">
-		<button id="btnSound" class="ctrl-btn" onclick="toggleSound()" title="Toggle Musik">
-			<i class="fa-solid fa-volume-xmark text-sm"></i>
-		</button>
-		<button class="ctrl-btn" onclick="toggleMap()" title="Peta Desa" id="btn-map">
-			<i class="fa-solid fa-map-location-dot text-sm"></i>
-		</button>
-		<button class="ctrl-btn" onclick="toggleFullscreen()" title="Fullscreen" id="btn-fullscreen">
-			<i class="fa-solid fa-expand text-sm"></i>
-		</button>
-	</aside>
-
-	<!-- ===== LABEL NAMA LOKASI — KIRI BAWAH ===== -->
-	<div class="absolute bottom-6 left-4 z-ui pointer-events-none location-badge">
-		<div class="location-badge-inner">
-			<i class="fa-solid fa-location-dot location-pin"></i>
-			<div>
-				<p id="bottomLeftText" class="location-name">Desa Wota Wati</p>
-				<p class="location-sub">Gunung Kidul, Yogyakarta</p>
+		<!-- Menu Items -->
+		<div class="collapse md:block" id="menuCollapse">
+			<div class="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 bg-black/40 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-2 md:p-0 rounded-2xl border border-white/10 md:border-none">
+				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProfil">
+					<span class="icon-wrap"><i class="fa-solid fa-users-viewfinder"></i></span>
+					<span class="label">Profil Desa</span>
+				</button>
+				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalKesenian">
+					<span class="icon-wrap"><i class="fa-solid fa-palette"></i></span>
+					<span class="label">Galeri Budaya</span>
+				</button>
+				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalProduk">
+					<span class="icon-wrap"><i class="fa-solid fa-basket-shopping"></i></span>
+					<span class="label">Produk Lokal</span>
+				</button>
+				<button class="explore-btn" data-bs-toggle="modal" data-bs-target="#modalBerita">
+					<span class="icon-wrap"><i class="fa-regular fa-newspaper"></i></span>
+					<span class="label">Berita Desa</span>
+				</button>
 			</div>
 		</div>
 	</div>
 
-	<!-- ===== TIPS NAVIGASI — TENGAH BAWAH ===== -->
-	<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-ui pointer-events-none nav-tips" id="navTips">
-		<span><i class="fa-solid fa-hand-pointer me-1"></i>Seret untuk menjelajahi</span>
-		<span class="mx-2 opacity-40">|</span>
-		<span><i class="fa-solid fa-scroll me-1"></i>Scroll untuk zoom</span>
+	<!-- ===== BOTTOM LEFT: LOCATION BADGE ===== -->
+	<div class="absolute bottom-6 left-4 z-ui pointer-events-auto flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 shadow-lg w-max">
+		<div class="w-6 h-6 rounded-full bg-amber/20 flex items-center justify-center text-amber animate-pulse">
+			<i class="fa-solid fa-location-dot text-xs"></i>
+		</div>
+		<div class="flex flex-col">
+			<span id="bottomLeftText" class="font-sans font-semibold text-cream text-xs">Desa Wota Wati</span>
+			<span class="text-cream/60 text-[0.6rem] tracking-wider">Gunung Kidul, Yogyakarta</span>
+		</div>
+	</div>
+
+	<!-- ===== BOTTOM CENTER: CONTROL DOCK ===== -->
+	<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-ui pointer-events-auto flex flex-col items-center gap-3">
+		<!-- Tips (disappears) -->
+		<div class="nav-tips px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-cream/70 text-xs flex items-center gap-3" id="navTips">
+			<span><i class="fa-solid fa-hand-pointer text-amber/80 me-1.5"></i>Seret untuk menjelajah</span>
+			<span class="w-1 h-1 rounded-full bg-white/20"></span>
+			<span><i class="fa-solid fa-scroll text-amber/80 me-1.5"></i>Scroll untuk zoom</span>
+		</div>
+
+		<!-- Main Dock -->
+		<div class="flex items-center gap-1 bg-black/50 backdrop-blur-xl border border-white/10 rounded-3xl p-1.5 shadow-2xl">
+			<!-- Media & Map -->
+			<button id="btnSound" class="dock-btn" onclick="toggleSound()" title="Toggle Musik">
+				<i class="fa-solid fa-volume-xmark"></i>
+			</button>
+			<button id="btn-map" class="dock-btn" onclick="toggleMap()" title="Peta Desa">
+				<i class="fa-solid fa-map-location-dot"></i>
+			</button>
+			
+			<div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+			
+			<!-- View Controls -->
+			<button id="btn-zoom-in" class="dock-btn" onclick="customZoomIn()" title="Zoom In">
+				<i class="fa-solid fa-plus"></i>
+			</button>
+			<button id="btn-zoom-out" class="dock-btn" onclick="customZoomOut()" title="Zoom Out">
+				<i class="fa-solid fa-minus"></i>
+			</button>
+			<button id="btn-rotate" class="dock-btn" onclick="toggleAutoRotate()" title="Auto Rotate">
+				<i class="fa-solid fa-arrow-rotate-right"></i>
+			</button>
+			
+			<div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+			
+			<!-- Fullscreen & Share -->
+			<button id="btn-fullscreen" class="dock-btn" onclick="toggleFullscreen()" title="Fullscreen">
+				<i class="fa-solid fa-expand"></i>
+			</button>
+
+            <!-- Share (New Function) -->
+            <button class="dock-btn dock-btn-highlight" onclick="shareTour()" title="Bagikan Virtual Tour">
+				<i class="fa-solid fa-share-nodes"></i>
+			</button>
+
+			<div class="w-[1px] h-6 bg-white/10 mx-1 d-none d-md-block"></div>
+
+			<!-- Developer Tool -->
+			<button class="dock-btn text-amber/80 hover:text-amber d-none d-md-flex" onclick="togglePicker()" title="Developer Mode (Get Hotspot Coordinates)">
+				<i class="fa-solid fa-bug"></i>
+			</button>
+		</div>
 	</div>
 
 	<!-- ===== MAP OVERLAY ===== -->
-	<div id="mapOverlay" class="absolute bottom-20 right-20 z-map hidden overflow-hidden map-overlay-wrap">
+	<div id="mapOverlay" class="absolute bottom-24 right-4 z-map hidden overflow-hidden map-overlay-wrap">
 		<div class="map-overlay-header">
 			<i class="fa-solid fa-map-location-dot me-2"></i>
 			<span>Peta Desa Wota Wati</span>
@@ -446,6 +453,24 @@
 
 	<!-- Firebase — Data Fetching (ES Module) -->
 	<script type="module" src="js/main-dynamic.js"></script>
+
+	<!-- Share Feature Script -->
+	<script>
+		function shareTour() {
+			if (navigator.share) {
+				navigator.share({
+					title: 'WotaScape - Virtual Tour 360° Desa Wota Wati',
+					text: 'Jelajahi keindahan Desa Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif.',
+					url: window.location.href,
+				})
+				.then(() => console.log('Successful share'))
+				.catch((error) => console.log('Error sharing', error));
+			} else {
+				navigator.clipboard.writeText(window.location.href);
+				alert('Link telah disalin ke clipboard!');
+			}
+		}
+	</script>
 
 	<!-- Auto-hide nav tips after 5s -->
 	<script>
