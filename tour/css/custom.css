@@ -182,185 +182,84 @@
     animation: spin 2s ease-in-out infinite;
 }
 
-/* ===== 5. NAVBAR ===== */
-.wota-navbar {
-    background: linear-gradient(
-        180deg,
-        rgba(10, 20, 10, 0.90) 0%,
-        rgba(10, 20, 10, 0.60) 100%
-    );
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(74, 140, 63, 0.25);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-}
-
-/* Brand */
-.navbar-brand-wota {
+/* ===== 5. NEW UI OVERLAY (Explore Menu & Control Dock) ===== */
+.explore-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 6px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    color: #f5f0e8;
     text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.brand-icon {
-    width: 38px;
-    height: 38px;
-    background: linear-gradient(135deg, #2d5a27, #4a8c3f);
-    border-radius: 10px;
+.explore-btn:hover {
+    background: rgba(74, 140, 63, 0.4);
+    border-color: rgba(74, 140, 63, 0.6);
+    transform: translateY(-2px);
+}
+
+.explore-btn .icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #f5f0e8;
-    font-size: 1rem;
-    box-shadow: 0 2px 10px rgba(74, 140, 63, 0.4);
-    flex-shrink: 0;
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-}
-
-.brand-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #f5f0e8;
-    letter-spacing: 0.03em;
-}
-
-.brand-tagline {
-    font-size: 0.62rem;
+    font-size: 0.8rem;
     color: #d4a843;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 2px;
+    transition: all 0.3s;
 }
 
-/* Nav Links */
-.nav-link-wota {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.82rem;
+.explore-btn:hover .icon-wrap {
+    background: #d4a843;
+    color: #1a2e1a;
+}
+
+.explore-btn .label {
+    font-size: 0.8rem;
     font-weight: 500;
-    color: rgba(245, 240, 232, 0.85);
-    text-decoration: none;
-    transition: all 0.25s ease;
-    border: 1px solid transparent;
     white-space: nowrap;
 }
 
-.nav-link-wota:hover {
+/* Dock buttons */
+.dock-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: rgba(245, 240, 232, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dock-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
     color: #d4a843;
+    transform: scale(1.1);
+}
+
+.dock-btn-highlight {
+    color: #4a8c3f;
     background: rgba(74, 140, 63, 0.15);
-    border-color: rgba(74, 140, 63, 0.35);
-    transform: translateY(-1px);
 }
-
-/* Mobile toggler */
-.navbar-toggler-wota {
-    background: rgba(74, 140, 63, 0.2);
-    border: 1px solid rgba(74, 140, 63, 0.4);
-    border-radius: 8px;
-    color: #f5f0e8;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.navbar-toggler-wota:hover {
-    background: rgba(74, 140, 63, 0.4);
-}
-
-/* ===== 6. CONTROL BUTTONS ===== */
-.ctrl-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: rgba(13, 31, 13, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: rgba(245, 240, 232, 0.9);
-    border: 1px solid rgba(74, 140, 63, 0.35);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.ctrl-btn:hover {
-    background: rgba(74, 140, 63, 0.85);
-    border-color: rgba(74, 140, 63, 0.8);
-    color: #f5f0e8;
-    transform: scale(1.12) translateY(-1px);
-    box-shadow: 0 6px 20px rgba(74, 140, 63, 0.4);
-}
-
-.ctrl-btn:active {
-    transform: scale(0.96);
-}
-
-.ctrl-divider {
-    height: 1px;
+.dock-btn-highlight:hover {
     background: rgba(74, 140, 63, 0.3);
-    width: 28px;
-    margin: 2px auto;
-}
-
-/* ===== 7. LOCATION BADGE ===== */
-.location-badge-inner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(13, 31, 13, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(74, 140, 63, 0.35);
-    border-radius: 14px;
-    padding: 8px 14px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-}
-
-.location-pin {
-    color: #d4a843;
-    font-size: 1.1rem;
-    animation: hotspotBounce 2s ease-in-out infinite;
-}
-
-.location-name {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: #f5f0e8;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.location-sub {
-    font-size: 0.68rem;
-    color: rgba(245, 240, 232, 0.55);
-    margin: 0;
-    letter-spacing: 0.05em;
-    line-height: 1.2;
+    color: #65b857;
 }
 
 /* ===== 8. NAVIGATION TIPS ===== */
 .nav-tips {
-    background: rgba(13, 31, 13, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(74, 140, 63, 0.25);
-    border-radius: 20px;
-    padding: 5px 16px;
-    font-size: 0.72rem;
-    color: rgba(245, 240, 232, 0.7);
-    white-space: nowrap;
     animation: fadeInUp 1s ease 2s both;
 }
 

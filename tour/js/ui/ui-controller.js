@@ -7,7 +7,7 @@
  * ============================================================
  */
 
-import { getControls, getTargetFov, setTargetFov } from '../core/tour-3d.js';
+import { getControls, getTargetFov, setTargetFov, togglePicker } from '../core/tour-3d.js';
 
 // ===== REFERENSI ELEMEN DOM =====
 const audioElement  = document.getElementById('bgAudio');
@@ -162,3 +162,4 @@ window.customZoomOut = customZoomOut;
 window.toggleAutoRotate = toggleAutoRotate;
 window.toggleMap = toggleMap;
 window.toggleFullscreen = toggleFullscreen;
+window.togglePicker = togglePicker;

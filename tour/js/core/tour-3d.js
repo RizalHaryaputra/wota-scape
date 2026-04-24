@@ -192,7 +192,7 @@ function loadHotspotsFor(panorama) {
 
     if (panorama === '1.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-395.1211475957762, -58.30213318829353, -6.678901876416617), () => {
+        addHotspot('images/chevrontilted.png', new THREE.Vector3(-492.71, -83.67, 0.93), () => {
             switchPanorama('2.jpg');
         });
 
@@ -206,38 +206,38 @@ function loadHotspotsFor(panorama) {
 
     if (panorama === '2.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(394.5380744600368, -62.277819101636496, -9.101288274622458), () => {
+        addHotspot('images/chevrontilted.png', new THREE.Vector3(493.90, -64.03, 30.94), () => {
             switchPanorama('1.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-397.5892730140249, -33.489342909172414, -14.93381336018405), () => {
-            switchPanorama('4.jpg');
+        addHotspot('images/chevrontilted.png', new THREE.Vector3(-494.63, -62.97, 19.42), () => {
+            switchPanorama('3.jpg');
         });
 
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-463.95, -43.89, 178.85);
-        addHotspot('images/image.png', posMedia, () => {
-            showMedia(6, { image: 'images/tentang-krebet.png', audio: 'audio/tentang-krebet.wav' });
-        });
-        addTextLabel('Tentang Krebet', posMedia);
+        // let posMedia = new THREE.Vector3(-463.95, -43.89, 178.85);
+        // addHotspot('images/image.png', posMedia, () => {
+        //     showMedia(6, { image: 'images/tentang-krebet.png', audio: 'audio/tentang-krebet.wav' });
+        // });
+        // addTextLabel('Tentang Krebet', posMedia);
     }
 
     if (panorama === '3.jpg') {
         // eslint-disable-next-line no-undef
         addHotspot('images/chevrontilted.png', new THREE.Vector3(395.8346232878345, -53.4697473632319, -3.95549334440982), () => {
-            switchPanorama('4.jpg');
+            switchPanorama('2.jpg');
         });
-        // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-392.6863823097462, -51.77601937286917, -49.85805093466901), () => {
-            switchPanorama('5.jpg');
-        });
+        // // eslint-disable-next-line no-undef
+        // addHotspot('images/chevrontilted.png', new THREE.Vector3(-392.6863823097462, -51.77601937286917, -49.85805093466901), () => {
+        //     switchPanorama('5.jpg');
+        // });
 
-        // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-484.55, -67.73, 101.14);
-        addHotspot('images/image.png', posMedia, () => {
-            showMedia(6, { image: 'images/lokasi-krebet.png', audio: 'audio/lokasi-krebet.wav' });
-        });
-        addTextLabel('Lokasi Krebet', posMedia);
+        // // eslint-disable-next-line no-undef
+        // let posMedia = new THREE.Vector3(-484.55, -67.73, 101.14);
+        // addHotspot('images/image.png', posMedia, () => {
+        //     showMedia(6, { image: 'images/lokasi-krebet.png', audio: 'audio/lokasi-krebet.wav' });
+        // });
+        // addTextLabel('Lokasi Krebet', posMedia);
     }
 
     if (panorama === '4.jpg') {
@@ -348,40 +348,44 @@ function switchPanorama(panoramaName) {
 
     previousPanorama = currentPanorama;
 
-    // Tampilkan overlay dengan tampilan menarik
-    overlayEl.style.pointerEvents = 'auto';
-    overlayEl.style.opacity = '1';
+    // Tampilkan overlay menggunakan jQuery untuk menjamin animasi berjalan
+    // eslint-disable-next-line no-undef
+    $('#overlay').css('display', 'flex').hide().fadeIn(300);
     
     // Animasi zoom out sebelum transisi
     targetFov = 90;
 
-    const startTime = Date.now();
+    // Tunggu sedikit agar animasi zoom out dan overlay terlihat
+    // sebelum thread diblokir oleh TextureLoader (jika gambar besar)
+    setTimeout(() => {
+        const startTime = Date.now();
 
-    // Mulai load texture baru SEMBARI tetap menampilkan texture lama di bawah overlay
-    // eslint-disable-next-line no-undef
-    new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
-        const elapsed = Date.now() - startTime;
-        const remainingDelay = Math.max(0, 800 - elapsed); // pastikan minimal overlay tampil 800ms untuk efek yang mulus
+        // Mulai load texture baru SEMBARI tetap menampilkan texture lama di bawah overlay
+        // eslint-disable-next-line no-undef
+        new THREE.TextureLoader().load(`panoramas/${panoramaName}`, (tex) => {
+            const elapsed = Date.now() - startTime;
+            const remainingDelay = Math.max(0, 500 - elapsed); // pastikan minimal overlay tampil 500ms
 
-        setTimeout(() => {
-            // Setelah texture baru siap & timeout tercapai, ganti texture
-            if (panoramaMesh.material.map) {
-                panoramaMesh.material.map.dispose();
-            }
-            panoramaMesh.material.map = tex;
-            panoramaMesh.material.needsUpdate = true;
+            setTimeout(() => {
+                // Setelah texture baru siap & timeout tercapai, ganti texture
+                if (panoramaMesh.material.map) {
+                    panoramaMesh.material.map.dispose();
+                }
+                panoramaMesh.material.map = tex;
+                panoramaMesh.material.needsUpdate = true;
 
-            currentPanorama = panoramaName;
-            loadHotspotsFor(currentPanorama);
+                currentPanorama = panoramaName;
+                loadHotspotsFor(currentPanorama);
 
-            // Kembalikan FOV ke normal
-            targetFov = 70;
+                // Kembalikan FOV ke normal
+                targetFov = 70;
 
-            // Sembunyikan overlay
-            overlayEl.style.opacity = '0';
-            overlayEl.style.pointerEvents = 'none';
-        }, remainingDelay);
-    });
+                // Sembunyikan overlay
+                // eslint-disable-next-line no-undef
+                $('#overlay').fadeOut(400);
+            }, remainingDelay);
+        });
+    }, 350); // Jeda awal 350ms agar jQuery fadeIn sempat terlihat
 }
 
 /* ========================================
