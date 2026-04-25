@@ -10,7 +10,7 @@ import { showMedia } from '../ui/ui-controller.js';
 
 /* ===== STATE VARIABLES ===== */
 let scene, camera, renderer, controls;
-let spriteHotspots = [];
+let htmlHotspots = []; // { el: HTMLElement, pos3D: THREE.Vector3 }
 let panoramaMesh;
 export let targetFov = 70;
 let initialFov = 70;
@@ -121,11 +121,12 @@ function init() {
     });
 
     document.addEventListener('pointerup', (e) => {
-        /* Abaikan klik di atas elemen UI */
+        /* Abaikan klik di atas elemen UI atau hotspot HTML */
         if (e.target.closest('.navbar') ||
             e.target.closest('aside') ||
             e.target.closest('.modal') ||
-            e.target.closest('.modal-backdrop')) return;
+            e.target.closest('.modal-backdrop') ||
+            e.target.closest('.hs')) return;
 
         /* Abaikan jika sedang drag (geser panorama) */
         if (isDragging) return;
@@ -149,22 +150,6 @@ function init() {
                     `new THREE.Vector3(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)}, ${pt.z.toFixed(2)})`);
             }
             return;
-        }
-
-        /* === Hotspot Click Detection === */
-        // eslint-disable-next-line no-undef
-        const clickMouse = new THREE.Vector2(
-            (e.clientX / window.innerWidth) * 2 - 1,
-            -(e.clientY / window.innerHeight) * 2 + 1
-        );
-        // eslint-disable-next-line no-undef
-        const clickRay = new THREE.Raycaster();
-        clickRay.setFromCamera(clickMouse, camera);
-        const intersects = clickRay.intersectObjects(spriteHotspots);
-
-        if (intersects.length > 0) {
-            const clicked = intersects[0].object;
-            if (clicked.userData.onClick) clicked.userData.onClick();
         }
     });
 }
@@ -192,128 +177,96 @@ function loadHotspotsFor(panorama) {
 
     if (panorama === '1.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-492.71, -83.67, 0.93), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-492.71, -83.67, 0.93), null, () => {
             switchPanorama('2.jpg');
         });
 
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-460.08, -72.49, -179.48);
-        addHotspot('images/image.png', posMedia, () => {
+        addHtmlHotspot('info', new THREE.Vector3(-460.08, -72.49, -179.48), 'Selamat Datang', () => {
             showMedia(6, { image: 'images/selamat-datang.png', audio: 'audio/selamat-datang.wav' });
         });
-        addTextLabel('Selamat Datang', posMedia);
     }
 
     if (panorama === '2.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(493.90, -64.03, 30.94), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(493.90, -64.03, 30.94), null, () => {
             switchPanorama('1.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-494.63, -62.97, 19.42), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-494.63, -62.97, 19.42), null, () => {
             switchPanorama('3.jpg');
         });
-
-        // eslint-disable-next-line no-undef
-        // let posMedia = new THREE.Vector3(-463.95, -43.89, 178.85);
-        // addHotspot('images/image.png', posMedia, () => {
-        //     showMedia(6, { image: 'images/tentang-krebet.png', audio: 'audio/tentang-krebet.wav' });
-        // });
-        // addTextLabel('Tentang Krebet', posMedia);
     }
 
     if (panorama === '3.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(395.8346232878345, -53.4697473632319, -3.95549334440982), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(395.8346232878345, -53.4697473632319, -3.95549334440982), null, () => {
             switchPanorama('2.jpg');
         });
-        // // eslint-disable-next-line no-undef
-        // addHotspot('images/chevrontilted.png', new THREE.Vector3(-392.6863823097462, -51.77601937286917, -49.85805093466901), () => {
-        //     switchPanorama('5.jpg');
-        // });
-
-        // // eslint-disable-next-line no-undef
-        // let posMedia = new THREE.Vector3(-484.55, -67.73, 101.14);
-        // addHotspot('images/image.png', posMedia, () => {
-        //     showMedia(6, { image: 'images/lokasi-krebet.png', audio: 'audio/lokasi-krebet.wav' });
-        // });
-        // addTextLabel('Lokasi Krebet', posMedia);
     }
 
     if (panorama === '4.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(396.5404938553538, -47.441896669903784, -3.8605045767290793), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(396.5404938553538, -47.441896669903784, -3.8605045767290793), null, () => {
             switchPanorama('2.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-395.79459154752885, -49.895887862517846, -11.40842825630297), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-395.79459154752885, -49.895887862517846, -11.40842825630297), null, () => {
             switchPanorama('3.jpg');
         });
-
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-469.31, -57.45, -160.39);
-        addHotspot('images/image.png', posMedia, () => {
+        addHtmlHotspot('info', new THREE.Vector3(-469.31, -57.45, -160.39), 'Sejarah Krebet', () => {
             showMedia(6, { image: 'images/sejarah-krebet.png', audio: 'audio/sejarah-krebet.wav' });
         });
-        addTextLabel('Sejarah Krebet', posMedia);
     }
 
     if (panorama === '5.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(61.66867499833077, -61.80551619818436, 389.6327924916461), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(61.66867499833077, -61.80551619818436, 389.6327924916461), null, () => {
             switchPanorama('3.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-482.94, -33.24, -121.80), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-482.94, -33.24, -121.80), null, () => {
             switchPanorama('6.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-117.98691115406146, -45.230478016162486, -378.82184027339326), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-117.98691115406146, -45.230478016162486, -378.82184027339326), null, () => {
             switchPanorama('36.jpg');
         });
-
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-425.43, -57.54, -254.88);
-        addHotspot('images/video.png', posMedia, () => {
+        addHtmlHotspot('video', new THREE.Vector3(-425.43, -57.54, -254.88), 'Video Profil', () => {
             showMedia(5, 'https://www.youtube.com/embed/mKU3PBr2ARE?si=mv-XKY0gWJtFW6xL');
         });
-        addTextLabel('Video Profil', posMedia);
     }
 
     if (panorama === '6.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(497.82, -22.76, -24.60), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(497.82, -22.76, -24.60), null, () => {
             switchPanorama('5.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-497.01, -42.90, -19.33), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-497.01, -42.90, -19.33), null, () => {
             switchPanorama('33.jpg');
         });
-
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(-476.38, -64.36, 133.92);
-        addHotspot('images/video.png', posMedia, () => {
+        addHtmlHotspot('video', new THREE.Vector3(-476.38, -64.36, 133.92), 'Mars Krebet', () => {
             showMedia(2, 'videos/mars.mp4');
         });
-        addTextLabel('Mars Krebet', posMedia);
     }
 
     if (panorama === '33.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-398.65305232127207, -25.871103854557305, -4.4590244374591546), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-398.65305232127207, -25.871103854557305, -4.4590244374591546), null, () => {
             switchPanorama('6.jpg');
         });
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(398.77267040194437, -18.132482280878172, -6.939524042517586), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(398.77267040194437, -18.132482280878172, -6.939524042517586), null, () => {
             switchPanorama('34.jpg');
         });
-
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(481.85, -70.59, -110.63);
-        addHotspot('images/video.png', posMedia, () => {
+        addHtmlHotspot('video', new THREE.Vector3(481.85, -70.59, -110.63), 'Kesenian (1)', () => {
             showMedia(5, 'https://www.youtube.com/embed/Z8nDD9Lg5ug?si=p0G2hSgKVKdCEszq');
         });
-        addTextLabel('Kesenian (1)', posMedia);
 
         if (previousPanorama === '6.jpg') {
             camera.lookAt(398.77267040194437, -18.132482280878172, -6.939524042517586);
@@ -324,16 +277,13 @@ function loadHotspotsFor(panorama) {
 
     if (panorama === '34.jpg') {
         // eslint-disable-next-line no-undef
-        addHotspot('images/chevrontilted.png', new THREE.Vector3(-398.3457598626258, -29.817333000518882, -7.411376568996783), () => {
+        addHtmlHotspot('navigate', new THREE.Vector3(-398.3457598626258, -29.817333000518882, -7.411376568996783), null, () => {
             switchPanorama('33.jpg');
         });
-
         // eslint-disable-next-line no-undef
-        let posMedia = new THREE.Vector3(460.54, -56.71, -183.50);
-        addHotspot('images/video.png', posMedia, () => {
+        addHtmlHotspot('video', new THREE.Vector3(460.54, -56.71, -183.50), 'Kesenian (2)', () => {
             showMedia(5, 'https://www.youtube.com/embed/ULH1EmgYwUU?si=a8FNDl5u3V9YhiFT');
         });
-        addTextLabel('Kesenian (2)', posMedia);
     }
 
     /*panoramas-end*/
@@ -389,104 +339,62 @@ function switchPanorama(panoramaName) {
 }
 
 /* ========================================
- * FUNCTION: addHotspot
- * Tambahkan sprite hotspot ke scene.
+ * FUNCTION: addHtmlHotspot
+ * Buat elemen HTML hotspot dan daftarkan
+ * ke htmlHotspots untuk diproyeksikan tiap frame.
+ * type: 'navigate' | 'info' | 'video'
  * ======================================== */
-function addHotspot(imageUrl, position, onClickCallback) {
-    // eslint-disable-next-line no-undef
-    new THREE.TextureLoader().load(imageUrl, (texture) => {
-        // eslint-disable-next-line no-undef
-        const material = new THREE.SpriteMaterial({
-            map: texture,
-            depthTest: false,
-            depthWrite: false
-        });
+function addHtmlHotspot(type, position, label, onClickCallback) {
+    const layer = document.getElementById('hotspot-layer');
+    if (!layer) return;
 
-        // eslint-disable-next-line no-undef
-        const sprite = new THREE.Sprite(material);
-        sprite.position.copy(position);
-        sprite.scale.set(40, 40, 1);
-        sprite.renderOrder = 1000;
-        sprite.userData = {
-            onClick: onClickCallback,
-            targetScale: 40,
-            initialY: position.y
-        };
+    // Pilih ikon berdasarkan tipe
+    const iconMap = {
+        navigate: '<i class="fa-solid fa-chevron-up"></i>',
+        info:     '<i class="fa-solid fa-image"></i>',
+        video:    '<i class="fa-solid fa-play"></i>',
+    };
 
-        spriteHotspots.push(sprite);
-        scene.add(sprite);
+    const el = document.createElement('div');
+    el.className = `hs hs-${type}`;
+    el.innerHTML = `
+        <div class="hs-icon">${iconMap[type] || iconMap.info}</div>
+        ${label ? `<span class="hs-label">${label}</span>` : ''}
+    `;
+
+    // Klik langsung di elemen HTML
+    el.addEventListener('click', () => {
+        if (onClickCallback) onClickCallback();
     });
-}
 
-/* ========================================
- * FUNCTION: addTextLabel
- * Tambahkan label teks floating di atas hotspot.
- * ======================================== */
-function addTextLabel(text, position) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 1024;
-    canvas.height = 256;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    const [x, y, w, h, r] = [100, 20, 824, 216, 50];
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.font = 'bold 80px Arial';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-    // eslint-disable-next-line no-undef
-    const texture = new THREE.CanvasTexture(canvas);
-    // eslint-disable-next-line no-undef
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
-    // eslint-disable-next-line no-undef
-    const sprite = new THREE.Sprite(material);
-
-    sprite.position.copy(position);
-    sprite.position.y += 30;
-    sprite.scale.set(80, 20, 1);
-    sprite.renderOrder = 9999;
-    sprite.userData = { isText: true, initialY: sprite.position.y };
-
-    scene.add(sprite);
-    spriteHotspots.push(sprite);
+    layer.appendChild(el);
+    htmlHotspots.push({ el, pos3D: position.clone() });
 }
 
 /* ========================================
  * FUNCTION: clearHotspots
- * Hapus semua sprite hotspot dari scene.
+ * Hapus semua HTML hotspot dari DOM.
  * ======================================== */
 function clearHotspots() {
-    spriteHotspots.forEach(sprite => scene.remove(sprite));
-    spriteHotspots = [];
+    const layer = document.getElementById('hotspot-layer');
+    if (layer) layer.innerHTML = '';
+    htmlHotspots = [];
 }
 
 /* ========================================
  * FUNCTION: onPointerMove
- * Deteksi hover hotspot untuk efek scale.
+ * Ubah kursor saat hover di atas hotspot.
+ * (Hover visual kini ditangani CSS :hover)
  * ======================================== */
 function onPointerMove(event) {
+    if (pickerMode) {
+        renderer.domElement.style.cursor = 'crosshair';
+    } else {
+        renderer.domElement.style.cursor = 'grab';
+    }
+    // Biarkan mouse.x & mouse.y tetap di-track untuk keperluan lain
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(spriteHotspots);
-    spriteHotspots.forEach(s => { s.userData.targetScale = 40; });
-    if (intersects.length > 0) intersects[0].object.userData.targetScale = 50;
 }
 
 /* ========================================
@@ -530,7 +438,7 @@ function placePickerMarker(position) {
 
 /* ========================================
  * FUNCTION: animate
- * Game loop — FOV animasi, hotspot bounce.
+ * Game loop — FOV animasi + proyeksi hotspot HTML.
  * ======================================== */
 function animate() {
     requestAnimationFrame(animate);
@@ -539,24 +447,26 @@ function animate() {
     camera.fov += (targetFov - camera.fov) * 0.1;
     camera.updateProjectionMatrix();
 
-    const time = performance.now() * 0.005;
+    /* Proyeksikan setiap HTML hotspot dari 3D ke 2D layar */
+    // eslint-disable-next-line no-undef
+    const vec = new THREE.Vector3();
+    htmlHotspots.forEach(({ el, pos3D }) => {
+        vec.copy(pos3D);
+        vec.project(camera);
 
-    spriteHotspots.forEach(sprite => {
-        if (sprite.userData.isText) {
-            if (sprite.userData.initialY !== undefined) {
-                sprite.position.y = sprite.userData.initialY + Math.sin(time) * 2;
-            }
-        } else {
-            const currentScale = sprite.scale.x;
-            const targetScale = sprite.userData.targetScale || 40;
-            // eslint-disable-next-line no-undef
-            const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
-            sprite.scale.set(newScale, newScale, 1);
-
-            if (sprite.userData.initialY !== undefined) {
-                sprite.position.y = sprite.userData.initialY + Math.sin(time + sprite.id) * 2;
-            }
+        // Jika w < 0, posisi ada di belakang kamera — sembunyikan
+        const isBehind = vec.z > 1;
+        if (isBehind) {
+            el.classList.add('hs-hidden');
+            return;
         }
+        el.classList.remove('hs-hidden');
+
+        // Konversi NDC (-1..1) ke pixel layar
+        const x = (vec.x * 0.5 + 0.5) * window.innerWidth;
+        const y = (-vec.y * 0.5 + 0.5) * window.innerHeight;
+        el.style.left = `${x}px`;
+        el.style.top  = `${y}px`;
     });
 
     controls.update();

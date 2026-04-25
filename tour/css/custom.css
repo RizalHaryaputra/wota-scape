@@ -400,3 +400,153 @@
 .swiper-pagination-bullet-active {
     background: #4a8c3f !important;
 }
+
+/* ===== 14. HTML HOTSPOT LAYER ===== */
+#hotspot-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+    overflow: hidden;
+}
+
+/* Base hotspot wrapper — positioned absolutely by JS */
+.hs {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.hs.hs-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---- NAVIGATE hotspot (panah pindah panorama) ---- */
+.hs-navigate .hs-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(13, 31, 13, 0.55);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(74, 140, 63, 0.6);
+    box-shadow: 0 0 20px rgba(74, 140, 63, 0.35), inset 0 0 12px rgba(74, 140, 63, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a8c3f;
+    font-size: 1.2rem;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: hs-float 2.8s ease-in-out infinite;
+}
+
+.hs-navigate:hover .hs-icon {
+    background: rgba(74, 140, 63, 0.75);
+    border-color: #4a8c3f;
+    color: #f5f0e8;
+    transform: scale(1.15);
+    box-shadow: 0 0 32px rgba(74, 140, 63, 0.7);
+}
+
+/* Pulse ring behind navigate hotspot */
+.hs-navigate .hs-icon::before {
+    content: '';
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(74, 140, 63, 0.4);
+    animation: hs-pulse 2.5s ease-out infinite;
+}
+
+/* ---- INFO hotspot (gambar/audio) ---- */
+.hs-info .hs-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(13, 25, 13, 0.6);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(212, 168, 67, 0.55);
+    box-shadow: 0 0 18px rgba(212, 168, 67, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d4a843;
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: hs-float 3s ease-in-out infinite 0.4s;
+}
+
+.hs-info:hover .hs-icon {
+    background: rgba(212, 168, 67, 0.75);
+    border-color: #d4a843;
+    color: #1a2e1a;
+    transform: scale(1.15);
+    box-shadow: 0 0 28px rgba(212, 168, 67, 0.7);
+}
+
+/* ---- VIDEO hotspot ---- */
+.hs-video .hs-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(13, 13, 30, 0.6);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(100, 160, 220, 0.55);
+    box-shadow: 0 0 18px rgba(100, 160, 220, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7ec8e3;
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: hs-float 3.2s ease-in-out infinite 0.8s;
+}
+
+.hs-video:hover .hs-icon {
+    background: rgba(100, 160, 220, 0.7);
+    border-color: #7ec8e3;
+    color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 0 28px rgba(100, 160, 220, 0.6);
+}
+
+/* ---- Label chip (di bawah semua tipe hotspot) ---- */
+.hs-label {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    color: #f5f0e8;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hs:hover .hs-label {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---- Keyframe animations ---- */
+@keyframes hs-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+}
+
+@keyframes hs-pulse {
+    0%   { transform: scale(1);   opacity: 0.6; }
+    100% { transform: scale(1.7); opacity: 0; }
+}
