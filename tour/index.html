@@ -230,19 +230,25 @@
 		</div>
 	</div>
 
-	<!-- ===== MAP OVERLAY ===== -->
-	<div id="mapOverlay" class="absolute bottom-24 right-4 z-map hidden overflow-hidden map-overlay-wrap">
-		<div class="map-overlay-header">
-			<i class="fa-solid fa-map-location-dot me-2"></i>
-			<span>Peta Desa Wota Wati</span>
-			<button class="map-close-btn ms-auto" onclick="toggleMap()" title="Tutup peta">
-				<i class="fa-solid fa-xmark"></i>
-			</button>
+	<!-- ===== MAP MODAL ===== -->
+	<div class="modal fade" id="modalPeta" tabindex="-1" aria-label="Peta Desa" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" style="max-width: min(480px, calc(100vw - 2rem));">
+			<div class="modal-content wota-modal overflow-hidden">
+				<div class="modal-header wota-modal-header py-2">
+					<div class="d-flex align-items-center gap-2">
+						<div class="modal-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+						<h5 class="modal-title fw-bold mb-0">Peta Desa Wota Wati</h5>
+					</div>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+				</div>
+				<div class="modal-body p-0">
+					<iframe
+						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.5!2d110.5!3d-8.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sWota+Wati%2C+Gunung+Kidul!5e0!3m2!1sid!2sid!4v1"
+						width="100%" height="320" style="border:0; display:block;" allowfullscreen loading="lazy"
+						title="Peta Desa Wota Wati, Gunung Kidul"></iframe>
+				</div>
+			</div>
 		</div>
-		<iframe
-			src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.5!2d110.5!3d-8.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sWota+Wati%2C+Gunung+Kidul!5e0!3m2!1sid!2sid!4v1"
-			width="100%" height="220" style="border:0; display:block;" allowfullscreen loading="lazy"
-			title="Peta Desa Wota Wati, Gunung Kidul"></iframe>
 	</div>
 
 	<!-- ===== BACKGROUND AUDIO ===== -->

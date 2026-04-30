@@ -12,7 +12,6 @@ import { getControls, getTargetFov, setTargetFov, togglePicker } from '../core/t
 // ===== REFERENSI ELEMEN DOM =====
 const audioElement  = document.getElementById('bgAudio');
 const soundButton   = document.getElementById('btnSound');
-const mapOverlay    = document.getElementById('mapOverlay');
 
 /** Status apakah backsound sedang diputar */
 export let isPlaying = false;
@@ -58,11 +57,12 @@ function toggleAutoRotate() {
 }
 
 /**
- * Toggle overlay peta Google Maps.
+ * Toggle modal peta Google Maps via Bootstrap Modal.
  */
 function toggleMap() {
-    const isHidden = mapOverlay.style.display === 'none' || mapOverlay.style.display === '';
-    mapOverlay.style.display = isHidden ? 'block' : 'none';
+    // eslint-disable-next-line no-undef
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPeta'));
+    modal.toggle();
 }
 
 /**
