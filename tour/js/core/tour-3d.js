@@ -69,17 +69,21 @@ function init() {
     const geometry = new THREE.SphereGeometry(500, 60, 40);
     geometry.scale(-1, 1, 1);
 
-    /* Load panorama pertama */
+    /* Load panorama pertama — resume dari sessionStorage jika ada (dev convenience) */
+    const savedPanorama = sessionStorage.getItem('currentPanorama') || 'wtwt_1.jpg';
+    // currentPanorama = savedPanorama; // dev convenience
     // eslint-disable-next-line no-undef
     new THREE.TextureLoader().load(
-        'panoramas/1.jpg',
+        'panoramas/wtwt_1.jpg',
+        // `panoramas/${savedPanorama}`, // dev convenience
         function onLoad(texture) {
             // eslint-disable-next-line no-undef
             const material = new THREE.MeshBasicMaterial({ map: texture });
             // eslint-disable-next-line no-undef
             panoramaMesh = new THREE.Mesh(geometry, material);
             scene.add(panoramaMesh);
-            loadHotspotsFor('1.jpg');
+            loadHotspotsFor('wtwt_1.jpg');
+            // loadHotspotsFor(savedPanorama); // dev convenience
 
             /* Tahan loading screen 2 detik untuk UX yang mulus */
             setTimeout(() => {
@@ -286,6 +290,199 @@ function loadHotspotsFor(panorama) {
         });
     }
 
+    if (panorama === 'wtwt_1.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-445.99, -47.69, -218.94), null, () => {
+            switchPanorama('wtwt_2.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-497.02, -14.08, -46.34), null, () => {
+            switchPanorama('wtwt_3.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(-492.96, 32.92, -71.17).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+    }
+
+    if (panorama === 'wtwt_2.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(490, -60, 0), null, () => {
+            switchPanorama('wtwt_1.jpg');
+        });
+    }
+
+    if (panorama === 'wtwt_3.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-9.11, -87.30, -491.56), null, () => {
+            switchPanorama('wtwt_1.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-490, -60, 0), null, () => {
+            switchPanorama('wtwt_4.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(6.34, -66.36, 494.92), null, () => {
+            switchPanorama('wtwt_7.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(-499.73, 5.20, 1.35).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+
+        if (previousPanorama === 'wtwt_1.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(23.09, 39.84, 497.18).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+
+        if (previousPanorama === 'wtwt_7.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(-63.32, 20.40, -494.70).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+    }
+
+    if (panorama === 'wtwt_4.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-490, -60, 0), null, () => {
+            switchPanorama('wtwt_3.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(496.32, -45.03, -27.76), null, () => {
+            switchPanorama('wtwt_5.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(27.37, 15.90, -497.94).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+
+        if (previousPanorama === 'wtwt_3.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(497.21, 0, -34.57).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+
+        if (previousPanorama === 'wtwt_5.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(-498.52, 0, 3.85).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+    }
+
+    if (panorama === 'wtwt_5.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(31.98, -91.71, 489.49), null, () => {
+            switchPanorama('wtwt_4.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-494.32, -59.02, -34.25), null, () => {
+            switchPanorama('wtwt_6.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(-481.15, 14.97, 131.25).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+
+        if (previousPanorama === 'wtwt_4.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(28.59, 68.06, -493.55).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+
+        if (previousPanorama === 'wtwt_6.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(473.19, 0, 159.26).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+    }
+
+    if (panorama === 'wtwt_6.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-494.52, -68.97, 8.03), null, () => {
+            switchPanorama('wtwt_5.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(-56.97, -58.72, -492.62), null, () => {
+            switchPanorama('wtwt_7.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(326.72, 26.80, -376.57).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+
+        if (previousPanorama === 'wtwt_5.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(494.99, 0, -40.67).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+
+        if (previousPanorama === 'wtwt_7.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(12.45, 40.73, 497.63).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+    }
+
+    if (panorama === 'wtwt_7.jpg') {
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(123.20, -121.99, -468.10), null, () => {
+            switchPanorama('wtwt_6.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('navigate', new THREE.Vector3(402.75, -86.09, 282.45), null, () => {
+            switchPanorama('wtwt_3.jpg');
+        });
+
+        camera.position.set(0.1, -0.035, 0);
+        controls.target.set(57.97, 17.14, -495.68).normalize();
+        controls.enableDamping = false;
+        controls.update();
+        controls.enableDamping = true;
+
+        if (previousPanorama === 'wtwt_3.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(-363.04, 69.10, -335.93).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+
+        if (previousPanorama === 'wtwt_6.jpg') {
+            camera.position.set(0.1, -0.035, 0);
+            controls.target.set(421.96, 0, 265.22).normalize();
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = true;
+        }
+    }
+
     /*panoramas-end*/
 }
 
@@ -325,6 +522,7 @@ function switchPanorama(panoramaName) {
                 panoramaMesh.material.needsUpdate = true;
 
                 currentPanorama = panoramaName;
+                // sessionStorage.setItem('currentPanorama', currentPanorama); // dev convinence
                 loadHotspotsFor(currentPanorama);
 
                 // Kembalikan FOV ke normal
