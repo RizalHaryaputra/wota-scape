@@ -300,11 +300,7 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_3.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(-492.96, 32.92, -71.17).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
+        faceDirection(-492.96, 32.92, -71.17);
     }
 
     if (panorama === 'wtwt_2.jpg') {
@@ -328,27 +324,9 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_7.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(-499.73, 5.20, 1.35).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
-
-        if (previousPanorama === 'wtwt_1.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(23.09, 39.84, 497.18).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
-
-        if (previousPanorama === 'wtwt_7.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(-63.32, 20.40, -494.70).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
+        faceDirection(-499.73, 5.20, 1.35);
+        if (previousPanorama === 'wtwt_1.jpg') faceDirection(23.09, 39.84, 497.18);
+        if (previousPanorama === 'wtwt_7.jpg') faceDirection(-63.32, 20.40, -494.70);
     }
 
     if (panorama === 'wtwt_4.jpg') {
@@ -361,27 +339,9 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_5.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(27.37, 15.90, -497.94).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
-
-        if (previousPanorama === 'wtwt_3.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(497.21, 0, -34.57).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
-
-        if (previousPanorama === 'wtwt_5.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(-498.52, 0, 3.85).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
+        faceDirection(27.37, 15.90, -497.94);
+        if (previousPanorama === 'wtwt_3.jpg') faceDirection(497.21, 0, -34.57);
+        if (previousPanorama === 'wtwt_5.jpg') faceDirection(-498.52, 0, 3.85);
     }
 
     if (panorama === 'wtwt_5.jpg') {
@@ -394,27 +354,9 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_6.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(-481.15, 14.97, 131.25).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
-
-        if (previousPanorama === 'wtwt_4.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(28.59, 68.06, -493.55).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
-
-        if (previousPanorama === 'wtwt_6.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(473.19, 0, 159.26).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
+        faceDirection(-481.15, 14.97, 131.25);
+        if (previousPanorama === 'wtwt_4.jpg') faceDirection(28.59, 68.06, -493.55);
+        if (previousPanorama === 'wtwt_6.jpg') faceDirection(473.19, 0, 159.26);
     }
 
     if (panorama === 'wtwt_6.jpg') {
@@ -427,27 +369,9 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_7.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(326.72, 26.80, -376.57).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
-
-        if (previousPanorama === 'wtwt_5.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(494.99, 0, -40.67).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
-
-        if (previousPanorama === 'wtwt_7.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(12.45, 40.73, 497.63).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
+        faceDirection(326.72, 26.80, -376.57);
+        if (previousPanorama === 'wtwt_5.jpg') faceDirection(494.99, 0, -40.67);
+        if (previousPanorama === 'wtwt_7.jpg') faceDirection(12.45, 40.73, 497.63);
     }
 
     if (panorama === 'wtwt_7.jpg') {
@@ -460,27 +384,9 @@ function loadHotspotsFor(panorama) {
             switchPanorama('wtwt_3.jpg');
         });
 
-        camera.position.set(0.1, -0.035, 0);
-        controls.target.set(57.97, 17.14, -495.68).normalize();
-        controls.enableDamping = false;
-        controls.update();
-        controls.enableDamping = true;
-
-        if (previousPanorama === 'wtwt_3.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(-363.04, 69.10, -335.93).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
-
-        if (previousPanorama === 'wtwt_6.jpg') {
-            camera.position.set(0.1, -0.035, 0);
-            controls.target.set(421.96, 0, 265.22).normalize();
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = true;
-        }
+        faceDirection(57.97, 17.14, -495.68);
+        if (previousPanorama === 'wtwt_3.jpg') faceDirection(-363.04, 69.10, -335.93);
+        if (previousPanorama === 'wtwt_6.jpg') faceDirection(421.96, 0, 265.22);
     }
 
     /*panoramas-end*/
@@ -534,6 +440,19 @@ function switchPanorama(panoramaName) {
             }, remainingDelay);
         });
     }, 350); // Jeda awal 350ms agar jQuery fadeIn sempat terlihat
+}
+
+/* ========================================
+ * FUNCTION: faceDirection
+ * Arahkan kamera ke titik (x,y,z) secara instan.
+ * Mereset posisi kamera dan membersihkan damping delta.
+ * ======================================== */
+function faceDirection(x, y, z) {
+    camera.position.set(0.1, -0.035, 0);
+    controls.target.set(x, y, z).normalize();
+    controls.enableDamping = false;
+    controls.update();
+    controls.enableDamping = true;
 }
 
 /* ========================================
