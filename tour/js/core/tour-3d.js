@@ -299,6 +299,10 @@ function loadHotspotsFor(panorama) {
         addHtmlHotspot('navigate', new THREE.Vector3(-497.02, -14.08, -46.34), null, () => {
             switchPanorama('wtwt_3.jpg');
         });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(-388.08, -114.80, -292.87), 'Selamat Datang', () => {
+            showMedia(6, { image: 'images/selamat-datang.png', audio: 'audio/selamat-datang.wav' });
+        });
 
         faceDirection(-492.96, 32.92, -71.17);
     }
@@ -307,6 +311,10 @@ function loadHotspotsFor(panorama) {
         // eslint-disable-next-line no-undef
         addHtmlHotspot('navigate', new THREE.Vector3(490, -60, 0), null, () => {
             switchPanorama('wtwt_1.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(-62.74, -6.25, 495.35), 'Info Board', () => {
+            showMedia(1, 'images/wtwt_infoboard.jpg');
         });
     }
 
