@@ -27,6 +27,13 @@ const mouse = new THREE.Vector2();
 let currentPanorama = '1.jpg';
 let previousPanorama = null;
 
+/*===== GYROSCOPE STATE ===== */
+let gyroEnabled = false;
+let gyroAlpha = null;
+let gyroBeta = null;
+let gyroGamma = null;
+let gyroBaseAlpha = null; // baseline alpha saat pertama kali aktif
+
 /* ===== EXPORT UI CONTROLLERS ===== */
 export const getControls = () => controls;
 export const getTargetFov = () => targetFov;
@@ -562,6 +569,136 @@ function placePickerMarker(position) {
 }
 
 /* ========================================
+ * FUNCTION: applyGyroscope
+ * Terapkan data gyroscope ke kamera.
+ * Dipanggil setiap frame di animate().
+ * ======================================== */
+function applyGyroscope() {
+    if (!gyroEnabled || gyroAlpha === null) return;
+ 
+    // Nonaktifkan OrbitControls agar tidak konflik
+    controls.enabled = false;
+ 
+    // Konversi derajat ke radian
+    // eslint-disable-next-line no-undef
+    const degToRad = THREE.MathUtils.degToRad;
+ 
+    // Hitung offset alpha dari baseline (saat gyro pertama aktif)
+    let alpha = gyroAlpha;
+    if (gyroBaseAlpha !== null) {
+        alpha = gyroAlpha - gyroBaseAlpha;
+    }
+ 
+    // beta: kemiringan maju-mundur (-180 ~ 180)
+    // gamma: kemiringan kiri-kanan (-90 ~ 90)
+    // alpha: rotasi kompas (0 ~ 360)
+    const beta  = gyroBeta  || 0;
+    const gamma = gyroGamma || 0;
+ 
+    // Euler order 'YXZ' cocok untuk first-person camera
+    // eslint-disable-next-line no-undef
+    const euler = new THREE.Euler(
+        degToRad(beta - 90),   // X: pitch (atas-bawah), -90 untuk orientasi portrait
+        degToRad(-alpha),      // Y: yaw (kiri-kanan)
+        degToRad(-gamma),      // Z: roll
+        'YXZ'
+    );
+ 
+    // eslint-disable-next-line no-undef
+    const quaternion = new THREE.Quaternion().setFromEuler(euler);
+ 
+    // Rotasi tambahan 90° karena layar portrait
+    // eslint-disable-next-line no-undef
+    const screenOrientation = degToRad(window.screen?.orientation?.angle || 0);
+    // eslint-disable-next-line no-undef
+    const screenQuat = new THREE.Quaternion().setFromAxisAngle(
+        // eslint-disable-next-line no-undef
+        new THREE.Vector3(0, 0, 1), -screenOrientation
+    );
+ 
+    camera.quaternion.copy(quaternion).multiply(screenQuat);
+}
+ 
+/* ========================================
+ * FUNCTION: toggleGyroscope (export)
+ * Dipanggil dari tombol di HTML.
+ * ======================================== */
+export async function toggleGyroscope() {
+    const btn = document.getElementById('btn-gyro');
+ 
+    if (gyroEnabled) {
+        // === MATIKAN GYROSCOPE ===
+        window.removeEventListener('deviceorientation', _gyroHandler, true);
+        gyroEnabled = false;
+        gyroAlpha = null;
+        gyroBeta  = null;
+        gyroGamma = null;
+        gyroBaseAlpha = null;
+ 
+        // Kembalikan OrbitControls
+        controls.enabled = true;
+ 
+        // Reset visual tombol
+        if (btn) {
+            btn.classList.remove('dock-btn-active');
+            btn.title = 'Aktifkan Gyroscope';
+        }
+ 
+        console.log('Gyroscope dimatikan.');
+        return;
+    }
+ 
+    // === NYALAKAN GYROSCOPE ===
+ 
+    // Cek apakah device mendukung
+    if (!window.DeviceOrientationEvent) {
+        alert('Perangkat ini tidak mendukung gyroscope.');
+        return;
+    }
+ 
+    // iOS 13+ wajib minta izin via user gesture
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission !== 'granted') {
+                alert('Izin gyroscope ditolak. Aktifkan di Settings > Safari > Motion & Orientation Access.');
+                return;
+            }
+        } catch (err) {
+            console.error('Gagal minta izin gyroscope:', err);
+            alert('Gagal meminta izin gyroscope.');
+            return;
+        }
+    }
+ 
+    // Daftarkan handler
+    window.addEventListener('deviceorientation', _gyroHandler, true);
+    gyroEnabled = true;
+ 
+    // Visual feedback: tombol aktif
+    if (btn) {
+        btn.classList.add('dock-btn-active');
+        btn.title = 'Matikan Gyroscope';
+    }
+ 
+    console.log('Gyroscope diaktifkan.');
+}
+ 
+/* Handler internal — simpan nilai gyro ke variabel state */
+function _gyroHandler(event) {
+    if (event.alpha === null) return;
+ 
+    // Simpan baseline alpha pertama kali agar view tidak loncat
+    if (gyroBaseAlpha === null) {
+        gyroBaseAlpha = event.alpha;
+    }
+ 
+    gyroAlpha = event.alpha;
+    gyroBeta  = event.beta;
+    gyroGamma = event.gamma;
+}
+
+/* ========================================
  * FUNCTION: animate
  * Game loop — FOV animasi + proyeksi hotspot HTML.
  * ======================================== */
@@ -571,6 +708,9 @@ function animate() {
     /* Smooth FOV interpolation */
     camera.fov += (targetFov - camera.fov) * 0.1;
     camera.updateProjectionMatrix();
+
+    /* Terapkan gyroscope jika aktif */
+    applyGyroscope();
 
     /* Proyeksikan setiap HTML hotspot dari 3D ke 2D layar */
     // eslint-disable-next-line no-undef
