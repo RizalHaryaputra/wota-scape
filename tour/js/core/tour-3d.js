@@ -575,48 +575,51 @@ function placePickerMarker(position) {
  * ======================================== */
 function applyGyroscope() {
     if (!gyroEnabled || gyroAlpha === null) return;
- 
-    // Nonaktifkan OrbitControls agar tidak konflik
+
     controls.enabled = false;
- 
-    // Konversi derajat ke radian
+
     // eslint-disable-next-line no-undef
     const degToRad = THREE.MathUtils.degToRad;
- 
-    // Hitung offset alpha dari baseline (saat gyro pertama aktif)
+
+    // Offset alpha dari posisi awal agar view tidak loncat saat gyro aktif
     let alpha = gyroAlpha;
     if (gyroBaseAlpha !== null) {
         alpha = gyroAlpha - gyroBaseAlpha;
     }
- 
-    // beta: kemiringan maju-mundur (-180 ~ 180)
-    // gamma: kemiringan kiri-kanan (-90 ~ 90)
-    // alpha: rotasi kompas (0 ~ 360)
+
     const beta  = gyroBeta  || 0;
     const gamma = gyroGamma || 0;
- 
-    // Euler order 'YXZ' cocok untuk first-person camera
+
+    // Formula standar Three.js DeviceOrientationControls:
+    // euler YXZ dengan (beta, alpha, -gamma) — alpha POSITIF untuk arah yaw yang benar
     // eslint-disable-next-line no-undef
     const euler = new THREE.Euler(
-        degToRad(beta - 90),   // X: pitch (atas-bawah), -90 untuk orientasi portrait
-        degToRad(-alpha),      // Y: yaw (kiri-kanan)
-        degToRad(-gamma),      // Z: roll
+        degToRad(beta),
+        degToRad(alpha),
+        degToRad(-gamma),
         'YXZ'
     );
- 
+
     // eslint-disable-next-line no-undef
-    const quaternion = new THREE.Quaternion().setFromEuler(euler);
- 
-    // Rotasi tambahan 90° karena layar portrait
+    const q0 = new THREE.Quaternion().setFromEuler(euler);
+
+    // q1: rotasi -90° pada sumbu X untuk mode portrait (device dipegang tegak)
+    // Ini setara dengan beta-90 tapi diaplikasikan sebagai quaternion agar tidak
+    // mengganggu sumbu lain.
     // eslint-disable-next-line no-undef
-    const screenOrientation = degToRad(window.screen?.orientation?.angle || 0);
+    const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    q0.multiply(q1);
+
+    // Koreksi orientasi layar (landscape/portrait)
+    const screenAngle = degToRad(window.screen?.orientation?.angle || 0);
     // eslint-disable-next-line no-undef
-    const screenQuat = new THREE.Quaternion().setFromAxisAngle(
+    const qScreen = new THREE.Quaternion().setFromAxisAngle(
         // eslint-disable-next-line no-undef
-        new THREE.Vector3(0, 0, 1), -screenOrientation
+        new THREE.Vector3(0, 0, 1), -screenAngle
     );
- 
-    camera.quaternion.copy(quaternion).multiply(screenQuat);
+    q0.multiply(qScreen);
+
+    camera.quaternion.copy(q0);
 }
  
 /* ========================================
@@ -634,34 +637,35 @@ export async function toggleGyroscope() {
         gyroBeta  = null;
         gyroGamma = null;
         gyroBaseAlpha = null;
- 
-        // Kembalikan OrbitControls
         controls.enabled = true;
- 
-        // Reset visual tombol
         if (btn) {
             btn.classList.remove('dock-btn-active');
             btn.title = 'Aktifkan Gyroscope';
         }
- 
         console.log('Gyroscope dimatikan.');
         return;
     }
  
     // === NYALAKAN GYROSCOPE ===
- 
-    // Cek apakah device mendukung
+
+    // 1. Halaman harus HTTPS — Chrome Android memblokir DeviceOrientationEvent di HTTP
+    if (!window.isSecureContext) {
+        alert('Gyroscope memerlukan HTTPS.\nPastikan situs diakses melalui https://, bukan http://.');
+        return;
+    }
+
+    // 2. Cek apakah API tersedia di browser ini
     if (!window.DeviceOrientationEvent) {
-        alert('Perangkat ini tidak mendukung gyroscope.');
+        alert('Browser atau perangkat ini tidak mendukung gyroscope.');
         return;
     }
  
-    // iOS 13+ wajib minta izin via user gesture
+    // 3. iOS 13+ wajib minta izin eksplisit via user gesture
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         try {
             const permission = await DeviceOrientationEvent.requestPermission();
             if (permission !== 'granted') {
-                alert('Izin gyroscope ditolak. Aktifkan di Settings > Safari > Motion & Orientation Access.');
+                alert('Izin gyroscope ditolak.\nAktifkan di Settings > Safari > Motion & Orientation Access.');
                 return;
             }
         } catch (err) {
@@ -671,17 +675,29 @@ export async function toggleGyroscope() {
         }
     }
  
-    // Daftarkan handler
+    // 4. Daftarkan handler dan aktifkan
     window.addEventListener('deviceorientation', _gyroHandler, true);
     gyroEnabled = true;
  
-    // Visual feedback: tombol aktif
     if (btn) {
         btn.classList.add('dock-btn-active');
         btn.title = 'Matikan Gyroscope';
     }
- 
     console.log('Gyroscope diaktifkan.');
+
+    // 5. Verifikasi sensor benar-benar mengirim data (Android: sensor bisa ada tapi tidak aktif)
+    setTimeout(() => {
+        if (gyroEnabled && gyroAlpha === null) {
+            window.removeEventListener('deviceorientation', _gyroHandler, true);
+            gyroEnabled = false;
+            controls.enabled = true;
+            if (btn) {
+                btn.classList.remove('dock-btn-active');
+                btn.title = 'Aktifkan Gyroscope';
+            }
+            alert('Sensor gyroscope tidak merespons.\nPastikan izin sensor aktif di pengaturan browser.');
+        }
+    }, 1500);
 }
  
 /* Handler internal — simpan nilai gyro ke variabel state */
@@ -734,7 +750,8 @@ function animate() {
         el.style.top  = `${y}px`;
     });
 
-    controls.update();
+    /* OrbitControls tidak boleh update saat gyro aktif — akan override camera.quaternion */
+    if (!gyroEnabled) controls.update();
     renderer.render(scene, camera);
 }
 
