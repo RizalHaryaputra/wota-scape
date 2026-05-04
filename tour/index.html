@@ -209,6 +209,11 @@
 				<i class="fa-solid fa-arrow-rotate-right"></i>
 			</button>
 			
+			<!-- Gyroscope -->
+			<button id="btn-gyro" class="dock-btn" onclick="toggleGyroscope()" title="Aktifkan Gyroscope">
+				<i class="fa-solid fa-mobile-screen-button"></i>
+			</button>
+
 			<div class="w-[1px] h-6 bg-white/10 mx-1"></div>
 			
 			<!-- Fullscreen & Share -->
@@ -452,6 +457,12 @@
 	<script type="module" src="js/ui/ui-controller.js"></script>
 	<script type="module" src="js/core/tour-3d.js"></script>
 
+	<!-- Feature Gyroscope -->
+	<script type="module">
+    import { toggleGyroscope } from './js/core/tour-3d.js';
+    window.toggleGyroscope = toggleGyroscope;
+	</script>
+
 	<!-- Bootstrap Bundle -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -514,6 +525,22 @@
 			#exploreMenu.open {
 				display: flex !important;
 			}
+		}
+		/* Tombol gyroscope saat aktif */
+		.dock-btn-active {
+			color: #4a8c3f !important;
+			background: rgba(74, 140, 63, 0.2) !important;
+			box-shadow: 0 0 12px rgba(74, 140, 63, 0.4);
+		}
+		
+		/* Animasi pulse saat gyro aktif */
+		.dock-btn-active i {
+			animation: gyro-pulse 1.5s ease-in-out infinite;
+		}
+		
+		@keyframes gyro-pulse {
+			0%, 100% { opacity: 1; }
+			50%       { opacity: 0.5; }
 		}
 	</style>
 	<script>
