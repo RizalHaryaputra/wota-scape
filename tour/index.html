@@ -2,9 +2,9 @@
 <html lang="id">
 
 <head>
-	<title>WotaScape — Virtual Tour 360° Desa Wota Wati, Gunung Kidul</title>
+	<title>WotaScape — Virtual Tour 360° Dusun Wota Wati, Gunung Kidul</title>
 	<meta name="description"
-		content="Jelajahi keindahan Desa Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif. Temukan keunikan budaya, alam, dan kehidupan desa yang autentik.">
+		content="Jelajahi keindahan Dusun Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif. Temukan keunikan budaya, alam, dan kehidupan Dusun yang autentik.">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
 	<meta name="viewport"
@@ -149,7 +149,7 @@
 		<div id="exploreMenu" class="explore-menu-wrapper flex flex-col md:flex-row gap-2">
 			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="">
 				<span class="icon-wrap"><i class="fa-solid fa-users-viewfinder"></i></span>
-				<span class="label">Profil Desa</span>
+				<span class="label">Profil Dusun</span>
 			</button>
 			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="">
 				<span class="icon-wrap"><i class="fa-solid fa-palette"></i></span>
@@ -161,7 +161,7 @@
 			</button>
 			<button class="explore-btn" data-bs-toggle="modal" data-bs-target="">
 				<span class="icon-wrap"><i class="fa-regular fa-newspaper"></i></span>
-				<span class="label">Berita Desa</span>
+				<span class="label">Berita Dusun</span>
 			</button>
 		</div>
 	</div>
@@ -172,7 +172,7 @@
 			<i class="fa-solid fa-location-dot text-xs"></i>
 		</div>
 		<div class="flex flex-col">
-			<span id="bottomLeftText" class="font-sans font-semibold text-cream text-xs">Desa Wota Wati</span>
+			<span id="bottomLeftText" class="font-sans font-semibold text-cream text-xs">Dusun Wota Wati</span>
 			<span class="text-cream/60 text-[0.6rem] tracking-wider">Gunung Kidul, Yogyakarta</span>
 		</div>
 	</div>
@@ -192,7 +192,7 @@
 			<button id="btnSound" class="dock-btn" onclick="toggleSound()" title="Toggle Musik">
 				<i class="fa-solid fa-volume-xmark"></i>
 			</button>
-			<button id="btn-map" class="dock-btn" onclick="toggleMap()" title="Peta Desa">
+			<button id="btn-map" class="dock-btn" onclick="toggleMap()" title="Peta Dusun">
 				<i class="fa-solid fa-map-location-dot"></i>
 			</button>
 			
@@ -210,14 +210,14 @@
 			</button>
 			
 			<!-- Gyroscope -->
-			<button id="btn-gyro" class="dock-btn" onclick="toggleGyroscope()" title="Aktifkan Gyroscope">
+			<button id="btn-gyro" class="dock-btn block lg:hidden" onclick="toggleGyroscope()" title="Aktifkan Gyroscope">
 				<i class="fa-solid fa-mobile-screen-button"></i>
 			</button>
 
 			<div class="w-[1px] h-6 bg-white/10 mx-1"></div>
 			
 			<!-- Fullscreen & Share -->
-			<button id="btn-fullscreen" class="dock-btn" onclick="toggleFullscreen()" title="Fullscreen">
+			<button id="btn-fullscreen" class="dock-btn hidden lg:block" onclick="toggleFullscreen()" title="Fullscreen">
 				<i class="fa-solid fa-expand"></i>
 			</button>
 
@@ -236,13 +236,13 @@
 	</div>
 
 	<!-- ===== MAP MODAL ===== -->
-	<div class="modal fade" id="modalPeta" tabindex="-1" aria-label="Peta Desa" aria-hidden="true">
+	<div class="modal fade" id="modalPeta" tabindex="-1" aria-label="Peta Dusun" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" style="max-width: min(480px, calc(100vw - 2rem));">
 			<div class="modal-content wota-modal overflow-hidden">
 				<div class="modal-header wota-modal-header py-2">
 					<div class="d-flex align-items-center gap-2">
 						<div class="modal-icon"><i class="fa-solid fa-map-location-dot"></i></div>
-						<h5 class="modal-title fw-bold mb-0">Peta Desa Wota Wati</h5>
+						<h5 class="modal-title fw-bold mb-0">Peta Dusun Wota Wati</h5>
 					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
 				</div>
@@ -250,7 +250,7 @@
 					<iframe
 						src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.5!2d110.5!3d-8.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sWota+Wati%2C+Gunung+Kidul!5e0!3m2!1sid!2sid!4v1"
 						width="100%" height="320" style="border:0; display:block;" allowfullscreen loading="lazy"
-						title="Peta Desa Wota Wati, Gunung Kidul"></iframe>
+						title="Peta Dusun Wota Wati, Gunung Kidul"></iframe>
 				</div>
 			</div>
 		</div>
@@ -266,14 +266,14 @@
 	<!-- BOOTSTRAP MODALS                                             -->
 	<!-- ============================================================ -->
 
-	<!-- === MODAL: PROFIL DESA === -->
+	<!-- === MODAL: PROFIL Dusun === -->
 	<div class="modal fade" id="modalProfil" tabindex="-1" aria-labelledby="modalProfilLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content wota-modal">
 				<div class="modal-header wota-modal-header">
 					<div class="d-flex align-items-center gap-2">
 						<div class="modal-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
-						<h5 class="modal-title fw-bold mb-0" id="modalProfilLabel">Profil Desa Wota Wati</h5>
+						<h5 class="modal-title fw-bold mb-0" id="modalProfilLabel">Profil Dusun Wota Wati</h5>
 					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
@@ -300,8 +300,8 @@
 						<!-- Tab: Pengurus -->
 						<div class="tab-pane fade show active" id="tab-pengurus" role="tabpanel"
 							aria-labelledby="pengurus-tab">
-							<h6 class="fw-semibold mb-3 text-dark">Struktur Pengurus Desa Wota Wati</h6>
-							<img src="images/struktur-pengurus.png" alt="Struktur Pengurus Desa Wota Wati"
+							<h6 class="fw-semibold mb-3 text-dark">Struktur Pengurus Dusun Wota Wati</h6>
+							<img src="images/struktur-pengurus.png" alt="Struktur Pengurus Dusun Wota Wati"
 								class="img-fluid rounded-3 w-100">
 						</div>
 						<!-- Tab: Kelompok Seni (diisi Firebase) -->
@@ -389,13 +389,13 @@
 	</div>
 
 	<!-- === MODAL: DAFTAR BERITA === -->
-	<div class="modal fade" id="modalBerita" tabindex="-1" aria-label="Berita Desa" aria-hidden="true">
+	<div class="modal fade" id="modalBerita" tabindex="-1" aria-label="Berita Dusun" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
 			<div class="modal-content wota-modal">
 				<div class="modal-header wota-modal-header">
 					<div class="d-flex align-items-center gap-2">
 						<div class="modal-icon"><i class="fa-regular fa-newspaper"></i></div>
-						<h5 class="modal-title fw-bold mb-0">Kabar Desa Wota Wati</h5>
+						<h5 class="modal-title fw-bold mb-0">Kabar Dusun Wota Wati</h5>
 					</div>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
 						aria-label="Tutup"></button>
@@ -477,8 +477,8 @@
 		function shareTour() {
 			if (navigator.share) {
 				navigator.share({
-					title: 'WotaScape - Virtual Tour 360° Desa Wota Wati',
-					text: 'Jelajahi keindahan Desa Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif.',
+					title: 'WotaScape - Virtual Tour 360° Dusun Wota Wati',
+					text: 'Jelajahi keindahan Dusun Wota Wati, Gunung Kidul melalui Virtual Tour 360° interaktif.',
 					url: window.location.href,
 				})
 				.then(() => console.log('Successful share'))
