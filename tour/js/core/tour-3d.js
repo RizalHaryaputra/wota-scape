@@ -308,7 +308,7 @@ function loadHotspotsFor(panorama) {
         });
         // eslint-disable-next-line no-undef
         addHtmlHotspot('info', new THREE.Vector3(-388.08, -114.80, -292.87), 'Selamat Datang', () => {
-            showMedia(6, { image: 'images/selamat-datang.png', audio: 'audio/selamat-datang.wav' });
+            showMedia(6, { image: 'images/selamat-datang.jpeg', audio: 'audio/selamat-datang.wav' });
         });
 
         faceDirection(-492.96, 32.92, -71.17);
@@ -338,6 +338,10 @@ function loadHotspotsFor(panorama) {
         addHtmlHotspot('navigate', new THREE.Vector3(6.34, -66.36, 494.92), null, () => {
             switchPanorama('wtwt_7.jpg');
         });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(-362.70, -88.58, 331.83), 'Arsitektur', () => {
+            showMedia(6, { image: 'images/arsitektur.jpeg', audio: 'audio/arsitektur.wav' });
+        });
 
         faceDirection(-499.73, 5.20, 1.35);
         if (previousPanorama === 'wtwt_1.jpg') faceDirection(23.09, 39.84, 497.18);
@@ -352,6 +356,10 @@ function loadHotspotsFor(panorama) {
         // eslint-disable-next-line no-undef
         addHtmlHotspot('navigate', new THREE.Vector3(496.32, -45.03, -27.76), null, () => {
             switchPanorama('wtwt_5.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(226.42, -52.36, -441.56), 'Labirin', () => {
+            showMedia(6, { image: 'images/labirin.jpeg', audio: 'audio/labirin.wav' });
         });
 
         faceDirection(27.37, 15.90, -497.94);
@@ -368,6 +376,10 @@ function loadHotspotsFor(panorama) {
         addHtmlHotspot('navigate', new THREE.Vector3(-494.32, -59.02, -34.25), null, () => {
             switchPanorama('wtwt_6.jpg');
         });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(-179.55, -19, -464.75), 'Lembah Sungai', () => {
+            showMedia(6, { image: 'images/lembah-sungai.jpeg', audio: 'audio/lembah-sungai.wav' });
+        });
 
         faceDirection(-481.15, 14.97, 131.25);
         if (previousPanorama === 'wtwt_4.jpg') faceDirection(28.59, 68.06, -493.55);
@@ -383,6 +395,10 @@ function loadHotspotsFor(panorama) {
         addHtmlHotspot('navigate', new THREE.Vector3(-56.97, -58.72, -492.62), null, () => {
             switchPanorama('wtwt_7.jpg');
         });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(308.50, -54.13, -388.43), 'Green Tourism', () => {
+            showMedia(6, { image: 'images/green_tourism.jpeg', audio: 'audio/green_tourism.wav' });
+        });
 
         faceDirection(326.72, 26.80, -376.57);
         if (previousPanorama === 'wtwt_5.jpg') faceDirection(494.99, 0, -40.67);
@@ -397,6 +413,10 @@ function loadHotspotsFor(panorama) {
         // eslint-disable-next-line no-undef
         addHtmlHotspot('navigate', new THREE.Vector3(402.75, -86.09, 282.45), null, () => {
             switchPanorama('wtwt_3.jpg');
+        });
+        // eslint-disable-next-line no-undef
+        addHtmlHotspot('info', new THREE.Vector3(-270.99, -77.54, -412.14), 'Asal Usul', () => {
+            showMedia(6, { image: 'images/asal-usul.jpeg', audio: 'audio/asal-usul.wav' });
         });
 
         faceDirection(57.97, 17.14, -495.68);
