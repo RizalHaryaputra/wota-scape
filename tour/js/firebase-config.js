@@ -5,12 +5,13 @@ import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, updateDoc, q
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAQnRlq7sDRM9WOAZrydncVk05Y4fryRJM",
-    authDomain: "kavviar-web.firebaseapp.com",
-    projectId: "kavviar-web",
-    storageBucket: "kavviar-web.firebasestorage.app",
-    messagingSenderId: "350597383174",
-    appId: "1:350597383174:web:fcba637f4ab5dc30322f87"
+    apiKey: "AIzaSyAro5OAah2l442qSiCqzyiWEn5aTftg0rc",
+    authDomain: "wotascape.firebaseapp.com",
+    projectId: "wotascape",
+    storageBucket: "wotascape.firebasestorage.app",
+    messagingSenderId: "78630756298",
+    appId: "1:78630756298:web:25e920980892ede4f17933",
+    measurementId: "G-XKY5XBTSN6"
 };
 
 const app = initializeApp(firebaseConfig);
