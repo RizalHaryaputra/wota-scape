@@ -1,5 +1,5 @@
 import { auth, signOut, onAuthStateChanged } from '../js/firebase-config.js';
-import { getPaginatedData, createItem, updateItem, removeItem } from '../js/services/firebase-service.js';
+import { getPaginatedData, createItem, updateItem, removeItem, runOrderMigration, swapItemOrder } from '../js/services/firebase-service.js';
 
 // ==========================================
 // KONFIGURASI
@@ -11,6 +11,7 @@ const ITEMS_PER_PAGE = 5;
 // State pagination untuk setiap koleksi
 let lastDocs = { village_profiles: null, tour_packages: null, accommodations: null, village_news: null };
 let firstDocs = { village_profiles: null, tour_packages: null, accommodations: null, village_news: null };
+let loadedData = { village_profiles: [], tour_packages: [], accommodations: [], village_news: [] };
 
 // ==========================================
 // INISIALISASI TINYMCE
@@ -46,11 +47,16 @@ tinymce.init({
 // ==========================================
 // 1. CEK AUTH & LOAD DATA AWAL
 // ==========================================
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = 'index.html';
     } else {
         console.log('Login sebagai:', user.email);
+        try {
+            await runOrderMigration();
+        } catch (err) {
+            console.error('Gagal menjalankan migrasi order:', err);
+        }
         loadData('village_profiles', 'tabelProfilBody', renderProfil, 'nextProfil', 'prevProfil');
         loadData('tour_packages', 'tabelPaketBody', renderPaket, 'nextPaket', 'prevPaket');
         loadData('accommodations', 'tabelPenginapanBody', renderPenginapan, 'nextPenginapan', 'prevPenginapan');
@@ -113,8 +119,9 @@ async function loadData(colName, tableId, renderFunc, nextBtnId, prevBtnId, dire
         firstDocs[colName] = result.firstDoc;
         lastDocs[colName] = result.lastDoc;
 
-        result.data.forEach(data => {
-            tableBody.innerHTML += renderFunc(data);
+        loadedData[colName] = result.data;
+        result.data.forEach((data, index) => {
+            tableBody.innerHTML += renderFunc(data, index, result.data.length);
         });
 
         prevBtn.disabled = (direction === 'first');
@@ -131,8 +138,28 @@ async function loadData(colName, tableId, renderFunc, nextBtnId, prevBtnId, dire
 // ==========================================
 // 4. FUNGSI RENDER BARIS TABEL
 // ==========================================
-function renderProfil(data) {
+function renderOrderButtons(colName, index, totalItems) {
+    const isFirst = (index === 0);
+    const isLast = (index === totalItems - 1);
+    
+    return `
+    <div class="flex items-center gap-1">
+        <button onclick="moveItem('${colName}', ${index}, 'up')" ${isFirst ? 'disabled' : ''}
+            class="btn-order-move"
+            title="Pindahkan ke atas">
+            <i class="fa-solid fa-arrow-up text-xs"></i>
+        </button>
+        <button onclick="moveItem('${colName}', ${index}, 'down')" ${isLast ? 'disabled' : ''}
+            class="btn-order-move"
+            title="Pindahkan ke bawah">
+            <i class="fa-solid fa-arrow-down text-xs"></i>
+        </button>
+    </div>`;
+}
+
+function renderProfil(data, index, totalItems) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
+    const orderButtons = renderOrderButtons('village_profiles', index, totalItems);
     return `
     <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-4 py-3 font-medium text-slate-700">${data.judul}</td>
@@ -142,6 +169,7 @@ function renderProfil(data) {
                 <i class="fa-brands fa-youtube text-red-500"></i> Tonton
             </a>
         </td>
+        <td class="px-4 py-3">${orderButtons}</td>
         <td class="px-4 py-3">
             <div class="flex gap-2">
                 <button onclick="prepareEdit('${data.id}', '${dataStr}', 'profil')"
@@ -157,8 +185,9 @@ function renderProfil(data) {
     </tr>`;
 }
 
-function renderPaket(data) {
+function renderPaket(data, index, totalItems) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
+    const orderButtons = renderOrderButtons('tour_packages', index, totalItems);
     return `
     <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-4 py-3">
@@ -168,6 +197,7 @@ function renderPaket(data) {
         <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
         <td class="px-4 py-3 text-slate-600">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
         <td class="px-4 py-3 text-slate-600 text-xs">${data.fasilitas}</td>
+        <td class="px-4 py-3">${orderButtons}</td>
         <td class="px-4 py-3">
             <div class="flex gap-2">
                 <button onclick="prepareEdit('${data.id}', '${dataStr}', 'paket')"
@@ -183,8 +213,9 @@ function renderPaket(data) {
     </tr>`;
 }
 
-function renderPenginapan(data) {
+function renderPenginapan(data, index, totalItems) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
+    const orderButtons = renderOrderButtons('accommodations', index, totalItems);
     return `
     <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-4 py-3">
@@ -197,6 +228,7 @@ function renderPenginapan(data) {
             <p class="text-xs text-slate-500"><i class="fa-brands fa-whatsapp text-green-500 mr-1"></i>${data.wa}</p>
         </td>
         <td class="px-4 py-3 text-slate-600">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3">${orderButtons}</td>
         <td class="px-4 py-3">
             <div class="flex gap-2">
                 <button onclick="prepareEdit('${data.id}', '${dataStr}', 'penginapan')"
@@ -212,8 +244,9 @@ function renderPenginapan(data) {
     </tr>`;
 }
 
-function renderBerita(data) {
+function renderBerita(data, index, totalItems) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
+    const orderButtons = renderOrderButtons('village_news', index, totalItems);
     return `
     <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-4 py-3">
@@ -225,6 +258,7 @@ function renderBerita(data) {
             <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-user mr-1"></i>${data.penulis || 'Admin'}</p>
         </td>
         <td class="px-4 py-3 text-slate-500 text-xs">${data.tanggal}</td>
+        <td class="px-4 py-3">${orderButtons}</td>
         <td class="px-4 py-3">
             <div class="flex gap-2">
                 <button onclick="prepareEdit('${data.id}', '${dataStr}', 'berita')"
@@ -239,6 +273,45 @@ function renderBerita(data) {
         </td>
     </tr>`;
 }
+
+// Event handler untuk pemindahan urutan
+window.moveItem = async (colName, index, direction) => {
+    const list = loadedData[colName];
+    if (!list || list.length === 0) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+
+    const itemA = list[index];
+    const itemB = list[targetIndex];
+
+    // Gunakan toast loading
+    // eslint-disable-next-line no-undef
+    showToast('Memproses urutan baru...', 'warning');
+
+    try {
+        await swapItemOrder(colName, itemA.id, itemA.order, itemB.id, itemB.order);
+        // eslint-disable-next-line no-undef
+        showToast('Urutan berhasil diperbarui!', 'success');
+
+        let tableId, renderFunc, nextBtnId, prevBtnId;
+        if (colName === 'village_profiles') {
+            tableId = 'tabelProfilBody'; renderFunc = renderProfil; nextBtnId = 'nextProfil'; prevBtnId = 'prevProfil';
+        } else if (colName === 'tour_packages') {
+            tableId = 'tabelPaketBody'; renderFunc = renderPaket; nextBtnId = 'nextPaket'; prevBtnId = 'prevPaket';
+        } else if (colName === 'accommodations') {
+            tableId = 'tabelPenginapanBody'; renderFunc = renderPenginapan; nextBtnId = 'nextPenginapan'; prevBtnId = 'prevPenginapan';
+        } else if (colName === 'village_news') {
+            tableId = 'tabelBeritaBody'; renderFunc = renderBerita; nextBtnId = 'nextBerita'; prevBtnId = 'prevBerita';
+        }
+
+        loadData(colName, tableId, renderFunc, nextBtnId, prevBtnId, 'first');
+    } catch (error) {
+        console.error('Error saat memindahkan item:', error);
+        // eslint-disable-next-line no-undef
+        showToast('Gagal mengubah urutan: ' + error.message, 'error');
+    }
+};
 
 // ==========================================
 // 5. DELETE & EDIT (EXPOSED KE WINDOW)

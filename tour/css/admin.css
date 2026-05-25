@@ -18,3 +18,34 @@
 .cont-header .nav-tabs .nav-link.active {
     color: #000000 !important;
 }
+
+/* Styling for Order up/down buttons */
+.btn-order-move {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(74, 140, 63, 0.2) !important;
+    color: rgba(245, 240, 232, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-order-move:hover:not(:disabled) {
+    background: rgba(74, 140, 63, 0.2) !important;
+    border-color: #4a8c3f !important;
+    color: #d4a843 !important;
+    transform: scale(1.05);
+}
+
+.btn-order-move:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(245, 240, 232, 0.3) !important;
+    transform: none !important;
+}

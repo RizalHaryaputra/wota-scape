@@ -20,9 +20,14 @@ export async function fetchAllByDateDesc(colName) {
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             data.id = docSnap.id;
+            if (data.order === undefined) {
+                data.order = data.createdAt ? (data.createdAt.seconds ? data.createdAt.seconds * 1000 : data.createdAt.getTime()) : Date.now();
+            }
             results.push(data);
         });
     }
+    // Sort in-memory to guarantee fallback behavior
+    results.sort((a, b) => b.order - a.order);
     return results;
 }
 
@@ -42,11 +47,11 @@ export async function getPaginatedData(colName, itemsPerPage, direction, lastDoc
     let q;
 
     if (direction === 'next' && lastDocsRef) {
-        q = query(colRef, orderBy('createdAt', 'desc'), startAfter(lastDocsRef), limit(itemsPerPage));
+        q = query(colRef, orderBy('order', 'desc'), startAfter(lastDocsRef), limit(itemsPerPage));
     } else if (direction === 'prev' && firstDocsRef) {
-        q = query(colRef, orderBy('createdAt', 'desc'), endBefore(firstDocsRef), limitToLast(itemsPerPage));
+        q = query(colRef, orderBy('order', 'desc'), endBefore(firstDocsRef), limitToLast(itemsPerPage));
     } else {
-        q = query(colRef, orderBy('createdAt', 'desc'), limit(itemsPerPage));
+        q = query(colRef, orderBy('order', 'desc'), limit(itemsPerPage));
     }
 
     const snapshot = await getDocs(q);
@@ -75,6 +80,7 @@ export async function getPaginatedData(colName, itemsPerPage, direction, lastDoc
 export async function createItem(colName, payload) {
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
+    payload.order = Date.now();
     return await addDoc(collection(db, colName), payload);
 }
 
@@ -91,4 +97,43 @@ export async function updateItem(colName, id, payload) {
  */
 export async function removeItem(colName, id) {
     return await deleteDoc(doc(db, colName, id));
+}
+
+/**
+ * Memastikan semua dokumen di koleksi yang ditentukan memiliki field 'order'.
+ * Migrasi berjalan otomatis saat login berhasil.
+ */
+export async function runOrderMigration() {
+    const collections = ['village_profiles', 'tour_packages', 'accommodations', 'village_news'];
+    for (const colName of collections) {
+        const colRef = collection(db, colName);
+        const snapshot = await getDocs(colRef);
+        if (!snapshot.empty) {
+            for (const docSnap of snapshot.docs) {
+                const data = docSnap.data();
+                if (data.order === undefined) {
+                    const createdAt = data.createdAt 
+                        ? (data.createdAt.seconds ? data.createdAt.seconds * 1000 : data.createdAt.getTime()) 
+                        : Date.now();
+                    await updateDoc(doc(db, colName, docSnap.id), {
+                        order: createdAt
+                    });
+                    console.log(`Migrated ${colName} document ${docSnap.id} with order ${createdAt}`);
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Menukar order index dari dua item di Firestore
+ */
+export async function swapItemOrder(colName, itemAId, itemAOrder, itemBId, itemBOrder) {
+    let newAOrder = itemBOrder;
+    let newBOrder = itemAOrder;
+    if (newAOrder === newBOrder) {
+        newAOrder += 1;
+    }
+    await updateDoc(doc(db, colName, itemAId), { order: newAOrder, updatedAt: new Date() });
+    await updateDoc(doc(db, colName, itemBId), { order: newBOrder, updatedAt: new Date() });
 }
