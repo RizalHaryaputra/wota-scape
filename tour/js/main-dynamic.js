@@ -26,7 +26,7 @@ async function loadVillageProfiles() {
                 }
                 slidesHTML += `
                 <div class="swiper-slide">
-                    <div class="d-flex flex-column w-100 h-100" style="background:#07120a;">
+                    <div class="d-flex flex-column w-100 h-auto" style="background:#07120a;">
                         <div class="ratio ratio-16x9">
                             <iframe src="${embedLink}" title="${data.judul}" allowfullscreen style="border:none;"></iframe>
                         </div>
@@ -42,9 +42,9 @@ async function loadVillageProfiles() {
         if (!swiperProfilInit) {
             // eslint-disable-next-line no-undef
             new Swiper(".mySwiperProfil", {
-                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0,
-                navigation: { nextEl: ".mySwiperProfil .swiper-button-next", prevEl: ".mySwiperProfil .swiper-button-prev" },
-                pagination: { el: ".mySwiperProfil .swiper-pagination", clickable: true },
+                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0, autoHeight: true,
+                navigation: { nextEl: "#modalProfil .swiper-next-profil", prevEl: "#modalProfil .swiper-prev-profil" },
+                pagination: { el: "#modalProfil .swiper-pagination-profil", clickable: true },
             });
             swiperProfilInit = true;
         }
@@ -97,9 +97,9 @@ async function loadTourPackages() {
         if (!swiperPaketInit) {
             // eslint-disable-next-line no-undef
             new Swiper(".mySwiperPaket", {
-                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0, loop: false,
-                navigation: { nextEl: ".mySwiperPaket .swiper-button-next", prevEl: ".mySwiperPaket .swiper-button-prev" },
-                pagination: { el: ".mySwiperPaket .swiper-pagination", clickable: true },
+                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0, loop: false, autoHeight: true,
+                navigation: { nextEl: "#modalPaket .swiper-next-paket", prevEl: "#modalPaket .swiper-prev-paket" },
+                pagination: { el: "#modalPaket .swiper-pagination-paket", clickable: true },
             });
             swiperPaketInit = true;
         }
@@ -152,9 +152,9 @@ async function loadAccommodations() {
         if (!swiperPenginapanInit) {
             // eslint-disable-next-line no-undef
             new Swiper(".mySwiperPenginapan", {
-                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0, loop: false,
-                navigation: { nextEl: ".mySwiperPenginapan .swiper-button-next", prevEl: ".mySwiperPenginapan .swiper-button-prev" },
-                pagination: { el: ".mySwiperPenginapan .swiper-pagination", clickable: true },
+                observer: true, observeParents: true, slidesPerView: 1, spaceBetween: 0, loop: false, autoHeight: true,
+                navigation: { nextEl: "#modalPenginapan .swiper-next-penginapan", prevEl: "#modalPenginapan .swiper-prev-penginapan" },
+                pagination: { el: "#modalPenginapan .swiper-pagination-penginapan", clickable: true },
             });
             swiperPenginapanInit = true;
         }

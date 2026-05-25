@@ -402,7 +402,7 @@
     line-height: 1.75;
 }
 
-/* ===== 13. SWIPER THEME OVERRIDE ===== */
+/* ===== 13. SWIPER THEME OVERRIDE & CUSTOM CONTROLS ===== */
 .swiper-button-next,
 .swiper-button-prev {
     color: #4a8c3f !important;
@@ -410,6 +410,57 @@
 
 .swiper-pagination-bullet-active {
     background: #4a8c3f !important;
+}
+
+/* Custom Outside Swiper Controls */
+.swiper-pagination-custom {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: static !important;
+    width: auto !important;
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet {
+    background: rgba(245, 240, 232, 0.3) !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    width: 8px;
+    height: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet-active {
+    background: #4a8c3f !important;
+    width: 22px !important;
+    border-radius: 4px !important;
+}
+
+/* Hover effects for custom control arrows */
+.swiper-prev-profil, .swiper-next-profil,
+.swiper-prev-paket, .swiper-next-paket,
+.swiper-prev-penginapan, .swiper-next-penginapan {
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(74, 140, 63, 0.2) !important;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.swiper-prev-profil:hover, .swiper-next-profil:hover,
+.swiper-prev-paket:hover, .swiper-next-paket:hover,
+.swiper-prev-penginapan:hover, .swiper-next-penginapan:hover {
+    background: rgba(74, 140, 63, 0.2) !important;
+    border-color: #4a8c3f !important;
+    color: #d4a843 !important;
+    transform: scale(1.08);
 }
 
 /* ===== 14. HTML HOTSPOT LAYER ===== */
