@@ -307,6 +307,8 @@
 
 /* ===== 10. MODALS ===== */
 .wota-modal {
+    background-color: #07120a !important;
+    color: #f5f0e8 !important;
     border: 1px solid rgba(74, 140, 63, 0.2);
     border-radius: 18px !important;
     overflow: hidden;

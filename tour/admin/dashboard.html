@@ -4,27 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin — KAVVIAR</title>
+    <title>Dashboard Admin — WotaScape</title>
+    <meta name="description" content="Panel Admin WotaScape untuk mengelola konten desa Wota Wati">
 
     <link rel="icon" href="/public/images/wota-scape-logo.png" type="image/png">
 
-    <!-- ===== ICONS ===== -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- ===== TINYMCE (Rich Text Editor untuk Berita) ===== -->
+    <!-- TinyMCE -->
     <script src="https://cdn.tiny.cloud/1/34g20fzax8dqgasgocu73owvzx09n1udj1ig3iie8zx8g8gu/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>
 
-    <!-- ===== TAILWIND CSS ===== -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        saddlebrown: '#8B4513',
-                        darkbrown: '#6f370f',
-                        gold: '#FFD700',
+                        forest: '#2d5a27',
+                        leaf: '#4a8c3f',
+                        darkleaf: '#1a3320',
+                        jade: '#3d7a5e',
+                        amber: '#d4a843',
+                        cream: '#f5f0e8',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Playfair Display', 'serif'],
                     }
                 }
             }
@@ -32,440 +47,791 @@
     </script>
 
     <style>
-        /* Scrollbar tipis agar dashboard terasa bersih */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #060e06;
+            color: #f5f0e8;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #0d1f10;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #8B4513;
+            background: #4a8c3f;
             border-radius: 99px;
         }
 
-        /* Pastikan tabel header tidak berebut gaya dengan Tailwind reset */
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4a843;
         }
 
-        /* Thumbnail gambar di tabel */
+        /* ===== NAVBAR ===== */
+        .admin-navbar {
+            background: linear-gradient(135deg, #0d1f10 0%, #1a3320 50%, #2d5a27 100%);
+            border-bottom: 1px solid rgba(74, 140, 63, 0.25);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* ===== TAB NAV ===== */
+        .tab-nav-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(74, 140, 63, 0.2);
+        }
+
+        .tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: rgba(245, 240, 232, 0.45);
+            border: none;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: rgba(245, 240, 232, 0.8);
+            background: rgba(74, 140, 63, 0.06);
+        }
+
+        .tab-active {
+            color: #a8d5a2 !important;
+            border-bottom-color: #4a8c3f !important;
+            background: rgba(74, 140, 63, 0.08) !important;
+        }
+
+        .tab-inactive {
+            color: rgba(245, 240, 232, 0.45);
+            border-bottom-color: transparent;
+        }
+
+        /* ===== CARDS ===== */
+        .admin-card {
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(74, 140, 63, 0.18);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-card-inner {
+            background: rgba(74, 140, 63, 0.06);
+            border: 1px solid rgba(74, 140, 63, 0.15);
+            border-radius: 12px;
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .admin-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: rgba(168, 213, 162, 0.8);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .admin-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(74, 140, 63, 0.25);
+            color: #f5f0e8;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .admin-input::placeholder {
+            color: rgba(245, 240, 232, 0.25);
+        }
+
+        .admin-input:focus {
+            border-color: #4a8c3f;
+            box-shadow: 0 0 0 3px rgba(74, 140, 63, 0.15);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        input[type="file"].admin-input {
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        input[type="file"].admin-input::file-selector-button {
+            background: rgba(74, 140, 63, 0.25);
+            border: none;
+            color: #a8d5a2;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background 0.2s;
+        }
+
+        input[type="file"].admin-input::file-selector-button:hover {
+            background: rgba(74, 140, 63, 0.4);
+        }
+
+        textarea.admin-input {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ===== SECTION TITLES ===== */
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f5f0e8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .title-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(74, 140, 63, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6ab85e;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #2d5a27, #4a8c3f);
+            color: #fff;
+            font-size: 0.83rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(74, 140, 63, 0.25);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(74, 140, 63, 0.35);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-cancel {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.07);
+            color: rgba(245, 240, 232, 0.65);
+            font-size: 0.83rem;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #f5f0e8;
+        }
+
+        /* ===== TABLE ===== */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table thead tr {
+            background: rgba(74, 140, 63, 0.1);
+        }
+
+        .admin-table thead th {
+            padding: 12px 16px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(168, 213, 162, 0.7);
+            text-align: left;
+        }
+
+        .admin-table tbody tr {
+            border-bottom: 1px solid rgba(74, 140, 63, 0.1);
+            transition: background 0.15s;
+        }
+
+        .admin-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .admin-table tbody tr:hover {
+            background: rgba(74, 140, 63, 0.06);
+        }
+
+        .admin-table td {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: rgba(245, 240, 232, 0.85);
+            vertical-align: middle;
+        }
+
+        /* ===== THUMBNAIL ===== */
         .img-thumb {
             width: 48px;
             height: 48px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(74, 140, 63, 0.2);
+        }
+
+        /* ===== PAGINATION ===== */
+        .btn-page {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: rgba(245, 240, 232, 0.55);
+            border: 1px solid rgba(74, 140, 63, 0.25);
+            padding: 7px 16px;
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-page:hover:not(:disabled) {
+            background: rgba(74, 140, 63, 0.15);
+            color: #a8d5a2;
+            border-color: rgba(74, 140, 63, 0.4);
+        }
+
+        .btn-page:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ===== DIVIDER ===== */
+        .admin-divider {
+            border-color: rgba(74, 140, 63, 0.15);
+        }
+
+        /* ===== TOAST ===== */
+        .toast-success {
+            background: linear-gradient(135deg, #1a5c22, #2d8c35);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #7f1d1d, #c0392b);
+        }
+
+        .toast-warning {
+            background: linear-gradient(135deg, #78350f, #d97706);
+        }
+
+        /* ===== STAT CARDS ===== */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(74, 140, 63, 0.18);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .stat-card:hover {
+            background: rgba(74, 140, 63, 0.07);
+            border-color: rgba(74, 140, 63, 0.35);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* ===== FORM CARD HEADER ===== */
+        .form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(74, 140, 63, 0.15);
+        }
+
+        /* Responsive padding for main content */
+        @media (max-width: 640px) {
+            .tab-btn {
+                padding: 12px 14px;
+                font-size: 0.75rem;
+            }
+
+            .tab-btn span {
+                display: none;
+            }
         }
     </style>
 </head>
 
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body>
 
     <!-- ============================================================ -->
-    <!-- NAVBAR / HEADER ADMIN                                        -->
+    <!-- NAVBAR                                                        -->
     <!-- ============================================================ -->
-    <header class="sticky top-0 z-50 bg-saddlebrown shadow-lg">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between" aria-label="Navigasi Admin">
-
+    <header class="admin-navbar">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <!-- Brand -->
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-amber-400/20 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-mask text-amber-300 text-sm"></i>
+                <img src="../images/wota-scape-logo.png" alt="WotaScape Logo"
+                    style="width: 38px; height: 38px; object-fit: contain; border-radius: 10px; filter: drop-shadow(0 2px 6px rgba(74,140,63,0.4));">
+                <div>
+                    <div class="text-white font-bold tracking-[0.15em] text-sm leading-none">WOTASCAPE</div>
+                    <div class="text-xs mt-0.5 font-medium"
+                        style="color: rgba(168,213,162,0.6); letter-spacing: 0.08em;">Admin Panel</div>
                 </div>
-                <span class="text-white font-bold tracking-widest text-sm">KAVVIAR</span>
-                <span class="hidden sm:inline text-amber-300/60 text-xs font-medium">Admin Panel</span>
             </div>
 
-            <!-- Logout -->
-            <button id="btnLogout"
-                class="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200">
-                <i class="fa-solid fa-right-from-bracket text-sm"></i>
-                <span class="hidden sm:inline">Keluar</span>
-            </button>
+            <!-- Right: User info + logout -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg"
+                    style="background: rgba(255,255,255,0.05);">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center"
+                        style="background: rgba(74,140,63,0.3);">
+                        <i class="fa-solid fa-user text-xs" style="color: #a8d5a2;"></i>
+                    </div>
+                    <span class="text-xs font-medium" style="color: rgba(245,240,232,0.7);">Administrator</span>
+                </div>
+                <button id="btnLogout"
+                    class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200"
+                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(245,240,232,0.8);"
+                    onmouseover="this.style.background='rgba(239,68,68,0.15)'; this.style.borderColor='rgba(239,68,68,0.3)'; this.style.color='#fca5a5';"
+                    onmouseout="this.style.background='rgba(255,255,255,0.07)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.color='rgba(245,240,232,0.8)';">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                    <span class="hidden sm:inline">Keluar</span>
+                </button>
+            </div>
         </nav>
     </header>
 
     <!-- ============================================================ -->
-    <!-- MAIN CONTENT                                                 -->
+    <!-- MAIN CONTENT                                                  -->
     <!-- ============================================================ -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
 
-        <!-- ===== TOAST NOTIFICATION (global feedback) ===== -->
+        <!-- ===== TOAST ===== -->
         <div id="toastNotif"
-            class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-sm font-medium text-white transition-all duration-300"
-            role="alert" aria-live="polite">
+            class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl text-sm font-medium text-white transition-all duration-300"
+            role="alert" aria-live="polite"
+            style="border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
             <i id="toastIcon" class="text-base"></i>
             <span id="toastText"></span>
         </div>
 
+        <!-- ===== PAGE HEADER ===== -->
+        <div class="mb-6">
+            <h1 class="text-xl font-bold" style="font-family: 'Playfair Display', serif; color: #f5f0e8;">
+                Manajemen Konten Desa
+            </h1>
+            <p class="text-sm mt-1" style="color: rgba(245,240,232,0.45);">
+                Kelola profil, paket wisata, penginapan, dan berita Desa Wota Wati
+            </p>
+        </div>
+
         <!-- ===== TAB NAVIGATION ===== -->
-        <div class="mb-6 border-b border-slate-200">
-            <nav class="flex gap-1 -mb-px overflow-x-auto" id="adminTabs" role="tablist" aria-label="Manajemen konten">
-                <button role="tab" aria-selected="true" aria-controls="tab-produk" data-tab="produk"
-                    class="tab-btn tab-active flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-store"></i> Produk
+        <div class="tab-nav-wrapper rounded-t-2xl overflow-hidden mb-0">
+            <nav class="flex overflow-x-auto" id="adminTabs" role="tablist" aria-label="Manajemen konten">
+                <button role="tab" aria-selected="true" aria-controls="tab-profil" data-tab="profil"
+                    class="tab-btn tab-active">
+                    <i class="fa-brands fa-youtube text-red-400"></i>
+                    <span>Profil Desa</span>
+                </button>
+                <button role="tab" aria-selected="false" aria-controls="tab-paket" data-tab="paket"
+                    class="tab-btn tab-inactive">
+                    <i class="fa-solid fa-map-location-dot" style="color:#d4a843;"></i>
+                    <span>Paket Wisata</span>
+                </button>
+                <button role="tab" aria-selected="false" aria-controls="tab-penginapan" data-tab="penginapan"
+                    class="tab-btn tab-inactive">
+                    <i class="fa-solid fa-house-chimney" style="color:#7ec8e3;"></i>
+                    <span>Penginapan</span>
                 </button>
                 <button role="tab" aria-selected="false" aria-controls="tab-berita" data-tab="berita"
-                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
-                    <i class="fa-regular fa-newspaper"></i> Berita
-                </button>
-                <button role="tab" aria-selected="false" aria-controls="tab-kesenian" data-tab="kesenian"
-                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-masks-theater"></i> Kesenian
-                </button>
-                <button role="tab" aria-selected="false" aria-controls="tab-kelompok" data-tab="kelompok"
-                    class="tab-btn tab-inactive flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors">
-                    <i class="fa-solid fa-users"></i> Kelompok
+                    class="tab-btn tab-inactive">
+                    <i class="fa-regular fa-newspaper" style="color:#a8d5a2;"></i>
+                    <span>Berita Desa</span>
                 </button>
             </nav>
         </div>
 
-        <style>
-            .tab-active {
-                color: #8B4513;
-                border-color: #8B4513;
-            }
-
-            .tab-inactive {
-                color: #64748b;
-                border-color: transparent;
-            }
-
-            .tab-inactive:hover {
-                color: #475569;
-                background: #f8fafc;
-                border-radius: 0.5rem 0.5rem 0 0;
-            }
-        </style>
-
-        <!-- ===== TAB PANELS ===== -->
-
         <!-- ============================================================ -->
-        <!-- TAB: PRODUK                                                   -->
+        <!-- TAB: PROFIL DESA                                              -->
         <!-- ============================================================ -->
-        <section id="tab-produk" role="tabpanel" aria-labelledby="tab-btn-produk">
-
-            <!-- Form Tambah / Edit Produk -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-                <h2 id="titleProduk" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Produk Baru
-                </h2>
-
-                <form id="formProduk" class="space-y-4">
-                    <input type="hidden" id="idProduk">
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Nama -->
+        <section id="tab-profil" role="tabpanel" class="pt-6">
+            <!-- Form Card -->
+            <div class="admin-card p-6 mb-5">
+                <div class="form-header">
+                    <div class="section-title">
+                        <div class="title-icon"><i class="fa-brands fa-youtube"></i></div>
                         <div>
-                            <label for="prodNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
-                                Produk</label>
-                            <input type="text" id="prodNama" required placeholder="Contoh: Kerajinan Anyaman"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                        </div>
-                        <!-- Harga -->
-                        <div>
-                            <label for="prodHarga" class="block text-sm font-medium text-slate-700 mb-1">Harga
-                                (Rp)</label>
-                            <input type="number" id="prodHarga" required placeholder="Contoh: 50000"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                        </div>
-                        <!-- WhatsApp -->
-                        <div>
-                            <label for="prodWA" class="block text-sm font-medium text-slate-700 mb-1">Nomor
-                                WhatsApp</label>
-                            <input type="text" id="prodWA" required placeholder="Contoh: 6281234567890"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                        </div>
-                        <!-- Foto -->
-                        <div>
-                            <label for="prodFoto" class="block text-sm font-medium text-slate-700 mb-1">Foto
-                                Produk</label>
-                            <input type="file" id="prodFoto" accept="image/*"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 file:text-xs hover:file:bg-slate-200 focus:outline-none transition">
-                            <p class="text-xs text-slate-400 mt-1 hidden" id="infoFotoProd">*Kosongkan jika tidak ingin
-                                ganti foto</p>
+                            <div id="titleProfil">Tambah Profil Video</div>
+                            <div class="text-xs font-normal mt-0.5" style="color: rgba(245,240,232,0.4);">Tambahkan
+                                tautan video profil desa dari YouTube</div>
                         </div>
                     </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit" id="btnSaveProd"
-                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-save"></i> Simpan Produk
+                </div>
+                <form id="formProfil" class="space-y-4">
+                    <input type="hidden" id="idProfil">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="profJudul" class="admin-label">Judul Video</label>
+                            <input type="text" id="profJudul" required placeholder="Contoh: Profil Dusun Wota Wati 2026"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="profLink" class="admin-label">Link YouTube</label>
+                            <input type="text" id="profLink" required placeholder="https://www.youtube.com/watch?v=..."
+                                class="admin-input">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit" id="btnSaveProfil" class="btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Video
                         </button>
-                        <button type="button" id="btnCancelProd"
-                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                        <button type="button" id="btnCancelProfil" class="hidden btn-cancel">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Daftar Produk -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Produk
-                    </h3>
+            <!-- Table Card -->
+            <div class="admin-card overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b admin-divider">
+                    <div class="section-title">
+                        <div class="title-icon"><i class="fa-brands fa-youtube"></i></div>
+                        <span>Daftar Profil Video</span>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-3 text-left">Foto</th>
-                                <th class="px-4 py-3 text-left">Nama Produk</th>
-                                <th class="px-4 py-3 text-left">Harga</th>
-                                <th class="px-4 py-3 text-left">WhatsApp</th>
-                                <th class="px-4 py-3 text-left">Aksi</th>
+                                <th>Judul Video</th>
+                                <th>Link YouTube</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelProdukBody" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="tabelProfilBody"></tbody>
                     </table>
                 </div>
-                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
-                    <button id="prevProduk" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
-                    </button>
-                    <button id="nextProduk" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
+                <div class="px-6 py-4 border-t admin-divider flex justify-between items-center">
+                    <button id="prevProfil" disabled class="btn-page"><i class="fa-solid fa-chevron-left text-xs"></i>
+                        Sebelumnya</button>
+                    <button id="nextProfil" disabled class="btn-page">Berikutnya <i
+                            class="fa-solid fa-chevron-right text-xs"></i></button>
                 </div>
             </div>
         </section>
 
         <!-- ============================================================ -->
-        <!-- TAB: BERITA                                                   -->
+        <!-- TAB: PAKET WISATA                                             -->
         <!-- ============================================================ -->
-        <section id="tab-berita" role="tabpanel" aria-labelledby="tab-btn-berita" class="hidden">
+        <section id="tab-paket" role="tabpanel" class="pt-6 hidden">
+            <div class="admin-card p-6 mb-5">
+                <div class="form-header">
+                    <div class="section-title">
+                        <div class="title-icon" style="background:rgba(212,168,67,0.15); color:#d4a843;"><i
+                                class="fa-solid fa-map-location-dot"></i></div>
+                        <div>
+                            <div id="titlePaket">Tambah Paket Wisata</div>
+                            <div class="text-xs font-normal mt-0.5" style="color: rgba(245,240,232,0.4);">Tambahkan
+                                paket perjalanan wisata yang tersedia</div>
+                        </div>
+                    </div>
+                </div>
+                <form id="formPaket" class="space-y-4">
+                    <input type="hidden" id="idPaket">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="pktNama" class="admin-label">Nama Paket</label>
+                            <input type="text" id="pktNama" required placeholder="Contoh: Paket Jelajah Alam"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="pktHarga" class="admin-label">Harga (Rp)</label>
+                            <input type="number" id="pktHarga" required placeholder="Contoh: 150000"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="pktFasilitas" class="admin-label">Fasilitas</label>
+                            <input type="text" id="pktFasilitas" required
+                                placeholder="Makan siang, Guide lokal, Tiket wisata" class="admin-input">
+                        </div>
+                        <div>
+                            <label for="pktFoto" class="admin-label">Foto Paket</label>
+                            <input type="file" id="pktFoto" accept="image/*" class="admin-input">
+                            <p class="text-xs mt-1.5 hidden" style="color:rgba(245,240,232,0.35);" id="infoFotoPkt">
+                                *Kosongkan jika tidak ingin ganti foto</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="pktDesc" class="admin-label">Deskripsi Singkat</label>
+                        <textarea id="pktDesc" rows="3" required
+                            placeholder="Penjelasan singkat mengenai paket wisata ini..."
+                            class="admin-input"></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit" id="btnSavePaket" class="btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Paket
+                        </button>
+                        <button type="button" id="btnCancelPaket" class="hidden btn-cancel">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-                <h2 id="titleBerita" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Berita Baru
-                </h2>
+            <div class="admin-card overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b admin-divider">
+                    <div class="section-title">
+                        <div class="title-icon" style="background:rgba(212,168,67,0.15); color:#d4a843;"><i
+                                class="fa-solid fa-suitcase-rolling"></i></div>
+                        <span>Daftar Paket Wisata</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nama Paket</th>
+                                <th>Harga</th>
+                                <th>Fasilitas</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelPaketBody"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t admin-divider flex justify-between items-center">
+                    <button id="prevPaket" disabled class="btn-page"><i class="fa-solid fa-chevron-left text-xs"></i>
+                        Sebelumnya</button>
+                    <button id="nextPaket" disabled class="btn-page">Berikutnya <i
+                            class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+            </div>
+        </section>
 
+        <!-- ============================================================ -->
+        <!-- TAB: PENGINAPAN                                               -->
+        <!-- ============================================================ -->
+        <section id="tab-penginapan" role="tabpanel" class="pt-6 hidden">
+            <div class="admin-card p-6 mb-5">
+                <div class="form-header">
+                    <div class="section-title">
+                        <div class="title-icon" style="background:rgba(126,200,227,0.12); color:#7ec8e3;"><i
+                                class="fa-solid fa-house-chimney"></i></div>
+                        <div>
+                            <div id="titlePenginapan">Tambah Penginapan</div>
+                            <div class="text-xs font-normal mt-0.5" style="color: rgba(245,240,232,0.4);">Tambahkan data
+                                homestay atau penginapan yang tersedia</div>
+                        </div>
+                    </div>
+                </div>
+                <form id="formPenginapan" class="space-y-4">
+                    <input type="hidden" id="idPenginapan">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="inapNama" class="admin-label">Nama Penginapan</label>
+                            <input type="text" id="inapNama" required placeholder="Contoh: Homestay Bu Marni"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="inapHarga" class="admin-label">Harga per Malam (Rp)</label>
+                            <input type="number" id="inapHarga" required placeholder="Contoh: 200000"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="inapPemilik" class="admin-label">Nama Pemilik</label>
+                            <input type="text" id="inapPemilik" required placeholder="Contoh: Ibu Marni"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="inapWA" class="admin-label">Nomor WhatsApp</label>
+                            <input type="text" id="inapWA" required placeholder="Contoh: 6281234567890"
+                                class="admin-input">
+                        </div>
+                        <div>
+                            <label for="inapFoto" class="admin-label">Foto Penginapan</label>
+                            <input type="file" id="inapFoto" accept="image/*" class="admin-input">
+                            <p class="text-xs mt-1.5 hidden" style="color:rgba(245,240,232,0.35);" id="infoFotoInap">
+                                *Kosongkan jika tidak ingin ganti foto</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit" id="btnSavePenginapan" class="btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Penginapan
+                        </button>
+                        <button type="button" id="btnCancelPenginapan" class="hidden btn-cancel">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-card overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b admin-divider">
+                    <div class="section-title">
+                        <div class="title-icon" style="background:rgba(126,200,227,0.12); color:#7ec8e3;"><i
+                                class="fa-solid fa-bed"></i></div>
+                        <span>Daftar Penginapan</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Penginapan</th>
+                                <th>Pemilik & Kontak</th>
+                                <th>Harga / Malam</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelPenginapanBody"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t admin-divider flex justify-between items-center">
+                    <button id="prevPenginapan" disabled class="btn-page"><i
+                            class="fa-solid fa-chevron-left text-xs"></i> Sebelumnya</button>
+                    <button id="nextPenginapan" disabled class="btn-page">Berikutnya <i
+                            class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB: BERITA DESA                                              -->
+        <!-- ============================================================ -->
+        <section id="tab-berita" role="tabpanel" class="pt-6 hidden">
+            <div class="admin-card p-6 mb-5">
+                <div class="form-header">
+                    <div class="section-title">
+                        <div class="title-icon"><i class="fa-regular fa-newspaper"></i></div>
+                        <div>
+                            <div id="titleBerita">Tambah Berita Desa</div>
+                            <div class="text-xs font-normal mt-0.5" style="color: rgba(245,240,232,0.4);">Tulis dan
+                                publikasikan berita atau pengumuman desa</div>
+                        </div>
+                    </div>
+                </div>
                 <form id="formBerita" class="space-y-4">
                     <input type="hidden" id="idBerita">
-
-                    <!-- Judul -->
                     <div>
-                        <label for="newsJudul" class="block text-sm font-medium text-slate-700 mb-1">Judul
-                            Berita</label>
-                        <input type="text" id="newsJudul" required placeholder="Contoh: Berita Seni di Krebet"
-                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
+                        <label for="newsJudul" class="admin-label">Judul Berita</label>
+                        <input type="text" id="newsJudul" required placeholder="Contoh: Kerja Bakti Desa Wota Wati"
+                            class="admin-input">
                     </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Penulis -->
                         <div>
-                            <label for="newsPenulis"
-                                class="block text-sm font-medium text-slate-700 mb-1">Penulis</label>
-                            <input type="text" id="newsPenulis" required placeholder="Contoh: Nama Penulis"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
+                            <label for="newsPenulis" class="admin-label">Penulis</label>
+                            <input type="text" id="newsPenulis" required placeholder="Contoh: Admin Desa"
+                                class="admin-input">
                         </div>
-                        <!-- Foto -->
                         <div>
-                            <label for="newsFoto" class="block text-sm font-medium text-slate-700 mb-1">Foto
-                                Utama</label>
-                            <input type="file" id="newsFoto" accept="image/*"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 file:text-xs hover:file:bg-slate-200 focus:outline-none transition">
-                            <p class="text-xs text-slate-400 mt-1 hidden" id="infoFotoNews">*Kosongkan jika tidak ingin
-                                ganti foto</p>
+                            <label for="newsFoto" class="admin-label">Foto Utama</label>
+                            <input type="file" id="newsFoto" accept="image/*" class="admin-input">
+                            <p class="text-xs mt-1.5 hidden" style="color:rgba(245,240,232,0.35);" id="infoFotoNews">
+                                *Kosongkan jika tidak ingin ganti foto</p>
                         </div>
                     </div>
-
-                    <!-- Isi Berita (TinyMCE) -->
                     <div>
-                        <label for="newsIsi" class="block text-sm font-medium text-slate-700 mb-1">Isi Berita</label>
-                        <textarea id="newsIsi" rows="4"></textarea>
+                        <label for="newsIsi" class="admin-label">Isi Berita</label>
+                        <textarea id="newsIsi" rows="5"></textarea>
                     </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit" id="btnSaveNews"
-                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-save"></i> Simpan Berita
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit" id="btnSaveNews" class="btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Berita
                         </button>
-                        <button type="button" id="btnCancelNews"
-                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                        <button type="button" id="btnCancelNews" class="hidden btn-cancel">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Arsip Berita
-                    </h3>
+            <div class="admin-card overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b admin-divider">
+                    <div class="section-title">
+                        <div class="title-icon"><i class="fa-solid fa-newspaper"></i></div>
+                        <span>Arsip Berita</span>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-3 text-left">Foto</th>
-                                <th class="px-4 py-3 text-left">Judul &amp; Penulis</th>
-                                <th class="px-4 py-3 text-left">Tanggal</th>
-                                <th class="px-4 py-3 text-left">Aksi</th>
+                                <th>Foto</th>
+                                <th>Judul & Penulis</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelBeritaBody" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="tabelBeritaBody"></tbody>
                     </table>
                 </div>
-                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
-                    <button id="prevBerita" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                <div class="px-6 py-4 border-t admin-divider flex justify-between items-center">
+                    <button id="prevBerita" disabled class="btn-page">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Sebelumnya
                     </button>
-                    <button id="nextBerita" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============================================================ -->
-        <!-- TAB: KESENIAN                                                 -->
-        <!-- ============================================================ -->
-        <section id="tab-kesenian" role="tabpanel" aria-labelledby="tab-btn-kesenian" class="hidden">
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-                <h2 id="titleKesenian" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Galeri Kesenian
-                </h2>
-
-                <form id="formKesenian" class="space-y-4">
-                    <input type="hidden" id="idKesenian">
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="artsNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
-                                Kesenian</label>
-                            <input type="text" id="artsNama" required placeholder="Contoh: Tari Tradisional"
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                        </div>
-                        <div>
-                            <label for="artsLink" class="block text-sm font-medium text-slate-700 mb-1">Link Embed
-                                YouTube</label>
-                            <input type="text" id="artsLink" required placeholder="https://www.youtube.com/embed/..."
-                                class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit" id="btnSaveArts"
-                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-save"></i> Simpan Kesenian
-                        </button>
-                        <button type="button" id="btnCancelArts"
-                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
-                            <i class="fa-solid fa-xmark"></i> Batal
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Kesenian
-                    </h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Nama Kesenian</th>
-                                <th class="px-4 py-3 text-left">Link YouTube</th>
-                                <th class="px-4 py-3 text-left">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelKesenianBody" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
-                    <button id="prevKesenian" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
-                    </button>
-                    <button id="nextKesenian" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============================================================ -->
-        <!-- TAB: KELOMPOK SENI                                            -->
-        <!-- ============================================================ -->
-        <section id="tab-kelompok" role="tabpanel" aria-labelledby="tab-btn-kelompok" class="hidden">
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
-                <h2 id="titleKelompok" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-saddlebrown"></i> Tambah Kelompok Seni
-                </h2>
-
-                <form id="formKelompok" class="space-y-4">
-                    <input type="hidden" id="idKelompok">
-
-                    <div>
-                        <label for="groupNama" class="block text-sm font-medium text-slate-700 mb-1">Nama
-                            Kelompok</label>
-                        <input type="text" id="groupNama" required placeholder="Contoh: Kelompok Seni ABC"
-                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition">
-                    </div>
-                    <div>
-                        <label for="groupDesc" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi</label>
-                        <textarea id="groupDesc" rows="3" required
-                            placeholder="Contoh: Kelompok seni yang didirikan oleh..."
-                            class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition resize-none"></textarea>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit" id="btnSaveGroup"
-                            class="inline-flex items-center gap-2 bg-saddlebrown hover:bg-darkbrown text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-save"></i> Simpan Kelompok
-                        </button>
-                        <button type="button" id="btnCancelGroup"
-                            class="hidden inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
-                            <i class="fa-solid fa-xmark"></i> Batal Edit
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-saddlebrown/70"></i> Daftar Kelompok
-                    </h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Nama Kelompok</th>
-                                <th class="px-4 py-3 text-left">Deskripsi</th>
-                                <th class="px-4 py-3 text-left">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelKelompokBody" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-                <div class="px-6 py-4 border-t border-slate-100 flex justify-between">
-                    <button id="prevKelompok" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        <i class="fa-solid fa-chevron-left text-xs"></i> Previous
-                    </button>
-                    <button id="nextKelompok" disabled
-                        class="inline-flex items-center gap-1.5 text-sm text-slate-600 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                    <button id="nextBerita" disabled class="btn-page">
+                        Berikutnya <i class="fa-solid fa-chevron-right text-xs"></i>
                     </button>
                 </div>
             </div>
@@ -474,15 +840,9 @@
     </main>
 
     <!-- ============================================================ -->
-    <!-- SCRIPTS                                                      -->
+    <!-- SCRIPTS                                                       -->
     <!-- ============================================================ -->
-
-    <!-- Tab switching logic (vanilla JS, tidak perlu Bootstrap) -->
     <script>
-            /**
-             * Logika Tab switching untuk Admin Dashboard.
-             * Tidak memerlukan Bootstrap — menggunakan class Tailwind dan ARIA.
-             */
             (function initAdminTabs() {
                 const tabBtns = document.querySelectorAll('.tab-btn');
                 const tabPanels = document.querySelectorAll('[role="tabpanel"]');
@@ -490,16 +850,12 @@
                 tabBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const targetId = btn.dataset.tab;
-
-                        /* Update tab button states */
                         tabBtns.forEach(b => {
                             b.classList.replace('tab-active', 'tab-inactive');
                             b.setAttribute('aria-selected', 'false');
                         });
                         btn.classList.replace('tab-inactive', 'tab-active');
                         btn.setAttribute('aria-selected', 'true');
-
-                        /* Show/hide panels */
                         tabPanels.forEach(panel => {
                             panel.classList.toggle('hidden', panel.id !== `tab-${targetId}`);
                         });
@@ -507,37 +863,31 @@
                 });
             })();
 
-        /**
-         * Tampilkan toast notification.
-         * @param {string} message - Pesan yang ditampilkan
-         * @param {'success'|'error'|'warning'} type - Jenis notifikasi
-         */
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toastNotif');
             const toastIcon = document.getElementById('toastIcon');
             const toastText = document.getElementById('toastText');
 
             const config = {
-                success: { bg: 'bg-green-600', icon: 'fa-solid fa-circle-check' },
-                error: { bg: 'bg-red-600', icon: 'fa-solid fa-circle-xmark' },
-                warning: { bg: 'bg-amber-500', icon: 'fa-solid fa-triangle-exclamation' },
+                success: { cls: 'toast-success', icon: 'fa-solid fa-circle-check' },
+                error: { cls: 'toast-error', icon: 'fa-solid fa-circle-xmark' },
+                warning: { cls: 'toast-warning', icon: 'fa-solid fa-triangle-exclamation' },
             };
+            const { cls, icon } = config[type] || config.success;
 
-            const { bg, icon } = config[type] || config.success;
-
-            toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-sm font-medium text-white transition-all duration-300 ${bg}`;
+            toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl text-sm font-medium text-white transition-all duration-300 ${cls}`;
+            toast.style.border = '1px solid rgba(255,255,255,0.15)';
+            toast.style.backdropFilter = 'blur(10px)';
             toastIcon.className = icon;
             toastText.textContent = message;
 
-            /* Auto-hide setelah 3 detik */
-            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+            setTimeout(() => { toast.classList.add('hidden'); }, 3500);
         }
 
-        /* Expose ke global scope agar admin.js bisa mengakses */
         window.showToast = showToast;
     </script>
 
-    <!-- Admin JS (Firebase CRUD logic — Module, tidak disentuh) -->
+    <!-- Admin JS (Firebase CRUD logic) -->
     <script type="module" src="admin.js"></script>
 
 </body>

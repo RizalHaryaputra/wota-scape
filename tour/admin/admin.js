@@ -9,8 +9,8 @@ const UPLOAD_PRESET = 'kavviar-preset';
 const ITEMS_PER_PAGE = 5;
 
 // State pagination untuk setiap koleksi
-let lastDocs = { products: null, news: null, galleries: null, groups: null };
-let firstDocs = { products: null, news: null, galleries: null, groups: null };
+let lastDocs = { village_profiles: null, tour_packages: null, accommodations: null, village_news: null };
+let firstDocs = { village_profiles: null, tour_packages: null, accommodations: null, village_news: null };
 
 // ==========================================
 // INISIALISASI TINYMCE
@@ -18,16 +18,29 @@ let firstDocs = { products: null, news: null, galleries: null, groups: null };
 // eslint-disable-next-line no-undef
 tinymce.init({
     selector: '#newsIsi',
-    height: 300,
+    height: 320,
     menubar: false,
+    skin: 'oxide-dark',
+    content_css: 'dark',
     plugins: [
         'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
         'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
         'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
     ],
-    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter ' +
-        'alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-    content_style: 'body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; }'
+    toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | removeformat | help',
+    content_style: `
+        body {
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            background-color: #0d1a0f;
+            color: #f0ece4;
+            line-height: 1.7;
+            padding: 8px 12px;
+        }
+        a { color: #6ab85e; }
+        p { margin: 0 0 0.75em 0; }
+    `,
+    body_class: 'wota-editor',
 });
 
 // ==========================================
@@ -38,10 +51,10 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'index.html';
     } else {
         console.log('Login sebagai:', user.email);
-        loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk');
-        loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita');
-        loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian');
-        loadData('groups', 'tabelKelompokBody', renderKelompok, 'nextKelompok', 'prevKelompok');
+        loadData('village_profiles', 'tabelProfilBody', renderProfil, 'nextProfil', 'prevProfil');
+        loadData('tour_packages', 'tabelPaketBody', renderPaket, 'nextPaket', 'prevPaket');
+        loadData('accommodations', 'tabelPenginapanBody', renderPenginapan, 'nextPenginapan', 'prevPenginapan');
+        loadData('village_news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita');
     }
 });
 
@@ -118,7 +131,33 @@ async function loadData(colName, tableId, renderFunc, nextBtnId, prevBtnId, dire
 // ==========================================
 // 4. FUNGSI RENDER BARIS TABEL
 // ==========================================
-function renderProduk(data) {
+function renderProfil(data) {
+    const dataStr = encodeURIComponent(JSON.stringify(data));
+    return `
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3 font-medium text-slate-700">${data.judul}</td>
+        <td class="px-4 py-3">
+            <a href="${data.link}" target="_blank" rel="noopener"
+                class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline">
+                <i class="fa-brands fa-youtube text-red-500"></i> Tonton
+            </a>
+        </td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'profil')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('village_profiles', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
+            </div>
+        </td>
+    </tr>`;
+}
+
+function renderPaket(data) {
     const dataStr = encodeURIComponent(JSON.stringify(data));
     return `
     <tr class="hover:bg-slate-50 transition-colors">
@@ -128,14 +167,43 @@ function renderProduk(data) {
         </td>
         <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
         <td class="px-4 py-3 text-slate-600">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-slate-600 text-xs">${data.wa}</td>
+        <td class="px-4 py-3 text-slate-600 text-xs">${data.fasilitas}</td>
         <td class="px-4 py-3">
             <div class="flex gap-2">
-                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'produk')"
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'paket')"
                     class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                     <i class="fa-solid fa-pen text-[10px]"></i> Edit
                 </button>
-                <button onclick="deleteRowItem('products', '${data.id}')"
+                <button onclick="deleteRowItem('tour_packages', '${data.id}')"
+                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
+            </div>
+        </td>
+    </tr>`;
+}
+
+function renderPenginapan(data) {
+    const dataStr = encodeURIComponent(JSON.stringify(data));
+    return `
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td class="px-4 py-3">
+            <img src="${data.foto || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'}"
+                class="img-thumb" alt="${data.nama}">
+        </td>
+        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
+        <td class="px-4 py-3">
+            <p class="text-slate-700 text-sm">${data.pemilik}</p>
+            <p class="text-xs text-slate-500"><i class="fa-brands fa-whatsapp text-green-500 mr-1"></i>${data.wa}</p>
+        </td>
+        <td class="px-4 py-3 text-slate-600">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3">
+            <div class="flex gap-2">
+                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'penginapan')"
+                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteRowItem('accommodations', '${data.id}')"
                     class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                     <i class="fa-solid fa-trash text-[10px]"></i> Hapus
                 </button>
@@ -163,55 +231,7 @@ function renderBerita(data) {
                     class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                     <i class="fa-solid fa-pen text-[10px]"></i> Edit
                 </button>
-                <button onclick="deleteRowItem('news', '${data.id}')"
-                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
-                </button>
-            </div>
-        </td>
-    </tr>`;
-}
-
-function renderKesenian(data) {
-    const dataStr = encodeURIComponent(JSON.stringify(data));
-    return `
-    <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
-        <td class="px-4 py-3">
-            <a href="${data.link}" target="_blank" rel="noopener"
-                class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline">
-                <i class="fa-brands fa-youtube text-red-500"></i> Tonton
-            </a>
-        </td>
-        <td class="px-4 py-3">
-            <div class="flex gap-2">
-                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'kesenian')"
-                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
-                </button>
-                <button onclick="deleteRowItem('galleries', '${data.id}')"
-                    class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                    <i class="fa-solid fa-trash text-[10px]"></i> Hapus
-                </button>
-            </div>
-        </td>
-    </tr>`;
-}
-
-function renderKelompok(data) {
-    const dataStr = encodeURIComponent(JSON.stringify(data));
-    const preview = data.deskripsi.length > 60 ? data.deskripsi.substring(0, 60) + '...' : data.deskripsi;
-    return `
-    <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3 font-medium text-slate-700">${data.nama}</td>
-        <td class="px-4 py-3 text-slate-500 text-sm">${preview}</td>
-        <td class="px-4 py-3">
-            <div class="flex gap-2">
-                <button onclick="prepareEdit('${data.id}', '${dataStr}', 'kelompok')"
-                    class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
-                </button>
-                <button onclick="deleteRowItem('groups', '${data.id}')"
+                <button onclick="deleteRowItem('village_news', '${data.id}')"
                     class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
                     <i class="fa-solid fa-trash text-[10px]"></i> Hapus
                 </button>
@@ -242,16 +262,38 @@ window.deleteRowItem = async (colName, id) => {
 window.prepareEdit = (id, dataStr, type) => {
     const data = JSON.parse(decodeURIComponent(dataStr));
 
-    if (type === 'produk') {
-        document.getElementById('idProduk').value = id;
-        document.getElementById('prodNama').value = data.nama;
-        document.getElementById('prodHarga').value = data.harga;
-        document.getElementById('prodWA').value = data.wa;
-        document.getElementById('infoFotoProd').classList.remove('hidden');
-        document.getElementById('titleProduk').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Produk';
-        document.getElementById('btnSaveProd').innerHTML = '<i class="fa-solid fa-pen"></i> Update Produk';
-        document.getElementById('btnCancelProd').classList.remove('hidden');
-        document.getElementById('formProduk').scrollIntoView({ behavior: 'smooth' });
+    if (type === 'profil') {
+        document.getElementById('idProfil').value = id;
+        document.getElementById('profJudul').value = data.judul;
+        document.getElementById('profLink').value = data.link;
+        document.getElementById('titleProfil').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Profil Video';
+        document.getElementById('btnSaveProfil').innerHTML = '<i class="fa-solid fa-pen"></i> Update Video';
+        document.getElementById('btnCancelProfil').classList.remove('hidden');
+        document.getElementById('formProfil').scrollIntoView({ behavior: 'smooth' });
+
+    } else if (type === 'paket') {
+        document.getElementById('idPaket').value = id;
+        document.getElementById('pktNama').value = data.nama;
+        document.getElementById('pktHarga').value = data.harga;
+        document.getElementById('pktFasilitas').value = data.fasilitas;
+        document.getElementById('pktDesc').value = data.deskripsi;
+        document.getElementById('infoFotoPkt').classList.remove('hidden');
+        document.getElementById('titlePaket').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Paket Wisata';
+        document.getElementById('btnSavePaket').innerHTML = '<i class="fa-solid fa-pen"></i> Update Paket';
+        document.getElementById('btnCancelPaket').classList.remove('hidden');
+        document.getElementById('formPaket').scrollIntoView({ behavior: 'smooth' });
+
+    } else if (type === 'penginapan') {
+        document.getElementById('idPenginapan').value = id;
+        document.getElementById('inapNama').value = data.nama;
+        document.getElementById('inapHarga').value = data.harga;
+        document.getElementById('inapPemilik').value = data.pemilik;
+        document.getElementById('inapWA').value = data.wa;
+        document.getElementById('infoFotoInap').classList.remove('hidden');
+        document.getElementById('titlePenginapan').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Penginapan';
+        document.getElementById('btnSavePenginapan').innerHTML = '<i class="fa-solid fa-pen"></i> Update Penginapan';
+        document.getElementById('btnCancelPenginapan')?.classList.remove('hidden');
+        document.getElementById('formPenginapan').scrollIntoView({ behavior: 'smooth' });
 
     } else if (type === 'berita') {
         document.getElementById('idBerita').value = id;
@@ -260,34 +302,16 @@ window.prepareEdit = (id, dataStr, type) => {
         document.getElementById('infoFotoNews').classList.remove('hidden');
         // eslint-disable-next-line no-undef
         tinymce.get('newsIsi').setContent(data.isi);
-        document.getElementById('titleBerita').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Berita';
+        document.getElementById('titleBerita').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Berita Desa';
         document.getElementById('btnSaveNews').innerHTML = '<i class="fa-solid fa-pen"></i> Update Berita';
         document.getElementById('btnCancelNews').classList.remove('hidden');
         document.getElementById('formBerita').scrollIntoView({ behavior: 'smooth' });
-
-    } else if (type === 'kesenian') {
-        document.getElementById('idKesenian').value = id;
-        document.getElementById('artsNama').value = data.nama;
-        document.getElementById('artsLink').value = data.link;
-        document.getElementById('titleKesenian').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Kesenian';
-        document.getElementById('btnSaveArts').innerHTML = '<i class="fa-solid fa-pen"></i> Update Kesenian';
-        document.getElementById('btnCancelArts')?.classList.remove('hidden');
-        document.getElementById('formKesenian').scrollIntoView({ behavior: 'smooth' });
-
-    } else if (type === 'kelompok') {
-        document.getElementById('idKelompok').value = id;
-        document.getElementById('groupNama').value = data.nama;
-        document.getElementById('groupDesc').value = data.deskripsi;
-        document.getElementById('titleKelompok').innerHTML = '<i class="fa-solid fa-pen text-amber-600"></i> Edit Kelompok';
-        document.getElementById('btnSaveGroup').innerHTML = '<i class="fa-solid fa-pen"></i> Update Kelompok';
-        document.getElementById('btnCancelGroup')?.classList.remove('hidden');
-        document.getElementById('formKelompok').scrollIntoView({ behavior: 'smooth' });
     }
 };
 
 function resetForm() { location.reload(); }
 
-['btnCancelProd', 'btnCancelNews', 'btnCancelArts', 'btnCancelGroup'].forEach(btnId => {
+['btnCancelProfil', 'btnCancelPaket', 'btnCancelPenginapan', 'btnCancelNews'].forEach(btnId => {
     document.getElementById(btnId)?.addEventListener('click', resetForm);
 });
 
@@ -302,40 +326,110 @@ function setButtonLoading(btn, isLoading, defaultHTML) {
         : defaultHTML;
 }
 
-// --- PRODUK ---
-document.getElementById('formProduk').addEventListener('submit', async (e) => {
+// --- PROFIL DESA ---
+document.getElementById('formProfil').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('idProduk').value;
-    const btn = document.getElementById('btnSaveProd');
-    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Produk');
+    const id = document.getElementById('idProfil').value;
+    const btn = document.getElementById('btnSaveProfil');
+    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Video');
 
     try {
-        const fileInput = document.getElementById('prodFoto').files[0];
-        const fotoUrl = fileInput ? await uploadToCloudinary(fileInput) : null;
-
         const payload = {
-            nama: document.getElementById('prodNama').value,
-            harga: document.getElementById('prodHarga').value,
-            wa: document.getElementById('prodWA').value,
+            judul: document.getElementById('profJudul').value,
+            link: document.getElementById('profLink').value,
         };
-        if (fotoUrl) payload.foto = fotoUrl;
 
         if (id) {
-            await updateItem('products', id, payload);
+            await updateItem('village_profiles', id, payload);
             // eslint-disable-next-line no-undef
-            showToast('Produk berhasil diupdate!', 'success');
+            showToast('Profil video berhasil diupdate!', 'success');
         } else {
-            if (!fileInput) throw new Error('Foto wajib diupload untuk produk baru!');
-            await createItem('products', payload);
+            await createItem('village_profiles', payload);
             // eslint-disable-next-line no-undef
-            showToast('Produk baru berhasil disimpan!', 'success');
+            showToast('Profil video baru berhasil disimpan!', 'success');
         }
         setTimeout(() => location.reload(), 1500);
     } catch (err) {
         console.error(err);
         // eslint-disable-next-line no-undef
         showToast(err.message, 'error');
-        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Produk');
+        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Video');
+    }
+});
+
+// --- PAKET WISATA ---
+document.getElementById('formPaket').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('idPaket').value;
+    const btn = document.getElementById('btnSavePaket');
+    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Paket');
+
+    try {
+        const fileInput = document.getElementById('pktFoto').files[0];
+        const fotoUrl = fileInput ? await uploadToCloudinary(fileInput) : null;
+
+        const payload = {
+            nama: document.getElementById('pktNama').value,
+            harga: document.getElementById('pktHarga').value,
+            fasilitas: document.getElementById('pktFasilitas').value,
+            deskripsi: document.getElementById('pktDesc').value,
+        };
+        if (fotoUrl) payload.foto = fotoUrl;
+
+        if (id) {
+            await updateItem('tour_packages', id, payload);
+            // eslint-disable-next-line no-undef
+            showToast('Paket wisata berhasil diupdate!', 'success');
+        } else {
+            if (!fileInput) throw new Error('Foto wajib diupload untuk paket wisata baru!');
+            await createItem('tour_packages', payload);
+            // eslint-disable-next-line no-undef
+            showToast('Paket wisata baru berhasil disimpan!', 'success');
+        }
+        setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+        console.error(err);
+        // eslint-disable-next-line no-undef
+        showToast(err.message, 'error');
+        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Paket');
+    }
+});
+
+// --- PENGINAPAN ---
+document.getElementById('formPenginapan').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('idPenginapan').value;
+    const btn = document.getElementById('btnSavePenginapan');
+    setButtonLoading(btn, true, '<i class="fa-solid fa-save"></i> Simpan Penginapan');
+
+    try {
+        const fileInput = document.getElementById('inapFoto').files[0];
+        const fotoUrl = fileInput ? await uploadToCloudinary(fileInput) : null;
+
+        const payload = {
+            nama: document.getElementById('inapNama').value,
+            harga: document.getElementById('inapHarga').value,
+            pemilik: document.getElementById('inapPemilik').value,
+            wa: document.getElementById('inapWA').value,
+        };
+        if (fotoUrl) payload.foto = fotoUrl;
+
+        if (id) {
+            await updateItem('accommodations', id, payload);
+            // eslint-disable-next-line no-undef
+            showToast('Penginapan berhasil diupdate!', 'success');
+        } else {
+            if (!fileInput) throw new Error('Foto wajib diupload untuk penginapan baru!');
+            await createItem('accommodations', payload);
+            // eslint-disable-next-line no-undef
+            showToast('Penginapan baru berhasil disimpan!', 'success');
+        }
+        setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+        console.error(err);
+        // eslint-disable-next-line no-undef
+        showToast(err.message, 'error');
+        setButtonLoading(btn, false, '<i class="fa-solid fa-save"></i> Simpan Penginapan');
     }
 });
 
@@ -368,13 +462,13 @@ document.getElementById('formBerita').addEventListener('submit', async (e) => {
         if (fotoUrl) payload.foto = fotoUrl;
 
         if (id) {
-            await updateItem('news', id, payload);
+            await updateItem('village_news', id, payload);
             // eslint-disable-next-line no-undef
             showToast('Berita berhasil diupdate!', 'success');
         } else {
             if (!fileInput) throw new Error('Foto utama wajib diupload!');
             payload.tanggal = new Date().toLocaleDateString('id-ID');
-            await createItem('news', payload);
+            await createItem('village_news', payload);
             // eslint-disable-next-line no-undef
             showToast('Berita berhasil diterbitkan!', 'success');
         }
@@ -387,52 +481,14 @@ document.getElementById('formBerita').addEventListener('submit', async (e) => {
     }
 });
 
-// --- KESENIAN ---
-document.getElementById('formKesenian').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('idKesenian').value;
-    const payload = {
-        nama: document.getElementById('artsNama').value,
-        link: document.getElementById('artsLink').value,
-    };
-
-    if (id) {
-        await updateItem('galleries', id, payload);
-    } else {
-        await createItem('galleries', payload);
-    }
-    // eslint-disable-next-line no-undef
-    showToast('Data kesenian berhasil disimpan!', 'success');
-    setTimeout(() => location.reload(), 1500);
-});
-
-// --- KELOMPOK ---
-document.getElementById('formKelompok').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('idKelompok').value;
-    const payload = {
-        nama: document.getElementById('groupNama').value,
-        deskripsi: document.getElementById('groupDesc').value,
-    };
-
-    if (id) {
-        await updateItem('groups', id, payload);
-    } else {
-        await createItem('groups', payload);
-    }
-    // eslint-disable-next-line no-undef
-    showToast('Data kelompok berhasil disimpan!', 'success');
-    setTimeout(() => location.reload(), 1500);
-});
-
 // ==========================================
 // 7. PAGINATION BUTTONS
 // ==========================================
-document.getElementById('nextProduk').onclick = () => loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk', 'next');
-document.getElementById('prevProduk').onclick = () => loadData('products', 'tabelProdukBody', renderProduk, 'nextProduk', 'prevProduk', 'prev');
-document.getElementById('nextBerita').onclick = () => loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'next');
-document.getElementById('prevBerita').onclick = () => loadData('news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'prev');
-document.getElementById('nextKesenian').onclick = () => loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian', 'next');
-document.getElementById('prevKesenian').onclick = () => loadData('galleries', 'tabelKesenianBody', renderKesenian, 'nextKesenian', 'prevKesenian', 'prev');
-document.getElementById('nextKelompok').onclick = () => loadData('groups', 'tabelKelompokBody', renderKelompok, 'nextKelompok', 'prevKelompok', 'next');
-document.getElementById('prevKelompok').onclick = () => loadData('groups', 'tabelKelompokBody', renderKelompok, 'nextKelompok', 'prevKelompok', 'prev');
+document.getElementById('nextProfil').onclick = () => loadData('village_profiles', 'tabelProfilBody', renderProfil, 'nextProfil', 'prevProfil', 'next');
+document.getElementById('prevProfil').onclick = () => loadData('village_profiles', 'tabelProfilBody', renderProfil, 'nextProfil', 'prevProfil', 'prev');
+document.getElementById('nextPaket').onclick = () => loadData('tour_packages', 'tabelPaketBody', renderPaket, 'nextPaket', 'prevPaket', 'next');
+document.getElementById('prevPaket').onclick = () => loadData('tour_packages', 'tabelPaketBody', renderPaket, 'nextPaket', 'prevPaket', 'prev');
+document.getElementById('nextPenginapan').onclick = () => loadData('accommodations', 'tabelPenginapanBody', renderPenginapan, 'nextPenginapan', 'prevPenginapan', 'next');
+document.getElementById('prevPenginapan').onclick = () => loadData('accommodations', 'tabelPenginapanBody', renderPenginapan, 'nextPenginapan', 'prevPenginapan', 'prev');
+document.getElementById('nextBerita').onclick = () => loadData('village_news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'next');
+document.getElementById('prevBerita').onclick = () => loadData('village_news', 'tabelBeritaBody', renderBerita, 'nextBerita', 'prevBerita', 'prev');
