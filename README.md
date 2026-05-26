@@ -114,7 +114,7 @@ Sebagai proyek *Single Page Application* yang diprioritaskan untuk pemuatan klie
 ## 📝 Kredit & Atribusi
 
 *   **Destinasi Tour Virtual:** Desa Wota Wati, Pucung, Girisubo, Gunung Kidul, DI Yogyakarta.
-*   **Pengembang Piranti Lunak:** Rizal Haryaputra
+*   **Pengembang Piranti Lunak:** Rizal Haryaputra, Widyasena Aryatama, Yoktan Nathanael, Nabila Putri
 *   **Sumber Aset Konten:** Dokumentasi Resmi Pribadi & Google Street View.
 
 ---
