@@ -69,6 +69,39 @@ WotaScape/
 4.  Klik kanan pada berkas `index.html` (di luaran/root), kemudian klik dan pilih **"Open with Live Server"**.
 5.  *Browser* default Anda akan terbuka dan seketika langsung menjalankan aplikasi di `http://127.0.0.1:5500`.
 
+## 🔑 Konfigurasi Firebase
+
+Proyek ini menggunakan Firebase untuk autentikasi dan database *real-time*. Sebelum menjalankan fitur admin, Anda perlu mengonfigurasi Firebase:
+
+1. Buat proyek baru di [Firebase Console](https://console.firebase.google.com/).
+2. Aktifkan **Firestore Database** dan **Authentication** (Metode Email/Password).
+3. Dapatkan konfigurasi Web SDK Firebase Anda.
+4. Buka file `tour/js/firebase-config.js` dan sesuaikan nilainya dengan konfigurasi Anda:
+
+```javascript
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "API_KEY_ANDA",
+  authDomain: "DOMAIN_ANDA.firebaseapp.com",
+  projectId: "ID_PROYEK_ANDA",
+  storageBucket: "BUCKET_ANDA.appspot.com",
+  messagingSenderId: "SENDER_ID_ANDA",
+  appId: "APP_ID_ANDA"
+};
+
+const app = initializeApp(firebaseConfig);
+export { app };
+```
+
+## 🛡️ Mengakses Admin Dashboard
+
+Untuk mengakses panel admin dan mengelola data spot di dalam virtual tour:
+1. Pastikan aplikasi sudah berjalan (menggunakan Live Server atau Hosting).
+2. Buka halaman admin di: `http://127.0.0.1:5500/tour/admin/index.html` (sesuaikan port jika berbeda).
+3. Login menggunakan akun admin yang telah didaftarkan di Firebase Authentication.
+4. Setelah berhasil login, Anda akan masuk ke `dashboard.html` untuk menambah, mengedit, atau menghapus data *hotspot*.
+
 ## 🌐 Panduan Deployment (Produksi)
 
 Sebagai proyek *Single Page Application* yang diprioritaskan untuk pemuatan klien statik (frontend), proyek ini dapat ditingkatkan kodenya tanpa kerumitan:
@@ -81,7 +114,7 @@ Sebagai proyek *Single Page Application* yang diprioritaskan untuk pemuatan klie
 ## 📝 Kredit & Atribusi
 
 *   **Destinasi Tour Virtual:** Desa Wota Wati, Pucung, Girisubo, Gunung Kidul, DI Yogyakarta.
-*   **Pengembang Piranti Lunak:** Rizal Haryaputra
+*   **Pengembang Piranti Lunak:** Rizal Haryaputra, Widyasena Aryatama, Yoktan Nathanael, Nabila Putri
 *   **Sumber Aset Konten:** Dokumentasi Resmi Pribadi & Google Street View.
 
 ---
